@@ -1,64 +1,75 @@
 const FlashCards = ({ boxes }) => {
-  let boxInReview;
-  let selectedCard;
-  let _boxes = boxes;
+  let currentSession;
+  let selectedCards;
   return {
-    reviewBox(box) {
-      boxInReview = box;
-    },
-    selectCard(card) {
-      selectedCard = card;
+    startSession(sessionNumber) {
+      currentSession = sessionNumber;
+      if (currentSession === 1) {
+        selectedCards = boxes[0];
+      }
     },
     notifyGoodAnswer() {
-      _boxes[boxInReview] = _boxes[boxInReview].filter(card => card !== selectedCard);
-      _boxes[1].push(selectedCard);
+      const answeredCard = selectedCards[0];
+      selectedCards = selectedCards.slice(1, selectedCards.lenght);
+      if (currentSession === 1) {
+        boxes[0].splice(boxes[0].indexOf(answeredCard), 1);
+        boxes[1].push(answeredCard);
+      }
     },
     notifyWrongAnswer() {},
-    getBoxes() {
-      return _boxes;
+    getSelectedCards() {
+      return selectedCards;
+    },
+    getNextCardToAnswer() {
+      return selectedCards[0];
     },
   };
 };
 
-describe.only('given 3 boxes [c1...c5][][] and box1 being reviewed and c1 being the selected card', () => {
-  describe('when a correct answer is given to c1', () => {
-    test('then the 3 boxes should be [c2...c5][c1][]', () => {
+describe('given 3 boxes [c1...c5][][]', () => {
+  describe('when session 1 starts', () => {
+    test('then the selected cards should be [c1...c5] and the next card to answer should be c1', () => {
+      const box1 = ['c1', 'c2', 'c3', 'c4', 'c5'];
+      const box2 = [];
+      const box3 = [];
       const flashCards = FlashCards({
-        boxes: [['c1', 'c2', 'c3', 'c4', 'c5'], [], []],
+        boxes: [box1, box2, box3],
       });
-      flashCards.reviewBox(0);
-      flashCards.selectCard('c1');
-      flashCards.notifyGoodAnswer();
-      expect(flashCards.getBoxes()).toEqual([['c2', 'c3', 'c4', 'c5'], ['c1'], []]);
+      flashCards.startSession(1);
+      expect(flashCards.getSelectedCards()).toEqual(box1);
+      expect(flashCards.getNextCardToAnswer()).toEqual('c1');
     });
   });
-  describe('when a bad answer is given to c1', () => {
-    test('then 3 boxes should remain unchanged', () => {
-      const flashCards = FlashCards({
-        boxes: [['c1', 'c2', 'c3', 'c4', 'c5'], [], []],
+  describe('and given session 1 has started and c1 being the next card to answer', () => {
+    describe('when giving a good answer', () => {
+      test('then the boxes should be [c2...c5][c1][]', () => {
+        const box1 = ['c1', 'c2', 'c3', 'c4', 'c5'];
+        const box2 = [];
+        const box3 = [];
+        const flashCards = FlashCards({
+          boxes: [box1, box2, box3],
+        });
+        flashCards.startSession(1);
+        flashCards.notifyGoodAnswer();
+        expect(box1).toEqual(['c2', 'c3', 'c4', 'c5']);
+        expect(box2).toEqual(['c1']);
+        expect(box3).toEqual([]);
       });
-      flashCards.reviewBox(0);
-      flashCards.selectCard('c1');
-      flashCards.notifyWrongAnswer();
-      expect(flashCards.getBoxes()).toEqual([['c1', 'c2', 'c3', 'c4', 'c5'], [], []]);
     });
-  });
-});
-
-describe('given 3 boxes [c2...c5][c1][] and box2 being reviewed and c1 being the selected card', () => {
-  describe('when a correct answer is given to c1', () => {
-    test('then the 3 boxes should be [c2...c5][][c1]', () => {});
-  });
-  describe('when a bad answer is given to c1', () => {
-    test('then 3 boxes should be [c1...c5][][]', () => {});
-  });
-});
-
-describe('given 3 boxes [c2...c5][][c1] and box3 being reviewed and c1 being the selected card', () => {
-  describe('when a correct answer is given to c1', () => {
-    test('then the 3 boxes should be [c2...c5][][] and c1 being archived', () => {});
-  });
-  describe('when a bad answer is given to c1', () => {
-    test('then 3 boxes should be [c1...c5][][]', () => {});
+    describe('when giving a bad answer', () => {
+      test('then the boxes should remain unchanged', () => {
+        const box1 = ['c1', 'c2', 'c3', 'c4', 'c5'];
+        const box2 = [];
+        const box3 = [];
+        const flashCards = FlashCards({
+          boxes: [box1, box2, box3],
+        });
+        flashCards.startSession(1);
+        flashCards.notifyWrongAnswer();
+        expect(box1).toEqual(['c1', 'c2', 'c3', 'c4', 'c5']);
+        expect(box2).toEqual([]);
+        expect(box3).toEqual([]);
+      });
+    });
   });
 });
