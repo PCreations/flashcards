@@ -1,17 +1,17 @@
-const FlashCards = ({ boxes }) => {
+const FlashCards = ({ boxes, getCardsFromBoxes }) => {
   let currentSession;
   let selectedCards;
   return {
     startSession(sessionNumber) {
       currentSession = sessionNumber;
       if (currentSession === 1 || currentSession === 2 || currentSession === 6) {
-        selectedCards = boxes[0];
+        selectedCards = getCardsFromBoxes(1);
       } else if (currentSession === 3 || currentSession === 5) {
-        selectedCards = boxes[0].concat(boxes[1]);
+        selectedCards = getCardsFromBoxes(1, 2);
       } else if (currentSession === 4) {
-        selectedCards = boxes[0].concat(boxes[2]);
+        selectedCards = getCardsFromBoxes(1, 3);
       } else {
-        selectedCards = boxes[0].concat(boxes[1], boxes[2]);
+        selectedCards = getCardsFromBoxes(1, 2, 3);
       }
     },
     notifyGoodAnswer() {

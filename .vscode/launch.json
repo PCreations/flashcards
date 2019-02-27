@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "flive-orchestrator-test",
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-      "args": ["session7"]
+      "args": ["session1"]
     }
   ]
 }

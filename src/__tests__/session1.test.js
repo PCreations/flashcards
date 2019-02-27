@@ -1,4 +1,4 @@
-const { FlashCards } = require('../flashCards');
+const { TestFlashCards } = require('./testFlashCards');
 
 describe('given 3 boxes [c1,c2,c3][][]', () => {
   describe('when in session1', () => {
@@ -7,8 +7,9 @@ describe('given 3 boxes [c1,c2,c3][][]', () => {
       box1 = ['c1', 'c2', 'c3'];
       box2 = [];
       box3 = [];
-      flashCards = FlashCards({
-        boxes: [box1, box2, box3],
+      const boxes = [box1, box2, box3];
+      flashCards = TestFlashCards({
+        boxes,
       });
       flashCards.startSession(1);
     });
