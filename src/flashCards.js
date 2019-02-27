@@ -31,6 +31,9 @@ const FlashCards = ({ getCardsFromBoxes, removeCardFromBox, addCardInBox }) => {
         selectedCards = await getCardsFromBoxes(1, 2, 3);
       }
     },
+    async addCard(card) {
+      return addCardInBox({ boxNumber: 1, card });
+    },
     notifyGoodAnswer: notifyAnswer({ correct: true, removeCardFromBox, addCardInBox, pickCurrentCard }),
     notifyWrongAnswer: notifyAnswer({ correct: false, removeCardFromBox, addCardInBox, pickCurrentCard }),
     getSelectedCards() {
