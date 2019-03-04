@@ -1,27 +1,27 @@
-const { TestFlashCards } = require('./testFlashCards');
+const { TestFlashCards, c1, c2, c3, c4, c5 } = require('./testFlashCards');
 
 describe('given 3 boxes [c1,c3][c2,c4,c5][]', () => {
   describe('when in session2', () => {
     let flashCards;
     beforeEach(async () => {
-      const box1 = ['c1', 'c3'];
-      const box2 = ['c2', 'c4', 'c5'];
+      const box1 = [c1, c3];
+      const box2 = [c2, c4, c5];
       const box3 = [];
-      flashCards = TestFlashCards({
+      flashCards = await TestFlashCards({
         boxes: [box1, box2, box3],
       });
       await flashCards.startSession(2);
     });
     test('then the selected cards should be c1,c3', () => {
-      expect(flashCards.getSelectedCards()).toEqual(['c1', 'c3']);
+      expect(flashCards.getSelectedCards()).toEqual([c1, c3]);
     });
     describe('and c1 and is correctly answered but not c3', () => {
       test('then the boxes should be [c3][c2,c4,c5,c1][]', async () => {
         await flashCards.notifyGoodAnswer();
         await flashCards.notifyWrongAnswer();
         const [box1, box2, box3] = await flashCards.getBoxes();
-        expect(box1).toEqual(['c3']);
-        expect(box2).toEqual(['c2', 'c4', 'c5', 'c1']);
+        expect(box1).toEqual([c3]);
+        expect(box2).toEqual([c2, c4, c5, c1]);
         expect(box3).toEqual([]);
       });
     });

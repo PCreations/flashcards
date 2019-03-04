@@ -1,52 +1,46 @@
+const uuid = require('uuid/v1');
 const { FlashCards } = require('../flashCards');
 
-const InMemoryBoxes = boxes => {
-  let data = boxes.reduce(
-    (allCards, boxCards, boxIndex) => [
-      ...allCards,
-      ...boxCards.reduce(
-        (cards, card) => [
-          ...cards,
-          {
-            card,
-            boxNumber: boxIndex + 1,
-          },
-        ],
-        [],
+const getDb = async ({ boxes }) => {
+  if (process.env.TEST_MODE === 'unit') {
+    const { InMemoryBoxesDb } = require('../inMemory/boxesDb');
+    return InMemoryBoxesDb(boxes);
+  }
+  const { FirebaseBoxesDb } = require('../firebase/boxesDb');
+  const boxesId = uuid();
+  const db = FirebaseBoxesDb(boxesId);
+  await Promise.all(
+    boxes.map((box, index) =>
+      box.map(card =>
+        db.addCardInBox({
+          boxNumber: index + 1,
+          card,
+        }),
       ),
-    ],
-    [],
+    ),
   );
+  return db;
+};
 
+const TestFlashCards = async ({ boxes }) => {
+  const db = await getDb({ boxes });
   return {
-    getCardsFromBoxes(...boxNumbers) {
-      return data.filter(card => boxNumbers.includes(card.boxNumber));
-    },
-    removeCardFromBox({ card }) {
-      debugger;
-      data = data.filter(c => c.card !== card);
-      debugger;
-    },
-    addCardInBox({ boxNumber, card }) {
-      data.push({ boxNumber, card });
-      debugger;
-    },
-    async getBoxes() {
-      const boxes = [[], [], []];
-      data.forEach(({ card, boxNumber }) => boxes[boxNumber - 1].push(card));
-      return boxes;
-    },
+    ...FlashCards(db),
+    getBoxes: db.getBoxes,
   };
 };
 
-const TestFlashCards = ({ boxes }) => {
-  const inMemoryBoxes = InMemoryBoxes(boxes);
-  return {
-    ...FlashCards(inMemoryBoxes),
-    getBoxes: inMemoryBoxes.getBoxes,
-  };
-};
+const c1 = { id: 'c1' };
+const c2 = { id: 'c2' };
+const c3 = { id: 'c3' };
+const c4 = { id: 'c4' };
+const c5 = { id: 'c5' };
 
 module.exports = {
   TestFlashCards,
+  c1,
+  c2,
+  c3,
+  c4,
+  c5,
 };

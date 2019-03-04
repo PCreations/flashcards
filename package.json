@@ -5,9 +5,15 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "env-path": "^1.0.6",
     "jest": "^24.1.0"
   },
   "scripts": {
-    "test": "jest __tests__.*.test.js$ --verbose"
+    "test:unit": "env-path -p .env.test-unit jest __tests__.*.test.js$ --verbose",
+    "test:inte-firebase": "env-path -p .env.test-inte-firebase jest __tests__.*.test.js$ --verbose --forceExit --bail"
+  },
+  "dependencies": {
+    "firebase": "^5.8.4",
+    "uuid": "^3.3.2"
   }
 }

@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "flive-orchestrator-test",
-      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest",
       "args": ["session1"]
     }
   ]
