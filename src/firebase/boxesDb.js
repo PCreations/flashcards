@@ -72,6 +72,19 @@ const FirebaseBoxesDb = cardBoxId => {
           addedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
     },
+    async getPreviousSessionNumber() {
+      return db
+        .collection('card-boxes')
+        .doc(cardBoxId)
+        .get()
+        .then(doc => doc.data().previousSessionNumber);
+    },
+    async setPreviousSessionNumber(previousSessionNumber = 0) {
+      return db
+        .collection('card-boxes')
+        .doc(cardBoxId)
+        .set({ previousSessionNumber }, { merge: true });
+    },
   };
 };
 

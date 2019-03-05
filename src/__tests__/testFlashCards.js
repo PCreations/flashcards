@@ -1,10 +1,10 @@
 const uuid = require('uuid/v1');
 const { FlashCards } = require('../flashCards');
 
-const getDb = async ({ boxes }) => {
-  if (process.env.TEST_MODE === 'unit') {
+const getDb = async ({ boxes, previousSessionNumber }) => {
+  if (!process.env.TEST_MODE || process.env.TEST_MODE === 'unit') {
     const { InMemoryBoxesDb } = require('../inMemory/boxesDb');
-    return InMemoryBoxesDb(boxes);
+    return InMemoryBoxesDb(boxes, previousSessionNumber);
   }
   const { FirebaseBoxesDb } = require('../firebase/boxesDb');
   const boxesId = uuid();
@@ -19,11 +19,12 @@ const getDb = async ({ boxes }) => {
       ),
     ),
   );
+  await db.setPreviousSessionNumber(previousSessionNumber);
   return db;
 };
 
-const TestFlashCards = async ({ boxes }) => {
-  const db = await getDb({ boxes });
+const TestFlashCards = async ({ boxes, previousSessionNumber }) => {
+  const db = await getDb({ boxes, previousSessionNumber });
   return {
     ...FlashCards(db),
     getBoxes: db.getBoxes,

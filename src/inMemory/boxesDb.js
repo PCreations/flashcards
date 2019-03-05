@@ -1,4 +1,4 @@
-const InMemoryBoxesDb = boxes => {
+const InMemoryBoxesDb = (boxes, previousSessionNumber) => {
   let data = boxes.reduce(
     (allCards, boxCards, boxIndex) => [
       ...allCards,
@@ -16,6 +16,8 @@ const InMemoryBoxesDb = boxes => {
     [],
   );
 
+  let previousSessionNumberData = previousSessionNumber;
+
   return {
     getCardsFromBoxes(...boxNumbers) {
       return data.filter(card => boxNumbers.includes(card.boxNumber));
@@ -30,6 +32,12 @@ const InMemoryBoxesDb = boxes => {
       const boxes = [[], [], []];
       data.forEach(({ card, boxNumber }) => boxes[boxNumber - 1].push(card));
       return boxes;
+    },
+    async getPreviousSessionNumber() {
+      return previousSessionNumberData;
+    },
+    async setPreviousSessionNumber(previousSessionNumber) {
+      previousSessionNumberData = previousSessionNumber;
     },
   };
 };
