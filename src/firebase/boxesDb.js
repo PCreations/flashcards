@@ -77,7 +77,7 @@ const FirebaseBoxesDb = cardBoxId => {
         .collection('card-boxes')
         .doc(cardBoxId)
         .get()
-        .then(doc => doc.data().previousSessionNumber);
+        .then(doc => (doc.exists ? doc.data().previousSessionNumber : 0));
     },
     async setPreviousSessionNumber(previousSessionNumber = 0) {
       return db
