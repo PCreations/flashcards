@@ -2,9 +2,12 @@
   "folders": [
     {
       "path": "."
-    },
-    {
-      "path": "/Users/pierre/Repositories/flashcards-ui"
     }
-  ]
+  ],
+  "settings": {
+    "typescript.suggest.autoImports": false,
+    "javascript.suggest.autoImports": false,
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    "typescript.suggest.completeFunctionCalls": true
+  }
 }
