@@ -1,9 +1,7 @@
 const expect = require('expect');
-const { Given, When, Then } = require('cucumber');
+const { Given, Then } = require('cucumber');
 const testDataCreators = require('../../tests/helpers/dataCreators');
 const testDataViews = require('../../tests/helpers/dataViews');
-const { AddFlashcardInBoxUseCase } = require('../../src/useCases/addFlashcardInBoxUseCase');
-const { FlashcardIdentityService } = require('../../src/domain/box/flashcardIdentityService');
 const { getDependencies } = require('../getDependencies');
 
 Given('a box named {string} that contains these flashcards in its first partition already exists:', function(
@@ -18,22 +16,6 @@ Given('a box named {string} that contains these flashcards in its first partitio
       flashcards: flashcards.hashes(),
     }),
   );
-});
-
-When('the current player adds the following flashcard in his box named {string}:', function(
-  boxName,
-  flashcards,
-) {
-  const { boxRepository, authenticationGateway } = getDependencies(this);
-  const flashcardIdentityService = FlashcardIdentityService({
-    getNextFlashcardId() {
-      return 'ghi';
-    },
-  });
-  return AddFlashcardInBoxUseCase({ boxRepository, authenticationGateway, flashcardIdentityService }).handle({
-    boxName,
-    flashcard: testDataCreators.createFlashcardsFromGherkinDatatable(flashcards)[0],
-  });
 });
 
 Then('the flashcards in the first partition of his box named {string} should be:', async function(
@@ -95,3 +77,14 @@ Then(
     expect(testDataViews.flashcardsView(box.getFlashcardsInPartition(1))).toEqual(flashcards.hashes());
   },
 );
+
+Given('a box named {string} containing the following flashcards:', function(boxName, flashcards) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+  return boxRepository.save(
+    testDataCreators.createBox({
+      boxName,
+      ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
+      flashcards: flashcards.hashes(),
+    }),
+  );
+});
