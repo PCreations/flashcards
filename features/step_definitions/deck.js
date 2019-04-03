@@ -1,38 +1,24 @@
+const expect = require('expect');
 const { Then } = require('cucumber');
-
-Then('the selected deck should contain flashcards from partitions {int}', function(int) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
-});
-
-Then('the selected deck should contain flashcards from partitions {int},{int}', function(int, int2) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
-});
+const { getDependencies } = require('../getDependencies');
+const testDataViews = require('../../tests/helpers/dataViews');
 
 Then(
-  'the selected deck should contain flashcards from partitions {int},{int},{int},{int},{int},{int}',
-  function(int, int2, int3, int4, int5, int6) {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+  /^the selected deck for the box "([\w\W]*)" should contain flashcards from partitions ([1-7]+(?:,[1-7])*)/,
+  async function(boxName, comaSeparatedPartitions) {
+    const { boxRepository, authenticationGateway } = getDependencies(this);
+    const playerId = authenticationGateway.getCurrentPlayer().id;
+    const partitions = comaSeparatedPartitions.split(',');
+    const sessionDeck = await boxRepository.getCurrentSessionDeckForBox({
+      playerId,
+      boxName,
+    });
+    const box = await boxRepository.getBoxByName({ boxName, playerId });
+    expect(
+      testDataViews.flashcardsInPartitions({
+        box,
+        partitions,
+      }),
+    ).toEqual(sessionDeck);
   },
 );
-
-Then('the selected deck should contain flashcards from partitions {int},{int},{int}', function(
-  int,
-  int2,
-  int3,
-) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
-});
-
-Then('the selected deck should contain flashcards from partitions {int},{int},{int},{int}', function(
-  int,
-  int2,
-  int3,
-  int4,
-) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
-});

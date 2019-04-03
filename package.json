@@ -8,12 +8,15 @@
     "@types/jest": "^24.0.11",
     "cucumber": "^5.1.0",
     "cucumber-html-reporter": "^4.0.5",
+    "eslint": "^5.16.0",
+    "eslint-plugin-import": "^2.16.0",
     "jest": "^24.5.0",
     "jest-cucumber": "^2.0.11"
   },
   "scripts": {
     "test:acceptance": "cucumber-js --world-parameters '{\"dependencies\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}' -f json:report/cucumber_report.json; node ./report/generate.js",
-    "test:unit": "jest --verbose --coverage"
+    "test:unit": "jest --verbose --coverage",
+    "test": "yarn test:acceptance && yarn test:unit"
   },
   "dependencies": {
     "lodash.flow": "^3.5.0"

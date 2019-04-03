@@ -1,14 +1,14 @@
 @loggedIn
-Feature: Seeing selected deck for today's session
+Feature: Starting a session for a specific box
 
   As Pierre, the player
-  I want to be able to see the current cards in the today's session deck for a specific box
-  So I can decide to start the session or not
+  I want to start a session for a specific box
+  So I can review the selected flashcards
 
   Rule: deck of flashcards should be picked from the selected box, by following the Leitner schedule
-  Rule: if a player missed one or many session, the deck must contain flashcards from missed sessions in addition to flashcards scheduled for today's session
+  Rule: if a player missed one or many sessions, the deck must contain flashcards from missed sessions in addition to flashcards scheduled for today's session
 
-  Scenario Outline: The current player want to start the session <sessionNumber> for his box "Capitals of the World"
+  Scenario Outline: The current player starts the session <sessionNumber> for his box "Capitals of the World"
     Given a box named "Capitals of the World" containing the following flashcards:
       | partition | id  | question                                | answer     |
       | 1         | aaa | What's the capital of France ?          | Paris      |
@@ -23,8 +23,8 @@ Feature: Seeing selected deck for today's session
       | 6         | iii | What's the capital of Spain ?           | Madrid     |
       | 6         | jjj | What's the capital of Denmark ?         | Copenhagen |
       | 7         | kkk | What's the capital of Russia ?          | Moscow     |
-    When the current player wants to start the number <sessionNumber> session in a row for the box "Capitals of the World"
-    Then the selected deck should contain flashcards from partitions <partitions>
+    When the current player starts the session <sessionNumber> for the box "Capitals of the World"
+    Then the selected deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
       | sessionNumber | partitions |
@@ -93,7 +93,7 @@ Feature: Seeing selected deck for today's session
       | 63            | 2,1        |
       | 64            | 1          |
 
-  Scenario Outline: The current player wants to start session <nextSessionNumber> and has missed <missedSessions> session(s)
+  Scenario Outline: The current player starts session <nextSessionNumber> and has missed the <missedSessions> previous session(s)
     Given a box named "Capitals of the World" containing the following flashcards:
       | partition | id  | question                                | answer     |
       | 1         | aaa | What's the capital of France ?          | Paris      |
@@ -108,10 +108,9 @@ Feature: Seeing selected deck for today's session
       | 6         | iii | What's the capital of Spain ?           | Madrid     |
       | 6         | jjj | What's the capital of Denmark ?         | Copenhagen |
       | 7         | kkk | What's the capital of Russia ?          | Moscow     |
-    And the next session to be started is <nextSessionNumber> for the box "Capitals of the World"
     And the current player has missed <missedSessions> sessions for the box "Capitals of the World"
-    When the current player selects the box "Capitals of the World"
-    Then the selected deck should contain flashcards from partitions <partitions>
+    When the current player starts the session <nextSessionNumber> for the box "Capitals of the World"
+    Then the selected deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
       | nextSessionNumber | missedSessions | partitions  |
