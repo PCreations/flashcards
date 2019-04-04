@@ -24,7 +24,7 @@ const createSteps = (
       testDataCreators.createBox({
         boxName: 'Capitals of the World',
         ownedByPlayerWithId: '41',
-        flashcards: [{ id: 'abc', question: 'What is the capital of France ?', answer: 'Paris' }],
+        partitions: [[{ id: 'abc', question: 'What is the capital of France ?', answer: 'Paris' }]],
       }),
     ),
   'given the current logged in player is player of id "42"': async () =>
@@ -34,9 +34,11 @@ const createSteps = (
       testDataCreators.createBox({
         boxName: 'Capitals of the World',
         ownedByPlayerWithId: '42',
-        flashcards: [
-          { id: 'abc', question: 'What is the capital of France ?', answer: 'Paris' },
-          { id: 'def', question: 'What is the capital of Belgium ?', answer: 'Brussels' },
+        partitions: [
+          [
+            { id: 'abc', question: 'What is the capital of France ?', answer: 'Paris' },
+            { id: 'def', question: 'What is the capital of Belgium ?', answer: 'Brussels' },
+          ],
         ],
       }),
     ),
@@ -56,7 +58,7 @@ const createSteps = (
       boxName: 'Capitals of the World',
       playerId: authenticationGateway.getCurrentPlayer().id,
     });
-    expect(testDataViews.flashcardsView(retrievedBox.getFlashcardsInPartition(1))).toEqual([
+    expect(testDataViews.flashcardsInPartitions({ box: retrievedBox, partitions: [1] })).toEqual([
       {
         id: 'abc',
         question: 'What is the capital of France ?',
@@ -79,7 +81,7 @@ const createSteps = (
       boxName: 'Capitals of the World',
       playerId: authenticationGateway.getCurrentPlayer().id,
     });
-    expect(testDataViews.flashcardsView(retrievedBox.getFlashcardsInPartition(1))).toEqual([
+    expect(testDataViews.flashcardsInPartitions({ box: retrievedBox, partitions: [1] })).toEqual([
       {
         id: 'ghi',
         question: 'What is the capital of Australia ?',
@@ -92,7 +94,7 @@ const createSteps = (
       boxName: 'Capitals of the World',
       playerId: '41',
     });
-    expect(testDataViews.flashcardsView(retrievedBox.getFlashcardsInPartition(1))).toEqual([
+    expect(testDataViews.flashcardsInPartitions({ box: retrievedBox, partitions: [1] })).toEqual([
       {
         id: 'abc',
         question: 'What is the capital of France ?',

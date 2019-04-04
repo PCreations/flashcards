@@ -19,11 +19,12 @@ Feature: Starting a session for a specific box
       | 3         | fff | What's the capital of Finland ?         | Helsinki   |
       | 4         | ggg | What's the capital of Sweden ?          | Stockholm  |
       | 4         | hhh | What's the capital of Hungary ?         | Budapest   |
-      | 5         | hhh | What's the capital of Luxembourg ?      | Luxembourg |
-      | 6         | iii | What's the capital of Spain ?           | Madrid     |
-      | 6         | jjj | What's the capital of Denmark ?         | Copenhagen |
-      | 7         | kkk | What's the capital of Russia ?          | Moscow     |
-    When the current player starts the session <sessionNumber> for the box "Capitals of the World"
+      | 5         | iii | What's the capital of Luxembourg ?      | Luxembourg |
+      | 6         | jjj | What's the capital of Spain ?           | Madrid     |
+      | 6         | kkk | What's the capital of Denmark ?         | Copenhagen |
+      | 7         | lll | What's the capital of Russia ?          | Moscow     |
+    And the current session of the box "Capitals of the World" is <sessionNumber>
+    When the current player starts the session for the box "Capitals of the World"
     Then the selected deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
@@ -108,8 +109,9 @@ Feature: Starting a session for a specific box
       | 6         | iii | What's the capital of Spain ?           | Madrid     |
       | 6         | jjj | What's the capital of Denmark ?         | Copenhagen |
       | 7         | kkk | What's the capital of Russia ?          | Moscow     |
+    And the current session of the box "Capitals of the World" is <nextSessionNumber>
     And the current player has missed <missedSessions> sessions for the box "Capitals of the World"
-    When the current player starts the session <nextSessionNumber> for the box "Capitals of the World"
+    When the current player starts the session for the box "Capitals of the World"
     Then the selected deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:

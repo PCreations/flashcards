@@ -13,7 +13,7 @@ Given('a box named {string} that contains these flashcards in its first partitio
     testDataCreators.createBox({
       boxName,
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      flashcards: flashcards.hashes(),
+      partitions: [flashcards.hashes()],
     }),
   );
 });
@@ -27,7 +27,7 @@ Then('the flashcards in the first partition of his box named {string} should be:
     boxName,
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
-  expect(testDataViews.flashcardsView(box.getFlashcardsInPartition(1))).toEqual(flashcards.hashes());
+  expect(testDataViews.flashcardsInPartitions({ box, partitions: [1] })).toEqual(flashcards.hashes());
 });
 
 Given('the box named {string} does not contain any flashcard in its first partition', function(boxName) {
@@ -36,7 +36,6 @@ Given('the box named {string} does not contain any flashcard in its first partit
     testDataCreators.createBox({
       boxName,
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      flashcards: [],
     }),
   );
 });
@@ -51,7 +50,7 @@ Given(
       testDataCreators.createBox({
         boxName,
         ownedByPlayerWithId,
-        flashcards: flashcards.hashes(),
+        partitions: [[flashcards.hashes()]],
       }),
     );
   },
@@ -74,7 +73,7 @@ Then(
       boxName,
       playerId: ownedByPlayerWithId,
     });
-    expect(testDataViews.flashcardsView(box.getFlashcardsInPartition(1))).toEqual(flashcards.hashes());
+    expect(testDataViews.flashcardsInPartitions({ box, partitions: [1] })).toEqual(flashcards.hashes());
   },
 );
 
@@ -84,7 +83,16 @@ Given('a box named {string} containing the following flashcards:', function(boxN
     testDataCreators.createBox({
       boxName,
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      flashcards: flashcards.hashes(),
+      partitions: [flashcards.hashes()],
     }),
   );
+});
+
+Given('the current session of the box {string} is {int}', async function(boxName, sessionNumber) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+  const box = await boxRepository.getBoxByName({
+    boxName,
+    playerId: authenticationGateway.getCurrentPlayer().id,
+  });
+  return boxRepository.save(box.withNextSessionBeing(sessionNumber));
 });

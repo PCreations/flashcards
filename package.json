@@ -10,6 +10,7 @@
     "cucumber-html-reporter": "^4.0.5",
     "eslint": "^5.16.0",
     "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jest": "^22.4.1",
     "jest": "^24.5.0",
     "jest-cucumber": "^2.0.11"
   },
@@ -19,6 +20,8 @@
     "test": "yarn test:acceptance && yarn test:unit"
   },
   "dependencies": {
+    "immutable": "^4.0.0-rc.12",
+    "invariant": "^2.2.4",
     "lodash.flow": "^3.5.0"
   }
 }

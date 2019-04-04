@@ -2,21 +2,42 @@ const { Box } = require('../../src/domain/box/box');
 const { Flashcard } = require('../../src/domain/box/flashcard');
 const { Player } = require('../../src/domain/player/player');
 
-const createBox = ({
-  boxName = String(),
-  ownedByPlayerWithId = String(),
-  flashcards = [{ id: String(), answer: String(), question: String() }],
-} = {}) =>
-  Box.named(boxName)
-    .ownedBy(Player.ofId(ownedByPlayerWithId))
-    .withPartition(1)
-    .containing(
-      flashcards.map(({ id, answer, question }) =>
-        Flashcard.ofQuestion(question)
-          .withAnswer(answer)
-          .withId(id),
-      ),
-    );
+/**
+ *
+ * @param {Box} box
+ * @param {[{id: string, question: string, answer: string}]} flashcards
+ * @param {number} partitionIndex
+ * @returns {Box}
+ */
+const addFlashcardsInPartition = (box, flashcards, partitionIndex) =>
+  flashcards.reduce(
+    (theBox, { id, question, answer }) =>
+      theBox
+        .addFlashcard(
+          Flashcard.ofQuestion(question)
+            .withAnswer(answer)
+            .withId(id),
+        )
+        .inPartition(partitionIndex + 1),
+    box,
+  );
+
+/**
+ *
+ * @param {Object} params
+ * @param {string} params.boxName
+ * @param {string} params.ownedByPlayerWithId
+ * @param {number} params.nextSession
+ * @param {[[{id: string, question: string, answer: string}]]} params.partitions
+ * @returns {Box}
+ */
+const createBox = ({ boxName, ownedByPlayerWithId, nextSession = 1, partitions = [[]] } = {}) =>
+  partitions.reduce(
+    addFlashcardsInPartition,
+    Box.named(boxName)
+      .ownedBy(Player.ofId(ownedByPlayerWithId))
+      .whereTheNextSessionToBePlayedIs(nextSession),
+  );
 
 const createFlashcardsFromGherkinDatatable = flashcardsDatatable =>
   flashcardsDatatable.hashes().map(({ id, answer, question }) =>

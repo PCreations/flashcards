@@ -21,11 +21,8 @@ When('the current player adds the following flashcard in his box named {string}:
   });
 });
 
-When('the current player starts the session {int} for the box {string}', function(
-  nextSessionNumber,
-  boxName,
-) {
-  return StartSessionUseCase().handle({ boxName, sessionNumber: nextSessionNumber });
+When('the current player starts the session for the box {string}', function(boxName) {
+  return StartSessionUseCase().handle({ boxName });
 });
 
 Given('the current player has missed {int} sessions for the box {string}', function(int, boxName) {

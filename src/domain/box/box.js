@@ -1,35 +1,62 @@
+const invariant = require('invariant');
 const { Flashcard } = require('./flashcard');
 const { Player } = require('../player/player');
+const { Partition } = require('./partitions');
 
-const Box = ({ name = String(), playerId = String(), partitions = [[]] } = {}) =>
-  Object.freeze({
+/**
+ *
+ * @param {Object} params
+ * @param {string} params.name
+ * @param {string} params.playerId
+ * @param {[Partition]} params.partitions
+ * @param {number} params.nextSession
+ */
+const Box = ({ name, playerId, partitions = [[], [], [], [], [], [], []], nextSession = 1 } = {}) => {
+  return Object.freeze({
     named(aName = String()) {
       return Box({ name: aName, playerId, partitions });
     },
     ownedBy(aPlayer = Player) {
       return Box({ name, playerId: aPlayer.id, partitions });
     },
-    withPartition(partition) {
-      return {
-        containing(flashcards) {
-          return Box({ name, playerId, partitions: [flashcards] });
-        },
-      };
+    whereTheNextSessionToBePlayedIs(theNextSession) {
+      return Box({ name, playerId, partitions, nextSession: parseInt(theNextSession, 10) });
     },
     addFlashcard(flashcard = Flashcard) {
       return {
-        inPartition(partition) {
-          return Box({ name, playerId, partitions: [[...partitions[0], flashcard]] });
+        inPartition(partition = 1) {
+          invariant(typeof partition === typeof 1, 'partition number must be a number');
+          invariant(
+            partition >= 1 && partition <= 7,
+            `partition number should be between 1 and 7, received ${partition}`,
+          );
+          debugger;
+          return Box({
+            name,
+            playerId,
+            partitions: Object.values({
+              ...partitions,
+              [partition - 1]: [...partitions[partition - 1], flashcard],
+            }),
+            nextSession,
+          });
         },
       };
     },
-    getFlashcardsInPartition(partitionNumber) {
-      return partitions[0];
+    /**
+     *
+     * @param  {...number} partitionsNumber
+     * @returns {[Flashcard]}
+     */
+    getFlashcardsInPartitions(...partitionsNumber) {
+      return partitionsNumber.reduce((flashcards, number) => [...flashcards, ...partitions[number - 1]], []);
     },
     playerId,
     name,
     partitions,
+    nextSession,
   });
+};
 
 module.exports = {
   Box: Box(),
