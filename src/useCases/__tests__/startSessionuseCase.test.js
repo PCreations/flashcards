@@ -26,45 +26,49 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
         test('then the selected deck should contains flashcards from partition 2 and 1', async () => {
           const authenticationGateway = AuthenticationGateway();
           const boxRepository = BoxRepository();
-          const currentPlayer = await authenticationGateway.authenticate(Player.ofId('42'));
-          const box = testDataCreators.createBox({
-            boxName: 'Capitals of the World',
-            ownedByPlayerWithId: '42',
-            flashcards: [
-              [
-                { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
-                { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+          await authenticationGateway.authenticate(Player.ofId('42'));
+          const currentPlayer = authenticationGateway.getCurrentPlayer();
+
+          await boxRepository.save(
+            testDataCreators.createBox({
+              boxName: 'Capitals of the World',
+              ownedByPlayerWithId: currentPlayer.id,
+              nextSession: 17,
+              partitions: [
+                [
+                  { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
+                  { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+                ],
+                [
+                  { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
+                  { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
+                  { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
+                ],
+                [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
+                [
+                  { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
+                  { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
+                ],
+                [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
+                [
+                  { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
+                  { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
+                ],
+                [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
               ],
-              [
-                { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
-                { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
-              ],
-              [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
-              [
-                { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
-              ],
-              [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
-              [
-                { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
-                { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
-              ],
-              [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
-            ],
-          });
-          await boxRepository.save(box);
+            }),
+          );
           await StartSessionUseCase().handle({ boxName: 'Capitals of the World' });
-          const sessionDeck = await boxRepository.getCurrentSessionDeckForBox({
-            playerId: currentPlayer.id,
+          const box = await boxRepository.getBoxByName({
             boxName: 'Capitals of the World',
+            playerId: currentPlayer.id,
           });
           expect(
             testDataViews.flashcardsInPartitions({
               box,
               partitions: [1, 2],
             }),
-          ).toEqual(sessionDeck);
+          ).toEqual(box.sessionDeck);
         });
       });
     });
@@ -73,35 +77,42 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
         test('then the selected deck should contains flashcards from partition 4, 2 and 1', async () => {
           const authenticationGateway = AuthenticationGateway();
           const boxRepository = BoxRepository();
-          const currentPlayer = await authenticationGateway.authenticate(Player.ofId('42'));
-          const box = testDataCreators.createBox({
-            boxName: 'Capitals of the World',
-            ownedByPlayerWithId: '42',
-            flashcards: [
-              [
-                { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
-                { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+          await authenticationGateway.authenticate(Player.ofId('42'));
+          const currentPlayer = authenticationGateway.getCurrentPlayer();
+          await boxRepository.save(
+            testDataCreators.createBox({
+              boxName: 'Capitals of the World',
+              ownedByPlayerWithId: '42',
+              nextSession: 45,
+              partitions: [
+                [
+                  { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
+                  { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+                ],
+                [
+                  { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
+                  { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
+                  { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
+                ],
+                [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
+                [
+                  { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
+                  { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
+                ],
+                [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
+                [
+                  { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
+                  { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
+                ],
+                [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
               ],
-              [
-                { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
-                { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
-              ],
-              [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
-              [
-                { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
-              ],
-              [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
-              [
-                { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
-                { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
-              ],
-              [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
-            ],
-          });
-          await boxRepository.save(box);
+            }),
+          );
           await StartSessionUseCase().handle({ boxName: 'Capitals of the World' });
+          const box = boxRepository.getBoxByName({
+            boxName: 'Capitals of the World',
+            playerId: currentPlayer.id,
+          });
           const sessionDeck = await boxRepository.getCurrentSessionDeckForBox({
             playerId: currentPlayer.id,
             boxName: 'Capitals of the World',
@@ -111,7 +122,7 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
               box,
               partitions: [4, 2, 1],
             }),
-          ).toEqual(sessionDeck);
+          ).toEqual(sessionDeck.map(({ id, question, answer }) => ({ id, question, answer })));
         });
       });
     });

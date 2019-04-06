@@ -30,7 +30,6 @@ const Box = ({ name, playerId, partitions = [[], [], [], [], [], [], []], nextSe
             partition >= 1 && partition <= 7,
             `partition number should be between 1 and 7, received ${partition}`,
           );
-          debugger;
           return Box({
             name,
             playerId,
@@ -55,6 +54,13 @@ const Box = ({ name, playerId, partitions = [[], [], [], [], [], [], []], nextSe
     name,
     partitions,
     nextSession,
+    sessionDeck: [
+      { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
+      { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+      { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
+      { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
+      { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
+    ],
   });
 };
 
