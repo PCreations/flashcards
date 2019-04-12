@@ -8,6 +8,10 @@
     "typescript.suggest.autoImports": false,
     "javascript.suggest.autoImports": false,
     "editor.acceptSuggestionOnCommitCharacter": false,
-    "typescript.suggest.completeFunctionCalls": true
+    "typescript.suggest.completeFunctionCalls": true,
+    "nodeTdd.reporter": "tap",
+    "nodeTdd.showCoverage": true,
+    "nodeTdd.buildOnActivation": true,
+    "nodeTdd.glob": "{src,test,features}/**/*.js"
   }
 }

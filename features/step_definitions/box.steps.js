@@ -1,9 +1,7 @@
 const expect = require('expect');
-const { Given, When, Then } = require('cucumber');
+const { Given, Then } = require('cucumber');
 const testDataCreators = require('../../tests/helpers/dataCreators');
 const testDataViews = require('../../tests/helpers/dataViews');
-const { AddFlashcardInBoxUseCase } = require('../../src/useCases/addFlashcardInBoxUseCase');
-const { FlashcardIdentityService } = require('../../src/domain/box/flashcardIdentityService');
 const { getDependencies } = require('../getDependencies');
 
 Given('a box named {string} that contains these flashcards in its first partition already exists:', function(
@@ -15,25 +13,9 @@ Given('a box named {string} that contains these flashcards in its first partitio
     testDataCreators.createBox({
       boxName,
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      flashcards: flashcards.hashes(),
+      partitions: [flashcards.hashes()],
     }),
   );
-});
-
-When('the current player adds the following flashcard in his box named {string}:', function(
-  boxName,
-  flashcards,
-) {
-  const { boxRepository, authenticationGateway } = getDependencies(this);
-  const flashcardIdentityService = FlashcardIdentityService({
-    getNextFlashcardId() {
-      return 'ghi';
-    },
-  });
-  return AddFlashcardInBoxUseCase({ boxRepository, authenticationGateway, flashcardIdentityService }).handle({
-    boxName,
-    flashcard: testDataCreators.createFlashcardsFromGherkinDatatable(flashcards)[0],
-  });
 });
 
 Then('the flashcards in the first partition of his box named {string} should be:', async function(
@@ -45,7 +27,7 @@ Then('the flashcards in the first partition of his box named {string} should be:
     boxName,
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
-  expect(testDataViews.flashcardsView(box.getFlashcardsInPartition(1))).toEqual(flashcards.hashes());
+  expect(testDataViews.flashcardsInPartitions({ box, partitions: [1] })).toEqual(flashcards.hashes());
 });
 
 Given('the box named {string} does not contain any flashcard in its first partition', function(boxName) {
@@ -54,22 +36,26 @@ Given('the box named {string} does not contain any flashcard in its first partit
     testDataCreators.createBox({
       boxName,
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      flashcards: [],
     }),
   );
 });
 
-Given('the box named {string} does not exist yet', function(string) {});
+Given('the box named {string} does not exist yet', async function(boxName) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+  const currentPlayerId = authenticationGateway.getCurrentPlayer().id;
+  const nonExistingBox = await boxRepository.getBoxByName({ boxName, playerId: currentPlayerId });
+  expect(nonExistingBox).toBeUndefined();
+});
 
 Given(
   'a box named {string} created by player of id {string} already exists with following flashcards in its first partition:',
-  async function(boxName, ownedByPlayerWithId, flashcards) {
+  function(boxName, ownedByPlayerWithId, flashcards) {
     const { boxRepository } = getDependencies(this);
-    await boxRepository.save(
+    return boxRepository.save(
       testDataCreators.createBox({
         boxName,
         ownedByPlayerWithId,
-        flashcards: flashcards.hashes(),
+        partitions: [flashcards.hashes()],
       }),
     );
   },
@@ -92,6 +78,41 @@ Then(
       boxName,
       playerId: ownedByPlayerWithId,
     });
-    expect(testDataViews.flashcardsView(box.getFlashcardsInPartition(1))).toEqual(flashcards.hashes());
+    expect(testDataViews.flashcardsInPartitions({ box, partitions: [1] })).toEqual(flashcards.hashes());
   },
 );
+
+Given('a box named {string} containing the following flashcards:', function(boxName, flashcards) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+  const partitions = Object.values(
+    flashcards.hashes().reduce(
+      (partitionsMap, { partition, ...flashcard }) => ({
+        ...partitionsMap,
+        [partition]: [...(partitionsMap[partition] || []), flashcard],
+      }),
+      {},
+    ),
+  );
+  return boxRepository.save(
+    testDataCreators.createBox({
+      boxName,
+      ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
+      partitions,
+    }),
+  );
+});
+
+Given('the next session of the box {string} is {int}', async function(boxName, nextSessionNumber) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+
+  const box = await boxRepository.getBoxByName({
+    boxName,
+    playerId: authenticationGateway.getCurrentPlayer().id,
+  });
+
+  return boxRepository.save(
+    box
+      .whereTheNextSessionToBePlayedIs(nextSessionNumber)
+      .withLastCompletedSessionBeing(nextSessionNumber - 1),
+  );
+});

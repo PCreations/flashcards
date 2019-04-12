@@ -1,8 +1,25 @@
-const { Flashcard } = require('../../src/domain/box/flashcard');
+const { Box } = require('../../src/domain/box/box');
 
-const flashcardsView = (flashcards = [Flashcard]) =>
-  flashcards.map(({ id, answer, question }) => ({ id, answer, question }));
+/**
+ *
+ * @param {Object} params
+ * @param {Box} params.box
+ * @param {[number]} params.partitions
+ */
+const flashcardsInPartitions = ({ box, partitions } = {}) =>
+  box
+    .getFlashcardsInPartitions(...partitions.map(maybeStringNumber => parseInt(maybeStringNumber, 10)))
+    .map(({ id, question, answer }) => ({ id, question, answer }));
+
+/**
+ *
+ * @param {Object} params
+ * @param {Box} params.box
+ */
+const flashcardsInDeck = ({ deck } = {}) =>
+  deck.map(({ id, question, answer }) => ({ id, question, answer }));
 
 module.exports = {
-  flashcardsView,
+  flashcardsInPartitions,
+  flashcardsInDeck,
 };
