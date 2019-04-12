@@ -118,5 +118,5 @@ Feature: Starting a session for a specific box
       | nextSessionNumber | lastCompletedSession | partitions  |
       | 1                 | 0                    | 2,1         |
       | 2                 | 0                    | 3,2,1       |
-      | 34                | 24                   | 6,5,4,3,2,1 |
+      | 34                | 23                   | 6,5,4,3,2,1 |
       | 58                | 55                   | 7,3,2,1     |

@@ -163,5 +163,3 @@ test('add a flashcard in a non existing box for a given player but already exist
     ],
   )();
 });
-
-// TODO : test with other users

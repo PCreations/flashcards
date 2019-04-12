@@ -49,13 +49,13 @@ Given('the box named {string} does not exist yet', async function(boxName) {
 
 Given(
   'a box named {string} created by player of id {string} already exists with following flashcards in its first partition:',
-  async function(boxName, ownedByPlayerWithId, flashcards) {
+  function(boxName, ownedByPlayerWithId, flashcards) {
     const { boxRepository } = getDependencies(this);
-    await boxRepository.save(
+    return boxRepository.save(
       testDataCreators.createBox({
         boxName,
         ownedByPlayerWithId,
-        partitions: [[flashcards.hashes()]],
+        partitions: [flashcards.hashes()],
       }),
     );
   },
@@ -110,5 +110,9 @@ Given('the next session of the box {string} is {int}', async function(boxName, n
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
 
-  return boxRepository.save(box.whereTheNextSessionToBePlayedIs(nextSessionNumber));
+  return boxRepository.save(
+    box
+      .whereTheNextSessionToBePlayedIs(nextSessionNumber)
+      .withLastCompletedSessionBeing(nextSessionNumber - 1),
+  );
 });

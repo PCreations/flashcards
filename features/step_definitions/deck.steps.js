@@ -13,25 +13,15 @@ Then(
       playerId,
       boxName,
     });
-    const flashcardsInPartitions = testDataViews.flashcardsInPartitions({
+    const expectedFlashcardsInPartitions = testDataViews.flashcardsInPartitions({
       box,
       partitions,
     });
     const flashcardsInDeck = testDataViews.flashcardsInDeck({
       deck: box.sessionDeck,
     });
-
-    expect(flashcardsInPartitions.length).toBeGreaterThan(0);
+    expect(expectedFlashcardsInPartitions.length).toBeGreaterThan(0);
     expect(flashcardsInDeck.length).toBeGreaterThan(0);
-    expect(
-      testDataViews.flashcardsInPartitions({
-        box,
-        partitions,
-      }),
-    ).toEqual(
-      testDataViews.flashcardsInDeck({
-        deck: box.sessionDeck,
-      }),
-    );
+    expect(expectedFlashcardsInPartitions).toEqual(flashcardsInDeck);
   },
 );

@@ -7,7 +7,9 @@ const { Box } = require('../../src/domain/box/box');
  * @param {[number]} params.partitions
  */
 const flashcardsInPartitions = ({ box, partitions } = {}) =>
-  box.getFlashcardsInPartitions(...partitions).map(({ id, question, answer }) => ({ id, question, answer }));
+  box
+    .getFlashcardsInPartitions(...partitions.map(maybeStringNumber => parseInt(maybeStringNumber, 10)))
+    .map(({ id, question, answer }) => ({ id, question, answer }));
 
 /**
  *
