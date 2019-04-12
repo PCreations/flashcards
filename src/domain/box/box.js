@@ -1,12 +1,8 @@
 const invariant = require('invariant');
-const { uniq, range } = require('lodash');
 const { Flashcard } = require('./flashcard');
 const { Player } = require('../player/player');
 const { Partition } = require('./partitions');
 const { createSessionDeckForPartitions } = require('./sessionDeckService/createSessionDeckForPartitions');
-
-const getPartitionsForCurrentSession = ({ currentSession, lastCompletedSession }) =>
-  range(lastCompletedSession + 1, currentSession + 1);
 
 /**
  *
@@ -16,39 +12,38 @@ const getPartitionsForCurrentSession = ({ currentSession, lastCompletedSession }
  * @param {[Partition]} params.partitions
  * @param {number} params.nextSession
  */
-const Box = ({
-  name,
-  playerId,
-  partitions = [[], [], [], [], [], [], []],
-  nextSession = 1,
-  lastCompletedSession = 0,
-} = {}) => {
-  const createSessionDeck = createSessionDeckForPartitions(partitions);
-  const sessionDeck = createSessionDeck({ lastCompletedSession, session: nextSession });
+const Box = (
+  params = {
+    name: '',
+    playerId: '',
+    partitions: [[], [], [], [], [], [], []],
+    nextSession: 1,
+    lastCompletedSession: 0,
+  },
+) => {
+  const createSessionDeck = createSessionDeckForPartitions(params.partitions);
+  const sessionDeck = createSessionDeck({
+    lastCompletedSession: params.lastCompletedSession,
+    session: params.nextSession,
+  });
 
   return Object.freeze({
-    named(aName = String()) {
-      return Box({ name: aName, playerId, partitions, nextSession, lastCompletedSession });
+    named(name = String()) {
+      return Box({ ...params, name });
     },
-    ownedBy(aPlayer = Player) {
-      return Box({ name, playerId: aPlayer.id, partitions, nextSession, lastCompletedSession });
+    ownedBy(player = Player) {
+      return Box({ ...params, playerId: player.id });
     },
-    whereTheNextSessionToBePlayedIs(theNextSession = 0) {
+    whereTheNextSessionToBePlayedIs(nextSession = 0) {
       return Box({
-        name,
-        playerId,
-        partitions,
-        nextSession: parseInt(theNextSession, 10),
-        lastCompletedSession,
+        ...params,
+        nextSession: parseInt(nextSession, 10),
       });
     },
-    withLastCompletedSessionBeing(theLastCompletedSession = 0) {
+    withLastCompletedSessionBeing(lastCompletedSession = 0) {
       return Box({
-        name,
-        playerId,
-        partitions,
-        nextSession,
-        lastCompletedSession: parseInt(theLastCompletedSession, 10),
+        ...params,
+        lastCompletedSession: parseInt(lastCompletedSession, 10),
       });
     },
     addFlashcard(flashcard = Flashcard) {
@@ -60,14 +55,11 @@ const Box = ({
             `partition number should be between 1 and 7, received ${partition}`,
           );
           return Box({
-            name,
-            playerId,
+            ...params,
             partitions: Object.values({
-              ...partitions,
-              [partition - 1]: [...partitions[partition - 1], flashcard],
+              ...params.partitions,
+              [partition - 1]: [...params.partitions[partition - 1], flashcard],
             }),
-            nextSession,
-            lastCompletedSession,
           });
         },
       };
@@ -78,14 +70,13 @@ const Box = ({
      * @returns {[Flashcard]}
      */
     getFlashcardsInPartitions(...partitionsNumber) {
-      return partitionsNumber.reduce((flashcards, number) => [...flashcards, ...partitions[number - 1]], []);
+      return partitionsNumber.reduce(
+        (flashcards, number) => [...flashcards, ...params.partitions[number - 1]],
+        [],
+      );
     },
-    playerId,
-    name,
-    partitions,
-    nextSession,
     sessionDeck,
-    lastCompletedSession,
+    ...params,
   });
 };
 
