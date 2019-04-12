@@ -68,7 +68,8 @@ describe('when creating a box named "test" and containing some flashcards in its
           },
         ],
       ],
-      nextSession: '42',
+      nextSession: 42,
+      lastCompletedSession: 41,
     });
   test('the box next session should be 42', () => {
     const box = getBox();

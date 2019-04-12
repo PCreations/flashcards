@@ -116,6 +116,7 @@ Feature: Starting a session for a specific box
 
     Examples:
       | nextSessionNumber | lastCompletedSession | partitions  |
-      | 2                 | 0                    | 1,2,3       |
-      | 34                | 24                   | 1,2,3,4,5,6 |
-      | 58                | 55                   | 1,2,3,7     |
+      | 1                 | 0                    | 2,1         |
+      | 2                 | 0                    | 3,2,1       |
+      | 34                | 24                   | 6,5,4,3,2,1 |
+      | 58                | 55                   | 7,3,2,1     |

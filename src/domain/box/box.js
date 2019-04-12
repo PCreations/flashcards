@@ -3,7 +3,7 @@ const { uniq, range } = require('lodash');
 const { Flashcard } = require('./flashcard');
 const { Player } = require('../player/player');
 const { Partition } = require('./partitions');
-const { leitnerSchedule } = require('./leitnerSchedule');
+const { createSessionDeckForPartitions } = require('./sessionDeckService/createSessionDeckForPartitions');
 
 const getPartitionsForCurrentSession = ({ currentSession, lastCompletedSession }) =>
   range(lastCompletedSession + 1, currentSession + 1);
@@ -23,23 +23,24 @@ const Box = ({
   nextSession = 1,
   lastCompletedSession = 0,
 } = {}) => {
-  const sessionDeck = uniq(
-    getPartitionsForCurrentSession({ currentSession: nextSession, lastCompletedSession }).map(
-      leitnerSchedule,
-    ),
-  )
-    .sort((a, b) => parseInt(b, 10) - parseInt(a, 10))
-    .reduce((deck, partitionNumber) => [...deck, ...partitions[partitionNumber - 1]], []);
+  const createSessionDeck = createSessionDeckForPartitions(partitions);
+  const sessionDeck = createSessionDeck({ lastCompletedSession, session: nextSession });
 
   return Object.freeze({
     named(aName = String()) {
-      return Box({ name: aName, playerId, partitions });
+      return Box({ name: aName, playerId, partitions, nextSession, lastCompletedSession });
     },
     ownedBy(aPlayer = Player) {
-      return Box({ name, playerId: aPlayer.id, partitions });
+      return Box({ name, playerId: aPlayer.id, partitions, nextSession, lastCompletedSession });
     },
     whereTheNextSessionToBePlayedIs(theNextSession = 0) {
-      return Box({ name, playerId, partitions, nextSession: parseInt(theNextSession, 10) });
+      return Box({
+        name,
+        playerId,
+        partitions,
+        nextSession: parseInt(theNextSession, 10),
+        lastCompletedSession,
+      });
     },
     withLastCompletedSessionBeing(theLastCompletedSession = 0) {
       return Box({
@@ -48,7 +49,6 @@ const Box = ({
         partitions,
         nextSession,
         lastCompletedSession: parseInt(theLastCompletedSession, 10),
-        sessionDeck,
       });
     },
     addFlashcard(flashcard = Flashcard) {
@@ -67,6 +67,7 @@ const Box = ({
               [partition - 1]: [...partitions[partition - 1], flashcard],
             }),
             nextSession,
+            lastCompletedSession,
           });
         },
       };
