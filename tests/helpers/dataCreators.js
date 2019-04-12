@@ -31,12 +31,19 @@ const addFlashcardsInPartition = (box, flashcards, partitionIndex) =>
  * @param {[[{id: string, question: string, answer: string}]]} params.partitions
  * @returns {Box}
  */
-const createBox = ({ boxName, ownedByPlayerWithId, nextSession = 1, partitions = [[]] } = {}) =>
+const createBox = ({
+  boxName,
+  ownedByPlayerWithId,
+  nextSession = 1,
+  lastCompletedSession = 0,
+  partitions = [[]],
+} = {}) =>
   partitions.reduce(
     addFlashcardsInPartition,
     Box.named(boxName)
       .ownedBy(Player.ofId(ownedByPlayerWithId))
-      .whereTheNextSessionToBePlayedIs(nextSession),
+      .whereTheNextSessionToBePlayedIs(nextSession)
+      .withLastCompletedSessionBeing(lastCompletedSession),
   );
 
 const createFlashcardsFromGherkinDatatable = flashcardsDatatable =>

@@ -66,9 +66,9 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
           expect(
             testDataViews.flashcardsInPartitions({
               box,
-              partitions: [1, 2],
+              partitions: [2, 1],
             }),
-          ).toEqual(box.sessionDeck);
+          ).toEqual(testDataViews.flashcardsInDeck({ deck: box.sessionDeck }));
         });
       });
     });
@@ -109,20 +109,16 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
             }),
           );
           await StartSessionUseCase().handle({ boxName: 'Capitals of the World' });
-          const box = boxRepository.getBoxByName({
+          const box = await boxRepository.getBoxByName({
             boxName: 'Capitals of the World',
             playerId: currentPlayer.id,
-          });
-          const sessionDeck = await boxRepository.getCurrentSessionDeckForBox({
-            playerId: currentPlayer.id,
-            boxName: 'Capitals of the World',
           });
           expect(
             testDataViews.flashcardsInPartitions({
               box,
               partitions: [4, 2, 1],
             }),
-          ).toEqual(sessionDeck.map(({ id, question, answer }) => ({ id, question, answer })));
+          ).toEqual(testDataViews.flashcardsInDeck({ deck: box.sessionDeck }));
         });
       });
     });

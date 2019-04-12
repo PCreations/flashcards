@@ -4,21 +4,34 @@ const { getDependencies } = require('../getDependencies');
 const testDataViews = require('../../tests/helpers/dataViews');
 
 Then(
-  /^the selected deck for the box "([\w\W]*)" should contain flashcards from partitions ([1-7]+(?:,[1-7])*)/,
+  /^the session deck for the box "([\w\W]*)" should contain flashcards from partitions ([1-7]+(?:,[1-7])*)/,
   async function(boxName, comaSeparatedPartitions) {
     const { boxRepository, authenticationGateway } = getDependencies(this);
     const playerId = authenticationGateway.getCurrentPlayer().id;
     const partitions = comaSeparatedPartitions.split(',');
-    const sessionDeck = await boxRepository.getCurrentSessionDeckForBox({
+    const box = await boxRepository.getBoxByName({
       playerId,
       boxName,
     });
-    const box = await boxRepository.getBoxByName({ boxName, playerId });
+    const flashcardsInPartitions = testDataViews.flashcardsInPartitions({
+      box,
+      partitions,
+    });
+    const flashcardsInDeck = testDataViews.flashcardsInDeck({
+      deck: box.sessionDeck,
+    });
+
+    expect(flashcardsInPartitions.length).toBeGreaterThan(0);
+    expect(flashcardsInDeck.length).toBeGreaterThan(0);
     expect(
       testDataViews.flashcardsInPartitions({
         box,
         partitions,
       }),
-    ).toEqual(sessionDeck);
+    ).toEqual(
+      testDataViews.flashcardsInDeck({
+        deck: box.sessionDeck,
+      }),
+    );
   },
 );

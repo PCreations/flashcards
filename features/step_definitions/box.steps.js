@@ -40,7 +40,12 @@ Given('the box named {string} does not contain any flashcard in its first partit
   );
 });
 
-Given('the box named {string} does not exist yet', function(string) {});
+Given('the box named {string} does not exist yet', async function(boxName) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+  const currentPlayerId = authenticationGateway.getCurrentPlayer().id;
+  const nonExistingBox = await boxRepository.getBoxByName({ boxName, playerId: currentPlayerId });
+  expect(nonExistingBox).toBeUndefined();
+});
 
 Given(
   'a box named {string} created by player of id {string} already exists with following flashcards in its first partition:',
@@ -79,20 +84,31 @@ Then(
 
 Given('a box named {string} containing the following flashcards:', function(boxName, flashcards) {
   const { boxRepository, authenticationGateway } = getDependencies(this);
+  const partitions = Object.values(
+    flashcards.hashes().reduce(
+      (partitionsMap, { partition, ...flashcard }) => ({
+        ...partitionsMap,
+        [partition]: [...(partitionsMap[partition] || []), flashcard],
+      }),
+      {},
+    ),
+  );
   return boxRepository.save(
     testDataCreators.createBox({
       boxName,
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      partitions: [flashcards.hashes()],
+      partitions,
     }),
   );
 });
 
-Given('the current session of the box {string} is {int}', async function(boxName, sessionNumber) {
+Given('the next session of the box {string} is {int}', async function(boxName, nextSessionNumber) {
   const { boxRepository, authenticationGateway } = getDependencies(this);
+
   const box = await boxRepository.getBoxByName({
     boxName,
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
-  return boxRepository.save(box.withNextSessionBeing(sessionNumber));
+
+  return boxRepository.save(box.whereTheNextSessionToBePlayedIs(nextSessionNumber));
 });

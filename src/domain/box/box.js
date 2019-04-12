@@ -1,7 +1,12 @@
 const invariant = require('invariant');
+const { uniq, range } = require('lodash');
 const { Flashcard } = require('./flashcard');
 const { Player } = require('../player/player');
 const { Partition } = require('./partitions');
+const { leitnerSchedule } = require('./leitnerSchedule');
+
+const getPartitionsForCurrentSession = ({ currentSession, lastCompletedSession }) =>
+  range(lastCompletedSession + 1, currentSession + 1);
 
 /**
  *
@@ -11,7 +16,21 @@ const { Partition } = require('./partitions');
  * @param {[Partition]} params.partitions
  * @param {number} params.nextSession
  */
-const Box = ({ name, playerId, partitions = [[], [], [], [], [], [], []], nextSession = 1 } = {}) => {
+const Box = ({
+  name,
+  playerId,
+  partitions = [[], [], [], [], [], [], []],
+  nextSession = 1,
+  lastCompletedSession = 0,
+} = {}) => {
+  const sessionDeck = uniq(
+    getPartitionsForCurrentSession({ currentSession: nextSession, lastCompletedSession }).map(
+      leitnerSchedule,
+    ),
+  )
+    .sort((a, b) => parseInt(b, 10) - parseInt(a, 10))
+    .reduce((deck, partitionNumber) => [...deck, ...partitions[partitionNumber - 1]], []);
+
   return Object.freeze({
     named(aName = String()) {
       return Box({ name: aName, playerId, partitions });
@@ -19,8 +38,18 @@ const Box = ({ name, playerId, partitions = [[], [], [], [], [], [], []], nextSe
     ownedBy(aPlayer = Player) {
       return Box({ name, playerId: aPlayer.id, partitions });
     },
-    whereTheNextSessionToBePlayedIs(theNextSession) {
+    whereTheNextSessionToBePlayedIs(theNextSession = 0) {
       return Box({ name, playerId, partitions, nextSession: parseInt(theNextSession, 10) });
+    },
+    withLastCompletedSessionBeing(theLastCompletedSession = 0) {
+      return Box({
+        name,
+        playerId,
+        partitions,
+        nextSession,
+        lastCompletedSession: parseInt(theLastCompletedSession, 10),
+        sessionDeck,
+      });
     },
     addFlashcard(flashcard = Flashcard) {
       return {
@@ -54,13 +83,8 @@ const Box = ({ name, playerId, partitions = [[], [], [], [], [], [], []], nextSe
     name,
     partitions,
     nextSession,
-    sessionDeck: [
-      { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
-      { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
-      { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-      { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
-      { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
-    ],
+    sessionDeck,
+    lastCompletedSession,
   });
 };
 

@@ -1,12 +1,17 @@
-const leitnerSchedule = partition =>
+const partition = (partitionNumber, { startAt, interval }, session) =>
+  session % interval === startAt ? partitionNumber : null;
+
+const leitnerSchedule = session =>
   [1]
-    .concat(partition % 2 === 1 ? [2] : [])
-    .concat(partition % 4 === 2 ? [3] : [])
-    .concat(partition % 16 === 4 || partition % 16 === 13 ? [4] : [])
-    .concat(partition % 16 === 12 ? [5] : [])
-    .concat(partition % 35 === 24 ? [6] : [])
-    .concat(partition === 56 ? [7] : [])
-    .sort((a, b) => parseInt(a, 10 - parseInt(b, 10)));
+    .concat(partition(2, { startAt: 1, interval: 2 }, session))
+    .concat(partition(3, { startAt: 2, interval: 4 }, session))
+    .concat(partition(4, { startAt: 4, interval: 16 }, session))
+    .concat(partition(4, { startAt: 13, interval: 16 }, session))
+    .concat(partition(5, { startAt: 12, interval: 16 }, session))
+    .concat(partition(6, { startAt: 24, interval: 35 }, session))
+    .concat(partition(7, { startAt: 56, interval: 64 }, session))
+    .filter(maybeNull => maybeNull !== null)
+    .sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
 
 module.exports = {
   leitnerSchedule,

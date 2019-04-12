@@ -20,7 +20,9 @@
       "request": "launch",
       "args": [
         "--world-parameters",
-        "{\"dependencies\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
+        "{\"dependencies\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}",
+        "--name",
+        "The current player starts session 34 and his last completed session was 24"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

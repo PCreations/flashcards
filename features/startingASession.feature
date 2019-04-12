@@ -23,9 +23,9 @@ Feature: Starting a session for a specific box
       | 6         | jjj | What's the capital of Spain ?           | Madrid     |
       | 6         | kkk | What's the capital of Denmark ?         | Copenhagen |
       | 7         | lll | What's the capital of Russia ?          | Moscow     |
-    And the current session of the box "Capitals of the World" is <sessionNumber>
+    And the next session of the box "Capitals of the World" is <sessionNumber>
     When the current player starts the session for the box "Capitals of the World"
-    Then the selected deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
+    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
       | sessionNumber | partitions |
@@ -94,7 +94,7 @@ Feature: Starting a session for a specific box
       | 63            | 2,1        |
       | 64            | 1          |
 
-  Scenario Outline: The current player starts session <nextSessionNumber> and has missed the <missedSessions> previous session(s)
+  Scenario Outline: The current player starts session <nextSessionNumber> and his last completed session was <lastCompletedSession>
     Given a box named "Capitals of the World" containing the following flashcards:
       | partition | id  | question                                | answer     |
       | 1         | aaa | What's the capital of France ?          | Paris      |
@@ -109,13 +109,13 @@ Feature: Starting a session for a specific box
       | 6         | iii | What's the capital of Spain ?           | Madrid     |
       | 6         | jjj | What's the capital of Denmark ?         | Copenhagen |
       | 7         | kkk | What's the capital of Russia ?          | Moscow     |
-    And the current session of the box "Capitals of the World" is <nextSessionNumber>
-    And the current player has missed <missedSessions> sessions for the box "Capitals of the World"
+    And the next session of the box "Capitals of the World" is <nextSessionNumber>
+    And the current player last completed session was <lastCompletedSession> for the box "Capitals of the World"
     When the current player starts the session for the box "Capitals of the World"
-    Then the selected deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
+    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
-      | nextSessionNumber | missedSessions | partitions  |
-      | 2                 | 1              | 1,2,3       |
-      | 34                | 10             | 1,2,3,4,5,6 |
-      | 58                | 3              | 1,2,3,7     |
+      | nextSessionNumber | lastCompletedSession | partitions  |
+      | 2                 | 0                    | 1,2,3       |
+      | 34                | 24                   | 1,2,3,4,5,6 |
+      | 58                | 55                   | 1,2,3,7     |

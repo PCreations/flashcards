@@ -25,7 +25,14 @@ When('the current player starts the session for the box {string}', function(boxN
   return StartSessionUseCase().handle({ boxName });
 });
 
-Given('the current player has missed {int} sessions for the box {string}', function(int, boxName) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+Given('the current player last completed session was {int} for the box {string}', async function(
+  lastCompletedSession,
+  boxName,
+) {
+  const { boxRepository, authenticationGateway } = getDependencies(this);
+  const box = await boxRepository.getBoxByName({
+    boxName,
+    playerId: authenticationGateway.getCurrentPlayer().id,
+  });
+  return boxRepository.save(box.withLastCompletedSessionBeing(lastCompletedSession));
 });
