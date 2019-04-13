@@ -1,14 +1,7 @@
-const { Player } = require('./player');
-
-const AuthenticationGateway = ({
-  authenticate = async (player = Player) => Boolean(),
-  getCurrentPlayer = () => Player,
-}) =>
-  Object.freeze({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthenticationGateway = ({ authenticate, getCurrentPlayer, }) => Object.freeze({
     authenticate,
     getCurrentPlayer,
-  });
-
-module.exports = {
-  AuthenticationGateway,
-};
+});
+//# sourceMappingURL=authenticationGateway.js.map

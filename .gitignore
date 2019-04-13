@@ -1,4 +1,31 @@
-node_modules
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+*.code-workspace
+
+pids
+logs
+results
+tmp
+
+# Coverage reports
 coverage
-report/cucumber_report.json
-report/cucumber_report.html
+
+# Cucumber report
+report
+
+# Dependency directory
+node_modules
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore built ts files
+dist/**/*
