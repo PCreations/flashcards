@@ -20,12 +20,13 @@
       "request": "launch",
       "args": [
         "--world-parameters",
-        "{\"dependencies\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
+        "{\"dependenciesPath\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "program": "${workspaceFolder}/node_modules/cucumber/bin/cucumber-js"
+      "program": "${workspaceFolder}/node_modules/cucumber/bin/cucumber-js",
+      "preLaunchTask": "npm: build-ts"
     }
   ]
 }
