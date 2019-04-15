@@ -31,7 +31,7 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
           const boxToSave = createBox({
             boxName: 'Capitals of the World',
             ownedByPlayerWithId: currentPlayer.id,
-            nextSession: 17,
+            currentSession: 16,
             lastCompletedSession: 16,
             partitions: [
               [
@@ -57,7 +57,7 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
             ],
           });
           await boxRepository.save(boxToSave);
-          await StartSessionUseCase().handle();
+          await StartSessionUseCase({ boxRepository }).handle({ boxName: 'Capitals of the World' });
           const box = await boxRepository.getBoxByName({
             boxName: 'Capitals of the World',
             playerId: currentPlayer.id,
@@ -82,7 +82,7 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
             createBox({
               boxName: 'Capitals of the World',
               ownedByPlayerWithId: '42',
-              nextSession: 45,
+              currentSession: 45,
               lastCompletedSession: 42,
               partitions: [
                 [
@@ -108,7 +108,7 @@ describe('starting the session 17 in the box "Capitals of the World" of the play
               ],
             }),
           );
-          await StartSessionUseCase().handle();
+          await StartSessionUseCase({ boxRepository }).handle({ boxName: 'Capitals of the World' });
           const box = await boxRepository.getBoxByName({
             boxName: 'Capitals of the World',
             playerId: currentPlayer.id,
