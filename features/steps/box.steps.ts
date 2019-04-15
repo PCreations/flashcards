@@ -1,7 +1,6 @@
 import expect from 'expect';
 import { Given, Then } from 'cucumber';
 import { PartitionNumber } from '../../src/domain/box/partitions';
-import { SessionNumber } from '../../src/domain/box/sessionNumber';
 import { createBox } from '../../testsUtils/helpers/dataCreators';
 import { flashcardsInPartitions } from '../../testsUtils/helpers/dataViews';
 
@@ -105,23 +104,5 @@ Given('a box named {string} containing the following flashcards:', function(boxN
       ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
       partitions,
     }),
-  );
-});
-
-Given('the next session of the box {string} is {int}', async function(
-  boxName,
-  nextSessionNumber: SessionNumber,
-) {
-  const { boxRepository, authenticationGateway } = this.dependencies;
-
-  const box = await boxRepository.getBoxByName({
-    boxName,
-    playerId: authenticationGateway.getCurrentPlayer().id,
-  });
-
-  return boxRepository.save(
-    box
-      .whereTheNextSessionToBePlayedIs(nextSessionNumber)
-      .withLastCompletedSessionBeing((nextSessionNumber - 1) as SessionNumber),
   );
 });

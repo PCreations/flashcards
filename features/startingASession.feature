@@ -8,7 +8,7 @@ Feature: Starting a session for a specific box
   Rule: deck of flashcards should be picked from the selected box, by following the Leitner schedule
   Rule: if a player missed one or many sessions, the deck must contain flashcards from missed sessions in addition to flashcards scheduled for today's session
 
-  Scenario Outline: The current player starts the session <sessionNumber> for his box "Capitals of the World"
+  Background: Box "Capitals of world" exists with some flashcards
     Given a box named "Capitals of the World" containing the following flashcards:
       | partition | id  | question                                | answer     |
       | 1         | aaa | What's the capital of France ?          | Paris      |
@@ -23,100 +23,95 @@ Feature: Starting a session for a specific box
       | 6         | jjj | What's the capital of Spain ?           | Madrid     |
       | 6         | kkk | What's the capital of Denmark ?         | Copenhagen |
       | 7         | lll | What's the capital of Russia ?          | Moscow     |
-    And the next session of the box "Capitals of the World" is <sessionNumber>
+
+  Scenario: The current player has never played the box "Capitals of the World"
+    Given today is 2019-04-01
+    When the current player starts the session for the box "Capitals of the World"
+    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions 2,1
+
+  Scenario Outline: The current player starts a session the <todaySessionDate> and hasn't missed the previous session for his box "Capitals of the World" started on 2019-04-01
+    Given today is <todaySessionDate>
+    And the current player has started the box "Capitals of the World" at 2019-04-01
+    And the current player last played session for the box "Capitals of the World" was at <lastPlayedAt>
     When the current player starts the session for the box "Capitals of the World"
     Then the session deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
-      | sessionNumber | partitions |
-      | 1             | 2,1        |
-      | 2             | 3,1        |
-      | 3             | 2,1        |
-      | 4             | 4,1        |
-      | 5             | 2,1        |
-      | 6             | 3,1        |
-      | 7             | 2,1        |
-      | 8             | 1          |
-      | 9             | 2,1        |
-      | 10            | 3,1        |
-      | 11            | 2,1        |
-      | 12            | 5,1        |
-      | 13            | 4,2,1      |
-      | 14            | 3,1        |
-      | 15            | 2,1        |
-      | 16            | 1          |
-      | 17            | 2,1        |
-      | 18            | 3,1        |
-      | 19            | 2,1        |
-      | 20            | 4,1        |
-      | 21            | 2,1        |
-      | 22            | 3,1        |
-      | 23            | 2,1        |
-      | 24            | 6,1        |
-      | 25            | 2,1        |
-      | 26            | 3,1        |
-      | 27            | 2,1        |
-      | 28            | 5,1        |
-      | 29            | 4,2,1      |
-      | 30            | 3,1        |
-      | 31            | 2,1        |
-      | 32            | 1          |
-      | 33            | 2,1        |
-      | 34            | 3,1        |
-      | 35            | 2,1        |
-      | 36            | 4,1        |
-      | 37            | 2,1        |
-      | 38            | 3,1        |
-      | 39            | 2,1        |
-      | 40            | 1          |
-      | 41            | 2,1        |
-      | 42            | 3,1        |
-      | 43            | 2,1        |
-      | 44            | 5,1        |
-      | 45            | 4,2,1      |
-      | 46            | 3,1        |
-      | 47            | 2,1        |
-      | 48            | 1          |
-      | 49            | 2,1        |
-      | 50            | 3,1        |
-      | 51            | 2,1        |
-      | 52            | 4,1        |
-      | 53            | 2,1        |
-      | 54            | 3,1        |
-      | 55            | 2,1        |
-      | 56            | 7,1        |
-      | 57            | 2,1        |
-      | 58            | 3,1        |
-      | 59            | 6,2,1      |
-      | 60            | 5,1        |
-      | 61            | 4,2,1      |
-      | 62            | 3,1        |
-      | 63            | 2,1        |
-      | 64            | 1          |
+      | lastPlayedAt | todaySessionDate | partitions |
+      | 2019-04-01   | 2019-04-02       | 3,1        |
+      | 2019-04-02   | 2019-04-03       | 2,1        |
+      | 2019-04-03   | 2019-04-04       | 4,1        |
+      | 2019-04-04   | 2019-04-05       | 2,1        |
+      | 2019-04-05   | 2019-04-06       | 3,1        |
+      | 2019-04-06   | 2019-04-07       | 2,1        |
+      | 2019-04-07   | 2019-04-08       | 1          |
+      | 2019-04-08   | 2019-04-09       | 2,1        |
+      | 2019-04-09   | 2019-04-10       | 3,1        |
+      | 2019-04-10   | 2019-04-11       | 2,1        |
+      | 2019-04-11   | 2019-04-12       | 5,1        |
+      | 2019-04-12   | 2019-04-13       | 4,2,1      |
+      | 2019-04-13   | 2019-04-14       | 3,1        |
+      | 2019-04-14   | 2019-04-15       | 2,1        |
+      | 2019-04-15   | 2019-04-16       | 1          |
+      | 2019-04-16   | 2019-04-17       | 2,1        |
+      | 2019-04-17   | 2019-04-18       | 3,1        |
+      | 2019-04-18   | 2019-04-19       | 2,1        |
+      | 2019-04-19   | 2019-04-20       | 4,1        |
+      | 2019-04-20   | 2019-04-21       | 2,1        |
+      | 2019-04-21   | 2019-04-22       | 3,1        |
+      | 2019-04-22   | 2019-04-23       | 2,1        |
+      | 2019-04-23   | 2019-04-24       | 6,1        |
+      | 2019-04-24   | 2019-04-25       | 2,1        |
+      | 2019-04-25   | 2019-04-26       | 3,1        |
+      | 2019-04-26   | 2019-04-27       | 2,1        |
+      | 2019-04-27   | 2019-04-28       | 5,1        |
+      | 2019-04-28   | 2019-04-29       | 4,2,1      |
+      | 2019-04-29   | 2019-04-30       | 3,1        |
+      | 2019-04-30   | 2019-05-01       | 2,1        |
+      | 2019-05-01   | 2019-05-02       | 1          |
+      | 2019-05-02   | 2019-05-03       | 2,1        |
+      | 2019-05-03   | 2019-05-04       | 3,1        |
+      | 2019-05-04   | 2019-05-05       | 2,1        |
+      | 2019-05-05   | 2019-05-06       | 4,1        |
+      | 2019-05-06   | 2019-05-07       | 2,1        |
+      | 2019-05-07   | 2019-05-08       | 3,1        |
+      | 2019-05-08   | 2019-05-09       | 2,1        |
+      | 2019-05-09   | 2019-05-10       | 1          |
+      | 2019-05-10   | 2019-05-11       | 2,1        |
+      | 2019-05-11   | 2019-05-12       | 3,1        |
+      | 2019-05-12   | 2019-05-13       | 2,1        |
+      | 2019-05-13   | 2019-05-14       | 5,1        |
+      | 2019-05-14   | 2019-05-15       | 4,2,1      |
+      | 2019-05-15   | 2019-05-16       | 3,1        |
+      | 2019-05-16   | 2019-05-17       | 2,1        |
+      | 2019-05-17   | 2019-05-18       | 1          |
+      | 2019-05-18   | 2019-05-19       | 2,1        |
+      | 2019-05-19   | 2019-05-20       | 3,1        |
+      | 2019-05-20   | 2019-05-21       | 2,1        |
+      | 2019-05-21   | 2019-05-22       | 4,1        |
+      | 2019-05-22   | 2019-05-23       | 2,1        |
+      | 2019-05-23   | 2019-05-24       | 3,1        |
+      | 2019-05-24   | 2019-05-25       | 2,1        |
+      | 2019-05-25   | 2019-05-26       | 7,1        |
+      | 2019-05-26   | 2019-05-27       | 2,1        |
+      | 2019-05-27   | 2019-05-28       | 3,1        |
+      | 2019-05-28   | 2019-05-29       | 6,2,1      |
+      | 2019-05-29   | 2019-05-30       | 5,1        |
+      | 2019-05-30   | 2019-05-31       | 4,2,1      |
+      | 2019-05-31   | 2019-06-01       | 3,1        |
+      | 2019-06-01   | 2019-06-02       | 2,1        |
+      | 2019-06-02   | 2019-06-03       | 1          |
 
-  Scenario Outline: The current player starts session <nextSessionNumber> and his last completed session was <lastCompletedSession>
-    Given a box named "Capitals of the World" containing the following flashcards:
-      | partition | id  | question                                | answer     |
-      | 1         | aaa | What's the capital of France ?          | Paris      |
-      | 1         | bbb | What's the capital of Italy ?           | Roma       |
-      | 2         | ccc | What's the capital of the Netherlands ? | Amsterdam  |
-      | 2         | ddd | What's the capital of Norway ?          | Oslo       |
-      | 2         | eee | What's the capital of Croatia ?         | Zagreb     |
-      | 3         | fff | What's the capital of Finland ?         | Helsinki   |
-      | 4         | ggg | What's the capital of Sweden ?          | Stockholm  |
-      | 4         | hhh | What's the capital of Hungary ?         | Budapest   |
-      | 5         | hhh | What's the capital of Luxembourg ?      | Luxembourg |
-      | 6         | iii | What's the capital of Spain ?           | Madrid     |
-      | 6         | jjj | What's the capital of Denmark ?         | Copenhagen |
-      | 7         | kkk | What's the capital of Russia ?          | Moscow     |
-    And the next session of the box "Capitals of the World" is <nextSessionNumber>
-    And the current player last completed session was <lastCompletedSession> for the box "Capitals of the World"
+  Scenario Outline: The current player starts a session the <todaySessionDate> while the last session was played at <lastPlayedAt> for his box "Capitals of the World" started on 2019-04-01
+    Given today is <todaySessionDate>
+    And the current player has started the box "Capitals of the World" at 2019-04-01
+    And the current player last played session for the box "Capitals of the World" was at <lastPlayedAt>
     When the current player starts the session for the box "Capitals of the World"
     Then the session deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
 
     Examples:
-      | nextSessionNumber | lastCompletedSession | partitions  |
-      | 1                 | 0                    | 2,1         |
-      | 2                 | 0                    | 3,2,1       |
-      | 34                | 23                   | 6,5,4,3,2,1 |
-      | 58                | 55                   | 7,3,2,1     |
+      | lastPlayedAt | todaySessionDate | partitions  |
+      | 2019-04-23   | 2019-05-04       | 6,5,4,3,2,1 |
+      | 2019-05-25   | 2019-05-28       | 7,3,2,1     |
+      | 2019-06-06   | 2019-06-07       | 4,1         |
+      | 2019-05-28   | 2019-06-07       | 6,5,4,3,2,1 |

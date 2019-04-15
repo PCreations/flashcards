@@ -19,8 +19,9 @@ Then(
     const theFlashcardsInDeck = flashcardsInDeck({
       deck: box.sessionDeck,
     });
+    debugger;
     expect(expectedFlashcardsInPartitions.length).toBeGreaterThan(0);
     expect(theFlashcardsInDeck.length).toBeGreaterThan(0);
-    expect(expectedFlashcardsInPartitions).toEqual(theFlashcardsInDeck);
+    expect(theFlashcardsInDeck).toEqual(expectedFlashcardsInPartitions);
   },
 );

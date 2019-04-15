@@ -1,8 +1,35 @@
+import dayjs from 'dayjs';
 import { sessionRange } from '../sessionRange';
 
 test('sessions range', () => {
-  expect(sessionRange({ lastCompletedSession: 0, session: 1 })).toEqual([1]);
-  expect(sessionRange({ lastCompletedSession: 1, session: 2 })).toEqual([2]);
-  expect(sessionRange({ lastCompletedSession: 5, session: 10 })).toEqual([6, 7, 8, 9, 10]);
-  expect(sessionRange({ lastCompletedSession: 60, session: 2 })).toEqual([61, 62, 63, 64, 1, 2]);
+  const dateOfFirstSession = dayjs('2019-04-01').toDate();
+  expect(sessionRange({ dateOfFirstSession, sessionDate: dateOfFirstSession })).toEqual([1]);
+  expect(sessionRange({ dateOfFirstSession, sessionDate: dayjs('2019-04-03').toDate() })).toEqual([1, 2, 3]);
+  expect(sessionRange({ dateOfFirstSession, sessionDate: dayjs('2019-06-07').toDate() })).toEqual([
+    1,
+    2,
+    3,
+    4,
+  ]);
+  expect(
+    sessionRange({
+      dateOfFirstSession,
+      sessionDate: dayjs('2019-04-05').toDate(),
+      lastCompletedSessionDate: dayjs('2019-04-04').toDate(),
+    }),
+  ).toEqual([5]);
+  expect(
+    sessionRange({
+      dateOfFirstSession,
+      lastCompletedSessionDate: dayjs('2019-04-30').toDate(),
+      sessionDate: dayjs('2019-05-04').toDate(),
+    }),
+  ).toEqual([31, 32, 33, 34]);
+  expect(
+    sessionRange({
+      dateOfFirstSession,
+      lastCompletedSessionDate: dayjs('2019-05-30').toDate(),
+      sessionDate: dayjs('2019-06-06').toDate(),
+    }),
+  ).toEqual([61, 62, 63, 64, 1, 2, 3]);
 });

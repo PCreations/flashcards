@@ -9,20 +9,15 @@ const BoxFactory = (
   data: {
     name?: string;
     playerId?: string;
+    startedAt?: Date;
     partitions: Partitions;
-    nextSession: SessionNumber;
-    lastCompletedSession: SessionNumber;
+    lastCompletedSessionDate?: Date;
+    sessionDeck?: Flashcard[];
   } = {
     partitions: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
-    nextSession: 1,
-    lastCompletedSession: NO_COMPLETED_SESSION_YET,
   },
 ) => {
   const createSessionDeck = createSessionDeckForPartitions(data.partitions);
-  const sessionDeck = createSessionDeck({
-    lastCompletedSession: data.lastCompletedSession,
-    session: data.nextSession,
-  });
 
   return Object.freeze({
     named(name: string) {
@@ -31,16 +26,19 @@ const BoxFactory = (
     ownedBy(player: Player) {
       return BoxFactory({ ...data, playerId: player.id });
     },
-    whereTheNextSessionToBePlayedIs(nextSession: SessionNumber = 0) {
-      return BoxFactory({
-        ...data,
-        nextSession,
-      });
+    whereFirstSessionStartedAt(startedAt: Date) {
+      return BoxFactory({ ...data, startedAt });
     },
-    withLastCompletedSessionBeing(lastCompletedSession: SessionNumber = 0) {
+    startSession(sessionDate: Date) {
       return BoxFactory({
         ...data,
-        lastCompletedSession,
+        startedAt: data.startedAt || sessionDate,
+        sessionDeck: createSessionDeck({
+          dateOfFirstSession: data.startedAt || sessionDate,
+          sessionDate,
+          lastCompletedSessionDate: data.lastCompletedSessionDate,
+        }),
+        lastCompletedSessionDate: sessionDate,
       });
     },
     addFlashcard(flashcard: Flashcard) {
@@ -64,7 +62,7 @@ const BoxFactory = (
     getFlashcardsInPartitions(...partitionsNumber: PartitionNumber[]) {
       return partitionsNumber.reduce((flashcards, number) => [...flashcards, ...data.partitions[number]], []);
     },
-    sessionDeck,
+    sessionDeck: [],
     ...data,
   });
 };

@@ -1,10 +1,11 @@
+import dayjs from 'dayjs';
 import { flatten } from 'lodash';
 import { PartitionNumber } from '../../partitions';
 import { createSessionDeckForPartitions } from '../createSessionDeckForPartitions';
 import { createPartitionsFromFlashcardsData } from '../../../../../testsUtils/helpers/dataCreators';
 
 describe('create session deck', () => {
-  describe(`given a box named "Capitals of the World" containing:
+  describe(`given a box named "Capitals of the World" where the first session was started at 2019-04-01 and containing:
     | partition | id  | question                                | answer     |
     | 1         | aaa | What's the capital of France ?          | Paris      |
     | 1         | bbb | What's the capital of Italy ?           | Roma       |
@@ -20,15 +21,15 @@ describe('create session deck', () => {
     | 7         | lll | What's the capital of Russia ?          | Moscow     |
   `, () => {
     test.each`
-      session | lastCompletedSession | partitions
-      ${1}    | ${0}                 | ${[2, 1]}
-      ${2}    | ${0}                 | ${[3, 2, 1]}
-      ${34}   | ${23}                | ${[6, 5, 4, 3, 2, 1]}
-      ${58}   | ${55}                | ${[7, 3, 2, 1]}
-      ${2}    | ${60}                | ${[4, 3, 2, 1]}
+      sessionDate            | lastCompletedSessionDate | partitions
+      ${dayjs('2019-04-01')} | ${undefined}             | ${[2, 1]}
+      ${dayjs('2019-04-03')} | ${undefined}             | ${[3, 2, 1]}
+      ${dayjs('2019-05-04')} | ${dayjs('2019-04-23')}   | ${[6, 5, 4, 3, 2, 1]}
+      ${dayjs('2019-05-28')} | ${dayjs('2019-05-25')}   | ${[7, 3, 2, 1]}
+      ${dayjs('2019-06-06')} | ${dayjs('2019-05-30')}   | ${[4, 3, 2, 1]}
     `(
       'given last completed session is $lastCompletedSession, when session is $session, then the deck should contain flashcards from partitions $partitions',
-      ({ lastCompletedSession, session, partitions }) => {
+      ({ lastCompletedSessionDate, sessionDate, partitions }) => {
         const boxPartitions = createPartitionsFromFlashcardsData([
           [
             { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
@@ -52,9 +53,13 @@ describe('create session deck', () => {
           [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
         ]);
         const createSessionDeck = createSessionDeckForPartitions(boxPartitions);
-        expect(createSessionDeck({ session, lastCompletedSession })).toEqual(
-          flatten(partitions.map((partition: PartitionNumber) => boxPartitions[partition])),
-        );
+        expect(
+          createSessionDeck({
+            dateOfFirstSession: dayjs('2019-04-01').toDate(),
+            sessionDate,
+            lastCompletedSessionDate,
+          }),
+        ).toEqual(flatten(partitions.map((partition: PartitionNumber) => boxPartitions[partition])));
       },
     );
   });
