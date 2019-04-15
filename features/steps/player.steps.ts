@@ -47,19 +47,9 @@ Given(
       return;
     }
     const { boxRepository, authenticationGateway } = this.dependencies;
-    const box = await boxRepository.getBoxByName({
-      boxName,
-      playerId: authenticationGateway.getCurrentPlayer().id,
-    });
-    const boxStartedAt = dayjs(box.startedAt);
-    let currentDate = boxStartedAt;
-    const lastPlayedSessionDate = dayjs(lastPlayedSessionStringDate);
-    while (!currentDate.isSame(lastPlayedSessionDate)) {
-      StartSessionUseCase({ boxRepository, authenticationGateway }).handle({
-        boxName,
-        today: currentDate.toDate(),
-      });
-      currentDate = currentDate.add(1, 'day');
-    }
+    return StartSessionUseCase({
+      boxRepository,
+      authenticationGateway,
+    }).handle({ boxName, today: dayjs(lastPlayedSessionStringDate).toDate() });
   },
 );

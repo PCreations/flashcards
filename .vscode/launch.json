@@ -20,6 +20,8 @@
       "request": "launch",
       "args": [
         "dist/features/",
+        "--name",
+        "The current player starts a session the 2019-05-02 and hasn't missed the previous session for his box \"Capitals of the World\" started on 2019-04-01",
         "--world-parameters",
         "{\"dependenciesPath\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
       ],

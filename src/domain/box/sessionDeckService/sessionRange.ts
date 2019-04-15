@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import range from 'lodash/range';
-import { MAX_SESSION_NUMBER, MIN_SESSION_NUMBER, SessionNumber } from '../sessionNumber';
+import { MAX_SESSION_NUMBER, SessionNumber } from '../sessionNumber';
 
 const dateToSession = (dateOfFirstSession: Date, currentDate: Date): SessionNumber => {
   const daysDiff = dayjs(currentDate).diff(dayjs(dateOfFirstSession), 'day') + 1;

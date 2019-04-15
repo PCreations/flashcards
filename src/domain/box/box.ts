@@ -38,6 +38,7 @@ const BoxFactory = (
           sessionDate,
           lastCompletedSessionDate: data.lastCompletedSessionDate,
         }),
+        lastCompletedSessionDate: sessionDate,
       });
     },
     addFlashcard(flashcard: Flashcard) {
