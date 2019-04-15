@@ -19,6 +19,7 @@
       "name": "cucumber",
       "request": "launch",
       "args": [
+        "dist/features/",
         "--world-parameters",
         "{\"dependenciesPath\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
       ],
@@ -26,7 +27,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "program": "${workspaceFolder}/node_modules/cucumber/bin/cucumber-js",
-      "preLaunchTask": "npm: build-ts"
+      "preLaunchTask": "prepare cucumber tests"
     }
   ]
 }

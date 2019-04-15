@@ -24,17 +24,20 @@ const addFlashcardsInPartition = (
 export const createBox = ({
   boxName,
   ownedByPlayerWithId,
-  currentSession = 0,
-  lastCompletedSession = 0,
+  startedAt,
   partitions = [[]],
 }: {
   boxName?: string;
   ownedByPlayerWithId?: string;
-  currentSession?: SessionNumber;
-  lastCompletedSession?: SessionNumber;
+  startedAt?: Date;
   partitions?: { id: string; answer: string; question: string }[][];
 } = {}) =>
-  partitions.reduce(addFlashcardsInPartition, Box.named(boxName).ownedBy(Player.ofId(ownedByPlayerWithId)));
+  partitions.reduce(
+    addFlashcardsInPartition,
+    Box.named(boxName)
+      .ownedBy(Player.ofId(ownedByPlayerWithId))
+      .whereFirstSessionStartedAt(startedAt),
+  );
 
 type FlashcardDatatable = {
   hashes: () => {

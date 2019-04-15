@@ -1,4 +1,5 @@
 import { Given, When } from 'cucumber';
+import dayjs from 'dayjs';
 import { createFlashcardsFromGherkinDatatable } from '../../testsUtils/helpers/dataCreators';
 import { AddFlashcardInBoxUseCase } from '../../src/useCases/addFlashcardInBoxUseCase';
 import { StartSessionUseCase } from '../../src/useCases/startSessionUseCase';
@@ -21,19 +22,44 @@ When('the current player adds the following flashcard in his box named {string}:
 });
 
 When('the current player starts the session for the box {string}', function(boxName) {
-  return 'pending';
-  //return StartSessionUseCase().handle();
+  return StartSessionUseCase(this.dependencies).handle({
+    boxName: boxName,
+    today: this.dependencies.dateService.getToday(),
+  });
 });
 
 Given(
-  /^the current player last played session for the box "([\w\W]*)" was at (?:never|(?:(\d{4})-(\d{2})-(\d{2})))$/,
-  async function(boxName, lastSessionYear, lastSessionMonth, lastSessionDay) {
-    /*const { boxRepository, authenticationGateway } = this.dependencies;
-  const box = await boxRepository.getBoxByName({
-    boxName,
-    playerId: authenticationGateway.getCurrentPlayer().id,
-  });
-  return boxRepository.save(box.withLastCompletedSessionBeing(lastCompletedSession));*/
-    return 'pending';
+  /^the current player has started the box "([\w\W]*)" at ((?:\d{4})-(?:\d{2})-(?:\d{2}))$/,
+  async function(boxName, startedAt) {
+    const box = await this.dependencies.boxRepository.getBoxByName({
+      boxName,
+      playerId: this.dependencies.authenticationGateway.getCurrentPlayer().id,
+    });
+
+    return this.dependencies.boxRepository.save(box.whereFirstSessionStartedAt(dayjs(startedAt).toDate()));
+  },
+);
+
+Given(
+  /^the current player last played session for the box "([\w\W]*)" was at (?:never|((?:\d{4})-(?:\d{2})-(?:\d{2})))$/,
+  async function(boxName, lastPlayedSessionStringDate) {
+    if (typeof lastPlayedSessionStringDate === 'undefined') {
+      return;
+    }
+    const { boxRepository, authenticationGateway } = this.dependencies;
+    const box = await boxRepository.getBoxByName({
+      boxName,
+      playerId: authenticationGateway.getCurrentPlayer().id,
+    });
+    const boxStartedAt = dayjs(box.startedAt);
+    let currentDate = boxStartedAt;
+    const lastPlayedSessionDate = dayjs(lastPlayedSessionStringDate);
+    while (!currentDate.isSame(lastPlayedSessionDate)) {
+      StartSessionUseCase({ boxRepository, authenticationGateway }).handle({
+        boxName,
+        today: currentDate.toDate(),
+      });
+      currentDate = currentDate.add(1, 'day');
+    }
   },
 );

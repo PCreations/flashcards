@@ -4,8 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "build-ts",
+      "type": "shell",
+      "label": "prepare cucumber tests",
+      "command": "yarn build-ts && cp features/*.feature dist/features/",
       "problemMatcher": []
     }
   ]
