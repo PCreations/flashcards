@@ -24,6 +24,9 @@ export const sessionRange = ({
     return range(1, currentSessionNumber + 1) as SessionNumber[];
   }
   const lastCompletedSessionNumber = dateToSession(dateOfFirstSession, lastCompletedSessionDate);
+  if (lastCompletedSessionNumber === currentSessionNumber) {
+    return [currentSessionNumber];
+  }
   return lastCompletedSessionNumber > currentSessionNumber
     ? (range(lastCompletedSessionNumber + 1, MAX_SESSION_NUMBER + 1).concat(
         range(1, currentSessionNumber + 1),
