@@ -27,3 +27,14 @@ Then(
     expect(theFlashcardsInDeck).toEqual(expectedFlashcardsInPartitions);
   },
 );
+
+Then('the first flashcard to review for the box {string} should be:', async function(boxName, flashcards) {
+  const flashcard = flashcards.hashes()[0];
+  const { boxRepository, authenticationGateway } = this.dependencies;
+  const sessionDeckQuery = SessionDeckQuery({ boxRepository });
+  const deck = await sessionDeckQuery.execute({
+    boxName,
+    playerId: authenticationGateway.getCurrentPlayer().id,
+  });
+  expect(deck[0]).toEqual(flashcard);
+});
