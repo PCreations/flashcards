@@ -27,10 +27,8 @@ Feature: Starting a session for a specific box
   Scenario: The current player has never played the box "Capitals of the World"
     Given today is 2019-04-01
     When the current player starts the session for the box "Capitals of the World"
-    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions 2,1
-    And the first flashcard to review for the box "Capitals of the World" should be:
-      | question                                | answer    |
-      | What's the capital of the Netherlands ? | Amsterdam |
+    Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions 2,1
+    And the first flashcard question to review for the box "Capitals of the World" should be "What's the capital of the Netherlands ?"
 
   Scenario: The current player wants to play twice the same day the box "Capitals of the World" that he has already played before
     Given today is 2019-04-02
@@ -38,14 +36,14 @@ Feature: Starting a session for a specific box
     And the current player last played session for the box "Capitals of the World" was at 2019-04-01
     When the current player starts the session for the box "Capitals of the World"
     When the current player starts the session for the box "Capitals of the World"
-    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions 3,1
+    Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions 3,1
 
   Scenario Outline: The current player starts a session the <todaySessionDate> and hasn't missed the previous session for his box "Capitals of the World" started on 2019-04-01
     Given today is <todaySessionDate>
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at <lastPlayedAt>
     When the current player starts the session for the box "Capitals of the World"
-    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
+    Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions <partitions>
 
     Examples:
       | lastPlayedAt | todaySessionDate | partitions |
@@ -118,7 +116,7 @@ Feature: Starting a session for a specific box
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at <lastPlayedAt>
     When the current player starts the session for the box "Capitals of the World"
-    Then the session deck for the box "Capitals of the World" should contain flashcards from partitions <partitions>
+    Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions <partitions>
 
     Examples:
       | lastPlayedAt | todaySessionDate | partitions  |
