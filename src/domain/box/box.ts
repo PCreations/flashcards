@@ -1,72 +1,88 @@
-import invariant from 'invariant';
+import flatMap from 'lodash/flatMap';
+import flow from 'lodash/flow';
 import { Player } from '../player/player';
 import { Flashcard } from './flashcard';
 import { Partitions, PartitionNumber } from './partitions';
-import { SessionNumber, NO_COMPLETED_SESSION_YET } from './sessionNumber';
-import { createSessionDeckForPartitions } from './sessionDeckService/createSessionDeckForPartitions';
+import { getPartitionsForSession } from './sessionDeckService/getPartitionsForSession';
 
-const BoxFactory = (
-  data: {
-    name?: string;
-    playerId?: string;
-    startedAt?: Date;
-    partitions: Partitions;
-    lastCompletedSessionDate?: Date;
-    sessionDeck?: Flashcard[];
-  } = {
-    partitions: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
-  },
-) => {
-  const createSessionDeck = createSessionDeckForPartitions(data.partitions);
+export type Box = Readonly<{
+  name?: string;
+  playerId?: string;
+  startedAt?: Date;
+  lastStartedSessionDate?: Date;
+  partitions: Partitions;
+  sessionsPartitions: PartitionNumber[];
+}>;
 
-  return Object.freeze({
-    named(name: string) {
-      return BoxFactory({ ...data, name });
-    },
-    ownedBy(player: Player) {
-      return BoxFactory({ ...data, playerId: player.id });
-    },
-    whereFirstSessionStartedAt(startedAt: Date) {
-      return BoxFactory({ ...data, startedAt });
-    },
-    startSession(sessionDate: Date) {
-      return BoxFactory({
-        ...data,
-        startedAt: data.startedAt || sessionDate,
-        sessionDeck: createSessionDeck({
-          dateOfFirstSession: data.startedAt || sessionDate,
-          sessionDate,
-          lastCompletedSessionDate: data.lastCompletedSessionDate,
-        }),
-        lastCompletedSessionDate: sessionDate,
-      });
-    },
-    addFlashcard(flashcard: Flashcard) {
-      return {
-        inPartition(partition: PartitionNumber = 1) {
-          invariant(typeof partition === typeof 1, 'partition number must be a number');
-          invariant(
-            partition >= 1 && partition <= 7,
-            `partition number should be between 1 and 7, received ${partition}`,
-          );
-          return BoxFactory({
-            ...data,
-            partitions: {
-              ...data.partitions,
-              [partition]: [...data.partitions[partition], flashcard],
-            },
-          });
-        },
-      };
-    },
-    getFlashcardsInPartitions(...partitionsNumber: PartitionNumber[]) {
-      return partitionsNumber.reduce((flashcards, number) => [...flashcards, ...data.partitions[number]], []);
-    },
-    sessionDeck: [],
-    ...data,
+const defaultBox: Box = Object.freeze({
+  partitions: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
+  sessionsPartitions: [],
+});
+
+const mergeBox = (updater: (box: Box) => Partial<Box>) => (box: Box): Box =>
+  Object.freeze({
+    ...box,
+    ...updater(box),
   });
-};
 
-export const Box = BoxFactory();
+export const createBox = (...fns: ((box: Box) => Box)[]): Box => flow(fns)(defaultBox);
 
-export type Box = ReturnType<typeof BoxFactory>;
+export const named = (name: string) => mergeBox(() => ({ name }));
+
+export const ownedBy = (player: Player) => mergeBox(() => ({ playerId: player.id }));
+
+export const whereFirstSessionStartedAt = (startedAt: Date) => mergeBox(() => ({ startedAt }));
+
+export const addFlashcard = ({
+  flashcard,
+  partition,
+}: {
+  flashcard: Flashcard;
+  partition: PartitionNumber;
+}) =>
+  mergeBox(box => ({
+    partitions: {
+      ...box.partitions,
+      [partition]: [...box.partitions[partition], flashcard],
+    },
+  }));
+
+const updateSessionStartedAt = (sessionDate: Date) =>
+  mergeBox(box => whereFirstSessionStartedAt(box.startedAt || sessionDate)(box));
+
+const updateSessionsPartitions = (sessionDate: Date) =>
+  mergeBox(box => ({
+    sessionsPartitions: getPartitionsForSession({
+      dateOfFirstSession: box.startedAt,
+      sessionDate,
+      lastStartedSessionDate: box.lastStartedSessionDate,
+    }),
+  }));
+
+const updateLastSessionStartedAt = (sessionDate: Date) =>
+  mergeBox(() => ({ lastStartedSessionDate: sessionDate }));
+
+export const startSession = (sessionDate: Date) =>
+  flow(
+    updateSessionStartedAt(sessionDate),
+    updateSessionsPartitions(sessionDate),
+    updateLastSessionStartedAt(sessionDate),
+  );
+
+export const getFlashcard = ({
+  box,
+  partition,
+  position,
+}: {
+  box: Box;
+  partition: PartitionNumber;
+  position: number;
+}): Flashcard => box.partitions[partition][position - 1];
+
+export const getFlashcardsInPartitions = ({
+  box,
+  partitionsNumbers,
+}: {
+  box: Box;
+  partitionsNumbers: PartitionNumber[];
+}): Flashcard[] => flatMap(partitionsNumbers, partition => box.partitions[partition]);

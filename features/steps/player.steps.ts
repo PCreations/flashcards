@@ -3,19 +3,14 @@ import dayjs from 'dayjs';
 import { createFlashcardsFromGherkinDatatable } from '../../testsUtils/helpers/dataCreators';
 import { AddFlashcardInBoxUseCase } from '../../src/useCases/addFlashcardInBoxUseCase';
 import { StartSessionUseCase } from '../../src/useCases/startSessionUseCase';
-import { FlashcardIdentityService } from '../../src/domain/box/flashcardIdentityService';
+import { whereFirstSessionStartedAt } from '../../src/domain/box/box';
 
 When('the current player adds the following flashcard in his box named {string}:', function(
   boxName,
   flashcards,
 ) {
   const { boxRepository, authenticationGateway } = this.dependencies;
-  const flashcardIdentityService = FlashcardIdentityService({
-    getNextFlashcardId() {
-      return 'ghi';
-    },
-  });
-  return AddFlashcardInBoxUseCase({ boxRepository, authenticationGateway, flashcardIdentityService }).handle({
+  return AddFlashcardInBoxUseCase({ boxRepository, authenticationGateway }).handle({
     boxName,
     flashcard: createFlashcardsFromGherkinDatatable(flashcards)[0],
   });
@@ -36,7 +31,7 @@ Given(
       playerId: this.dependencies.authenticationGateway.getCurrentPlayer().id,
     });
 
-    return this.dependencies.boxRepository.save(box.whereFirstSessionStartedAt(dayjs(startedAt).toDate()));
+    return this.dependencies.boxRepository.save(whereFirstSessionStartedAt(dayjs(startedAt).toDate())(box));
   },
 );
 
