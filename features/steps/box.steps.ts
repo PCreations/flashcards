@@ -2,7 +2,6 @@ import expect from 'expect';
 import { Given, Then } from 'cucumber';
 import { PartitionNumber } from '../../src/domain/box/partitions';
 import { createBox } from '../../testsUtils/helpers/dataCreators';
-import { flashcardsInPartitions } from '../../testsUtils/helpers/dataViews';
 
 Given('a box named {string} that contains these flashcards in its first partition already exists:', function(
   boxName,
@@ -27,7 +26,7 @@ Then('the flashcards in the first partition of his box named {string} should be:
     boxName,
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
-  expect(flashcardsInPartitions({ box, partitions: [1] })).toEqual(flashcards.hashes());
+  expect(box.partitions[1]).toEqual(flashcards.hashes());
 });
 
 Given('the box named {string} does not contain any flashcard in its first partition', function(boxName) {
@@ -78,7 +77,7 @@ Then(
       boxName,
       playerId: ownedByPlayerWithId,
     });
-    expect(flashcardsInPartitions({ box, partitions: [1] })).toEqual(flashcards.hashes());
+    expect(box.partitions[1]).toEqual(flashcards.hashes());
   },
 );
 

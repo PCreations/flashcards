@@ -1,3 +1,4 @@
+import { startSession } from '../domain/box/box';
 import { BoxRepository } from '../domain/box/boxRepository';
 import { AuthenticationGateway } from '../domain/player/authenticationGateway';
 
@@ -13,7 +14,7 @@ export const StartSessionUseCase = ({
       boxName,
       playerId: authenticationGateway.getCurrentPlayer().id,
     });
-    return boxRepository.save(box.startSession(today));
+    return boxRepository.save(startSession(today)(box));
   },
 });
 

@@ -1,10 +1,9 @@
+import dayjs from 'dayjs';
 import { AuthenticationGateway } from '../../adapters/inMemory/authenticationGateway';
 import { BoxRepository } from '../../adapters/inMemory/boxRepository';
 import { Player } from '../../domain/player/player';
 import { StartSessionUseCase } from '../startSessionUseCase';
 import { createBox } from '../../../testsUtils/helpers/dataCreators';
-import { flashcardsInPartitions, flashcardsInDeck } from '../../../testsUtils/helpers/dataViews';
-import dayjs = require('dayjs');
 
 describe('starting the first session in the box "Capitals of the World" of the player42', () => {
   describe(`given a box named "Capitals of the World" containing:
@@ -34,25 +33,25 @@ describe('starting the first session in the box "Capitals of the World" of the p
             ownedByPlayerWithId: currentPlayer.id,
             partitions: [
               [
-                { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
-                { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+                { question: "What's the capital of France ?", answer: 'Paris' },
+                { question: "What's the capital of Italy ?", answer: 'Roma' },
               ],
               [
-                { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
-                { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
+                { question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
+                { question: "What's the capital of Norway ?", answer: 'Oslo' },
+                { question: "What's the capital of Croatia ?", answer: 'Zagreb' },
               ],
-              [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
+              [{ question: "What's the capital of Finland ?", answer: 'Helsinki' }],
               [
-                { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
+                { question: "What's the capital of Sweden ?", answer: 'Stockholm' },
+                { question: "What's the capital of Hungary ?", answer: 'Budapest' },
               ],
-              [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
+              [{ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
               [
-                { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
-                { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
+                { question: "What's the capital of Spain ?", answer: 'Madrid' },
+                { question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
               ],
-              [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
+              [{ question: "What's the capital of Russia ?", answer: 'Moscow' }],
             ],
           });
           await boxRepository.save(boxToSave);
@@ -64,12 +63,7 @@ describe('starting the first session in the box "Capitals of the World" of the p
             boxName: 'Capitals of the World',
             playerId: currentPlayer.id,
           });
-          expect(
-            flashcardsInPartitions({
-              box,
-              partitions: [2, 1],
-            }),
-          ).toEqual(flashcardsInDeck({ deck: box.sessionDeck }));
+          expect(box.sessionsPartitions).toEqual([2, 1]);
         });
       });
     });
@@ -85,25 +79,25 @@ describe('starting the first session in the box "Capitals of the World" of the p
             ownedByPlayerWithId: currentPlayer.id,
             partitions: [
               [
-                { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
-                { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+                { question: "What's the capital of France ?", answer: 'Paris' },
+                { question: "What's the capital of Italy ?", answer: 'Roma' },
               ],
               [
-                { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
-                { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
+                { question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
+                { question: "What's the capital of Norway ?", answer: 'Oslo' },
+                { question: "What's the capital of Croatia ?", answer: 'Zagreb' },
               ],
-              [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
+              [{ question: "What's the capital of Finland ?", answer: 'Helsinki' }],
               [
-                { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
+                { question: "What's the capital of Sweden ?", answer: 'Stockholm' },
+                { question: "What's the capital of Hungary ?", answer: 'Budapest' },
               ],
-              [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
+              [{ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
               [
-                { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
-                { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
+                { question: "What's the capital of Spain ?", answer: 'Madrid' },
+                { question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
               ],
-              [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
+              [{ question: "What's the capital of Russia ?", answer: 'Moscow' }],
             ],
           });
           await boxRepository.save(boxToSave);
@@ -119,12 +113,7 @@ describe('starting the first session in the box "Capitals of the World" of the p
             boxName: 'Capitals of the World',
             playerId: currentPlayer.id,
           });
-          expect(
-            flashcardsInPartitions({
-              box,
-              partitions: [3, 1],
-            }),
-          ).toEqual(flashcardsInDeck({ deck: box.sessionDeck }));
+          expect(box.sessionsPartitions).toEqual([3, 1]);
         });
       });
       describe('and the player42 last session was the 2019-04-10', () => {
@@ -139,25 +128,25 @@ describe('starting the first session in the box "Capitals of the World" of the p
               ownedByPlayerWithId: currentPlayer.id,
               partitions: [
                 [
-                  { id: 'aaa', question: "What's the capital of France ?", answer: 'Paris' },
-                  { id: 'bbb', question: "What's the capital of Italy ?", answer: 'Roma' },
+                  { question: "What's the capital of France ?", answer: 'Paris' },
+                  { question: "What's the capital of Italy ?", answer: 'Roma' },
                 ],
                 [
-                  { id: 'ccc', question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                  { id: 'ddd', question: "What's the capital of Norway ?", answer: 'Oslo' },
-                  { id: 'eee', question: "What's the capital of Croatia ?", answer: 'Zagreb' },
+                  { question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
+                  { question: "What's the capital of Norway ?", answer: 'Oslo' },
+                  { question: "What's the capital of Croatia ?", answer: 'Zagreb' },
                 ],
-                [{ id: 'fff', question: "What's the capital of Finland ?", answer: 'Helsinki' }],
+                [{ question: "What's the capital of Finland ?", answer: 'Helsinki' }],
                 [
-                  { id: 'ggg', question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                  { id: 'hhh', question: "What's the capital of Hungary ?", answer: 'Budapest' },
+                  { question: "What's the capital of Sweden ?", answer: 'Stockholm' },
+                  { question: "What's the capital of Hungary ?", answer: 'Budapest' },
                 ],
-                [{ id: 'iii', question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
+                [{ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
                 [
-                  { id: 'jjj', question: "What's the capital of Spain ?", answer: 'Madrid' },
-                  { id: 'kkk', question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
+                  { question: "What's the capital of Spain ?", answer: 'Madrid' },
+                  { question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
                 ],
-                [{ id: 'lll', question: "What's the capital of Russia ?", answer: 'Moscow' }],
+                [{ question: "What's the capital of Russia ?", answer: 'Moscow' }],
               ],
             });
             await boxRepository.save(boxToSave);
@@ -209,12 +198,7 @@ describe('starting the first session in the box "Capitals of the World" of the p
               boxName: 'Capitals of the World',
               playerId: currentPlayer.id,
             });
-            expect(
-              flashcardsInPartitions({
-                box,
-                partitions: [5, 4, 2, 1],
-              }),
-            ).toEqual(flashcardsInDeck({ deck: box.sessionDeck }));
+            expect(box.sessionsPartitions).toEqual([5, 4, 2, 1]);
           });
         });
       });

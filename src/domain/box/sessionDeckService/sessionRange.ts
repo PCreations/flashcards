@@ -12,24 +12,24 @@ const dateToSession = (dateOfFirstSession: Date, currentDate: Date): SessionNumb
 export const sessionRange = ({
   dateOfFirstSession,
   sessionDate,
-  lastCompletedSessionDate,
+  lastStartedSessionDate,
 }: {
   dateOfFirstSession: Date;
   sessionDate: Date;
-  lastCompletedSessionDate?: Date;
+  lastStartedSessionDate?: Date;
 }): SessionNumber[] => {
   if (dateOfFirstSession === sessionDate) return [dateToSession(dateOfFirstSession, sessionDate)];
   const currentSessionNumber = dateToSession(dateOfFirstSession, sessionDate);
-  if (!lastCompletedSessionDate) {
+  if (!lastStartedSessionDate) {
     return range(1, currentSessionNumber + 1) as SessionNumber[];
   }
-  const lastCompletedSessionNumber = dateToSession(dateOfFirstSession, lastCompletedSessionDate);
-  if (lastCompletedSessionNumber === currentSessionNumber) {
+  const lastStartedSessionNumber = dateToSession(dateOfFirstSession, lastStartedSessionDate);
+  if (lastStartedSessionNumber === currentSessionNumber) {
     return [currentSessionNumber];
   }
-  return lastCompletedSessionNumber > currentSessionNumber
-    ? (range(lastCompletedSessionNumber + 1, MAX_SESSION_NUMBER + 1).concat(
+  return lastStartedSessionNumber > currentSessionNumber
+    ? (range(lastStartedSessionNumber + 1, MAX_SESSION_NUMBER + 1).concat(
         range(1, currentSessionNumber + 1),
       ) as SessionNumber[])
-    : (range(lastCompletedSessionNumber + 1, currentSessionNumber + 1) as SessionNumber[]);
+    : (range(lastStartedSessionNumber + 1, currentSessionNumber + 1) as SessionNumber[]);
 };

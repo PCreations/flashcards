@@ -10,19 +10,19 @@ Feature: Starting a session for a specific box
 
   Background: Box "Capitals of world" exists with some flashcards
     Given a box named "Capitals of the World" containing the following flashcards:
-      | partition | id  | question                                | answer     |
-      | 1         | aaa | What's the capital of France ?          | Paris      |
-      | 1         | bbb | What's the capital of Italy ?           | Roma       |
-      | 2         | ccc | What's the capital of the Netherlands ? | Amsterdam  |
-      | 2         | ddd | What's the capital of Norway ?          | Oslo       |
-      | 2         | eee | What's the capital of Croatia ?         | Zagreb     |
-      | 3         | fff | What's the capital of Finland ?         | Helsinki   |
-      | 4         | ggg | What's the capital of Sweden ?          | Stockholm  |
-      | 4         | hhh | What's the capital of Hungary ?         | Budapest   |
-      | 5         | iii | What's the capital of Luxembourg ?      | Luxembourg |
-      | 6         | jjj | What's the capital of Spain ?           | Madrid     |
-      | 6         | kkk | What's the capital of Denmark ?         | Copenhagen |
-      | 7         | lll | What's the capital of Russia ?          | Moscow     |
+      | partition | question                                | answer     |
+      | 1         | What's the capital of France ?          | Paris      |
+      | 1         | What's the capital of Italy ?           | Roma       |
+      | 2         | What's the capital of the Netherlands ? | Amsterdam  |
+      | 2         | What's the capital of Norway ?          | Oslo       |
+      | 2         | What's the capital of Croatia ?         | Zagreb     |
+      | 3         | What's the capital of Finland ?         | Helsinki   |
+      | 4         | What's the capital of Sweden ?          | Stockholm  |
+      | 4         | What's the capital of Hungary ?         | Budapest   |
+      | 5         | What's the capital of Luxembourg ?      | Luxembourg |
+      | 6         | What's the capital of Spain ?           | Madrid     |
+      | 6         | What's the capital of Denmark ?         | Copenhagen |
+      | 7         | What's the capital of Russia ?          | Moscow     |
 
   Scenario: The current player has never played the box "Capitals of the World"
     Given today is 2019-04-01

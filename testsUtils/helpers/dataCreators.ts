@@ -1,24 +1,28 @@
-import { Box } from '../../src/domain/box/box';
-import { Flashcard } from '../../src/domain/box/flashcard';
+import flow from 'lodash/fp/flow';
+import {
+  createBox as createDomainBox,
+  named,
+  ownedBy,
+  whereFirstSessionStartedAt,
+  addFlashcard,
+} from '../../src/domain/box/box';
+import {
+  Flashcard,
+  createFlashcard as createDomainFlashcard,
+  ofQuestion,
+  withAnswer,
+} from '../../src/domain/box/flashcard';
 import { Partitions, PartitionNumber } from '../../src/domain/box/partitions';
-import { SessionNumber } from '../../src/domain/box/sessionNumber';
 import { Player } from '../../src/domain/player/player';
 
-const addFlashcardsInPartition = (
-  box: Box,
-  flashcards: { id: string; answer: string; question: string }[],
-  partitionIndex: number,
-) =>
-  flashcards.reduce(
-    (theBox, { id, question, answer }) =>
-      theBox
-        .addFlashcard(
-          Flashcard.ofQuestion(question)
-            .withAnswer(answer)
-            .withId(id),
-        )
-        .inPartition(((partitionIndex + 1) as any) as PartitionNumber),
-    box,
+const addFlashcardsInPartition = (flashcards: Flashcard[], partition: PartitionNumber) =>
+  flow(flashcards.map(flashcard => addFlashcard({ flashcard, partition })));
+
+const withFlashcardsInPartitions = (partitions: Flashcard[][]) =>
+  flow(
+    partitions.map((flashcards, partitionIndex) =>
+      addFlashcardsInPartition(flashcards, (partitionIndex + 1) as PartitionNumber),
+    ),
   );
 
 export const createBox = ({
@@ -30,38 +34,30 @@ export const createBox = ({
   boxName?: string;
   ownedByPlayerWithId?: string;
   startedAt?: Date;
-  partitions?: { id: string; answer: string; question: string }[][];
+  partitions?: { answer: string; question: string }[][];
 } = {}) =>
-  partitions.reduce(
-    addFlashcardsInPartition,
-    Box.named(boxName)
-      .ownedBy(Player.ofId(ownedByPlayerWithId))
-      .whereFirstSessionStartedAt(startedAt),
+  createDomainBox(
+    named(boxName),
+    ownedBy(Player.ofId(ownedByPlayerWithId)),
+    whereFirstSessionStartedAt(startedAt),
+    withFlashcardsInPartitions(partitions),
   );
 
 type FlashcardDatatable = {
   hashes: () => {
-    id: string;
     answer: string;
     question: string;
   }[];
 };
 
-export const createFlashcardsFromGherkinDatatable = (flashcardsDatatable: FlashcardDatatable) =>
-  flashcardsDatatable.hashes().map(({ id, answer, question }) =>
-    Flashcard.ofQuestion(question)
-      .withAnswer(answer)
-      .withId(id),
-  );
+const createFlashcard = ({ answer, question }: { answer: string; question: string }) =>
+  createDomainFlashcard(ofQuestion(question), withAnswer(answer));
 
-const createFlashcard = ({ id, answer, question }: { id: string; answer: string; question: string }) =>
-  Flashcard.ofQuestion(question)
-    .withAnswer(answer)
-    .withId(id);
+export const createFlashcardsFromGherkinDatatable = (flashcardsDatatable: FlashcardDatatable) =>
+  flashcardsDatatable.hashes().map(createFlashcard);
 
 export const createPartitionsFromFlashcardsData = (
   flashcardsData: {
-    id: string;
     answer: string;
     question: string;
   }[][],

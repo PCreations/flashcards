@@ -8,7 +8,7 @@ const orderPartitionsNumbersByDescOrder = (partitionsNumbers: PartitionNumber[])
 
 const uniqPartitionsNumbers = (partitionsNumbers: PartitionNumber[]) => uniq(partitionsNumbers);
 
-export const getPartitionsNumbers = flow(
+export const getPartitionsForSession = flow(
   sessionRange,
   flatMap(leitnerSchedule),
   orderPartitionsNumbersByDescOrder,
