@@ -21,7 +21,7 @@
       "args": [
         "dist/features/",
         "--name",
-        "The current player wants to play twice the same day the box \"Capitals of the World\" that he has already played before",
+        "The player reveals the answer for the flashcard he is reviewing",
         "--world-parameters",
         "{\"dependenciesPath\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
       ],

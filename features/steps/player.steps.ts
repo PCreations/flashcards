@@ -48,3 +48,10 @@ Given(
     }).handle({ boxName, today: dayjs(lastPlayedSessionStringDate).toDate() });
   },
 );
+
+When('the player reveals the answer of the current reviewed flashcard for the box {string}', function(
+  boxName,
+) {
+  // Write code here that turns the phrase above into concrete actions
+  return true;
+});
