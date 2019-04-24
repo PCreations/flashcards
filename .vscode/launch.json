@@ -21,7 +21,7 @@
       "args": [
         "dist/features/",
         "--name",
-        "The player reveals the answer for the flashcard he is reviewing",
+        "The player notifies a wrong answer for a card from the second partition",
         "--world-parameters",
         "{\"dependenciesPath\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}"
       ],

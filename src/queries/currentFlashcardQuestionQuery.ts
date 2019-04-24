@@ -11,6 +11,6 @@ export const CurrentFlashcardQuestionQuery = ({ boxRepository }: { boxRepository
   }): Promise<Flashcard['question']> {
     const box = await boxRepository.getBoxByName({ boxName, playerId });
 
-    return box.partitions[box.sessionsPartitions[0]][0].question;
+    return box.sessionFlashcards[0].question;
   },
 });

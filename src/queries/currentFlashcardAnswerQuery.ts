@@ -5,6 +5,6 @@ export const CurrentFlashcardAnswerQuery = ({ boxRepository }: { boxRepository: 
   async execute({ boxName, playerId }: { boxName: string; playerId: string }): Promise<Flashcard['answer']> {
     const box = await boxRepository.getBoxByName({ boxName, playerId });
 
-    return box.partitions[box.sessionsPartitions[0]][0].answer;
+    return box.sessionFlashcards[0].answer;
   },
 });

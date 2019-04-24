@@ -4,6 +4,7 @@ import { createFlashcardsFromGherkinDatatable } from '../../testsUtils/helpers/d
 import { AddFlashcardInBoxUseCase } from '../../src/useCases/addFlashcardInBoxUseCase';
 import { StartSessionUseCase } from '../../src/useCases/startSessionUseCase';
 import { whereFirstSessionStartedAt } from '../../src/domain/box/box';
+import { NotifyAnswerUseCase } from '../../src/useCases/notifyAnswerUseCase';
 
 When('the current player adds the following flashcard in his box named {string}:', function(
   boxName,
@@ -55,3 +56,12 @@ When('the player reveals the answer of the current reviewed flashcard for the bo
   // Write code here that turns the phrase above into concrete actions
   return true;
 });
+
+When(
+  /^the player notifies a (good|wrong) answer for the current reviewed flashcard for the box "([\w\W]*)"$/,
+  function(answerType: 'good' | 'wrong', boxName) {
+    const { boxRepository, authenticationGateway } = this.dependencies;
+    const notifyAnswerUseCase = NotifyAnswerUseCase({ boxRepository, authenticationGateway });
+    return notifyAnswerUseCase.handle({ boxName, didCorrectlyAnswer: answerType === 'good' });
+  },
+);

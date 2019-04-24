@@ -1,4 +1,3 @@
-import flatMap from 'lodash/flatMap';
 import { BoxRepository } from '../domain/box/boxRepository';
 import { Flashcard } from '../domain/box/flashcard';
 
@@ -12,9 +11,6 @@ export const SessionDeckQuery = ({ boxRepository }: { boxRepository: BoxReposito
   }): Promise<Flashcard['question'][]> {
     const box = await boxRepository.getBoxByName({ boxName, playerId });
 
-    return flatMap(
-      box.sessionsPartitions.map(partitionNumber => box.partitions[partitionNumber]),
-      flashcards => flashcards.map(({ question }) => question),
-    );
+    return box.sessionFlashcards.map(({ question }) => question);
   },
 });
