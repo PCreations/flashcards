@@ -31,16 +31,21 @@ Then(
   },
 );
 
-Then('the first flashcard question to review for the box {string} should be {string}', async function(
+Then('the flashcard question to review for the box {string} should be {string}', async function(
   boxName,
   flashcardQuestion,
 ) {
   const { boxRepository, authenticationGateway } = this.dependencies;
+  const box = await boxRepository.getBoxByName({
+    boxName,
+    playerId: authenticationGateway.getCurrentPlayer().id,
+  });
   const currentFlashcardQuestionQuery = CurrentFlashcardQuestionQuery({ boxRepository });
   const currentFlashcardQuestion = await currentFlashcardQuestionQuery.execute({
     boxName,
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
+  debugger;
   expect(currentFlashcardQuestion).toEqual(flashcardQuestion);
 });
 

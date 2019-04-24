@@ -28,9 +28,9 @@ Feature: Starting a session for a specific box
     Given today is 2019-04-01
     When the current player starts the session for the box "Capitals of the World"
     Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions 2,1
-    And the first flashcard question to review for the box "Capitals of the World" should be "What's the capital of the Netherlands ?"
+    And the flashcard question to review for the box "Capitals of the World" should be "What's the capital of the Netherlands ?"
 
-  Scenario: The current player wants to play twice the same day the box "Capitals of the World" that he has already played before
+  Scenario: The current player wants to play tow times the same day the box "Capitals of the World" that he has already played before
     Given today is 2019-04-02
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at 2019-04-01

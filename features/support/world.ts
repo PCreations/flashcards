@@ -1,9 +1,11 @@
 import { setWorldConstructor } from 'cucumber';
 import { Dependencies, DependenciesPath } from '../../testsUtils/dependencies';
+import { Flashcard } from '../../src/domain/box/flashcard';
 
 export class FlashcardsWorld {
   dependenciesPath: DependenciesPath;
   dependencies: Dependencies;
+  currentlyReviewingFlashcard: Flashcard;
   constructor({ parameters }: { parameters: { dependenciesPath: DependenciesPath } }) {
     this.dependenciesPath = parameters.dependenciesPath;
   }
@@ -15,5 +17,6 @@ declare module 'cucumber' {
   interface World {
     dependenciesPath: DependenciesPath;
     dependencies: Dependencies;
+    currentlyReviewingFlashcard: Flashcard;
   }
 }
