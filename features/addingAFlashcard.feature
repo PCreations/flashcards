@@ -8,10 +8,10 @@ Feature: Adding a flashcard to a box
   Rule: Flashcard is added to the first partition of the box, at the end of the stack
 
   Scenario: The box exists and its first partition is not empty
-    Given a box named "Capitals of the World" that contains these flashcards in its first partition already exists:
-      | question                         | answer   |
-      | What is the capital of France ?  | Paris    |
-      | What is the capital of Belgium ? | Brussels |
+    Given a box named "Capitals of the World" containing the following flashcards:
+      | partition | question                         | answer   |
+      | 1         | What is the capital of France ?  | Paris    |
+      | 1         | What is the capital of Belgium ? | Brussels |
     When the current player adds the following flashcard in his box named "Capitals of the World":
       | question                           | answer   |
       | What is the capital of Australia ? | Canberra |

@@ -1,25 +1,12 @@
 import expect from 'expect';
 import isEqual from 'lodash/isEqual';
+import dayjs from 'dayjs';
 import { Given, Then } from 'cucumber';
 import { PartitionNumber } from '../../src/domain/box/partitions';
-import { createBox } from '../../testsUtils/helpers/dataCreators';
 import { StartSessionUseCase } from '../../src/useCases/startSessionUseCase';
-import dayjs from 'dayjs';
 import { NotifyAnswerUseCase } from '../../src/useCases/notifyAnswerUseCase';
-
-Given('a box named {string} that contains these flashcards in its first partition already exists:', function(
-  boxName,
-  flashcards,
-) {
-  const { boxRepository, authenticationGateway } = this.dependencies;
-  return boxRepository.save(
-    createBox({
-      boxName,
-      ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      partitions: [flashcards.hashes()],
-    }),
-  );
-});
+import { Box, mapBox, addFlashcard } from '../../src/domain/box/box';
+import { Flashcard } from '../../src/domain/box/flashcard';
 
 Then('the flashcards in the first partition of his box named {string} should be:', async function(
   boxName,
@@ -30,15 +17,15 @@ Then('the flashcards in the first partition of his box named {string} should be:
     boxName,
     playerId: authenticationGateway.getCurrentPlayer().id,
   });
-  expect(box.partitions[1]).toEqual(flashcards.hashes());
+  expect(box.partitions.get(1)).toEqual(flashcards.hashes().map(Flashcard));
 });
 
 Given('the box named {string} does not contain any flashcard in its first partition', function(boxName) {
   const { boxRepository, authenticationGateway } = this.dependencies;
   return boxRepository.save(
-    createBox({
-      boxName,
-      ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
+    Box({
+      name: boxName,
+      playerId: authenticationGateway.getCurrentPlayer().id,
     }),
   );
 });
@@ -49,20 +36,6 @@ Given('the box named {string} does not exist yet', async function(boxName) {
   const nonExistingBox = await boxRepository.getBoxByName({ boxName, playerId: currentPlayerId });
   expect(nonExistingBox).toBeUndefined();
 });
-
-Given(
-  'a box named {string} created by player of id {string} already exists with following flashcards in its first partition:',
-  function(boxName, ownedByPlayerWithId, flashcards) {
-    const { boxRepository } = this.dependencies;
-    return boxRepository.save(
-      createBox({
-        boxName,
-        ownedByPlayerWithId,
-        partitions: [flashcards.hashes()],
-      }),
-    );
-  },
-);
 
 Given('a box named {string} for the current player does not exist', async function(boxName) {
   const { boxRepository, authenticationGateway } = this.dependencies;
@@ -81,7 +54,7 @@ Then(
       boxName,
       playerId: ownedByPlayerWithId,
     });
-    expect(box.partitions[1]).toEqual(flashcards.hashes());
+    expect(box.partitions.get(1)).toEqual(flashcards.hashes().map(Flashcard));
   },
 );
 
@@ -89,24 +62,20 @@ Given('a box named {string} containing the following flashcards:', function(boxN
   const { boxRepository, authenticationGateway } = this.dependencies;
   const partitionsData: {
     partition: PartitionNumber;
-    id: string;
     question: string;
     answer: string;
   }[] = flashcards.hashes();
-  const partitions: {
-    id: string;
-    question: string;
-    answer: string;
-  }[][] = [[], [], [], [], [], [], []];
-  partitionsData.forEach(({ partition, ...flashcardData }) => {
-    partitions[partition - 1] = [...partitions[partition - 1], flashcardData];
-  });
   return boxRepository.save(
-    createBox({
-      boxName,
-      ownedByPlayerWithId: authenticationGateway.getCurrentPlayer().id,
-      partitions,
-    }),
+    mapBox(
+      ...partitionsData.map(({ question, partition, answer }) =>
+        addFlashcard({ flashcard: Flashcard({ question, answer }), partition }),
+      ),
+    )(
+      Box({
+        name: boxName,
+        playerId: authenticationGateway.getCurrentPlayer().id,
+      }),
+    ),
   );
 });
 
@@ -143,7 +112,7 @@ Given(
         playerId: authenticationGateway.getCurrentPlayer().id,
       });
     }
-    this.currentlyReviewingFlashcard = box.sessionFlashcards[0];
+    this.currentlyReviewingFlashcard = box.sessionFlashcards.first();
   },
 );
 
@@ -171,10 +140,7 @@ Then(
       boxName,
       playerId: authenticationGateway.getCurrentPlayer().id,
     });
-    const partitionLength = box.partitions[partitionNumber as PartitionNumber].length;
-    expect(box.partitions[partitionNumber as PartitionNumber][partitionLength - 1]).toEqual(
-      this.currentlyReviewingFlashcard,
-    );
+    expect(box.partitions.get(partitionNumber).last()).toEqual(this.currentlyReviewingFlashcard.flashcard);
   },
 );
 

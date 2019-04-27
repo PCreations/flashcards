@@ -1,6 +1,7 @@
 import { setWorldConstructor } from 'cucumber';
 import { Dependencies, DependenciesPath } from '../../testsUtils/dependencies';
 import { Flashcard } from '../../src/domain/box/flashcard';
+import { SessionFlashcard } from '../../src/domain/box/box';
 
 export class FlashcardsWorld {
   dependenciesPath: DependenciesPath;
@@ -17,6 +18,6 @@ declare module 'cucumber' {
   interface World {
     dependenciesPath: DependenciesPath;
     dependencies: Dependencies;
-    currentlyReviewingFlashcard: Flashcard;
+    currentlyReviewingFlashcard: SessionFlashcard;
   }
 }

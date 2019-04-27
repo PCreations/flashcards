@@ -3,7 +3,8 @@ import { AuthenticationGateway } from '../../adapters/inMemory/authenticationGat
 import { BoxRepository } from '../../adapters/inMemory/boxRepository';
 import { Player } from '../../domain/player/player';
 import { StartSessionUseCase } from '../startSessionUseCase';
-import { createBox } from '../../../testsUtils/helpers/dataCreators';
+import { mapBox, Box, addFlashcard } from '../../domain/box/box';
+import { Flashcard } from '../../domain/box/flashcard';
 
 describe('starting the first session in the box "Capitals of the World" of the player42', () => {
   describe(`given a box named "Capitals of the World" containing:
@@ -26,34 +27,61 @@ describe('starting the first session in the box "Capitals of the World" of the p
         test('then the selected deck should contains flashcards from partition 2 and 1', async () => {
           const authenticationGateway = AuthenticationGateway();
           const boxRepository = BoxRepository();
-          await authenticationGateway.authenticate(Player.ofId('42'));
+          await authenticationGateway.authenticate(Player({ id: '42' }));
           const currentPlayer = authenticationGateway.getCurrentPlayer();
-          const boxToSave = createBox({
-            boxName: 'Capitals of the World',
-            ownedByPlayerWithId: currentPlayer.id,
-            partitions: [
-              [
-                { question: "What's the capital of France ?", answer: 'Paris' },
-                { question: "What's the capital of Italy ?", answer: 'Roma' },
-              ],
-              [
-                { question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                { question: "What's the capital of Norway ?", answer: 'Oslo' },
-                { question: "What's the capital of Croatia ?", answer: 'Zagreb' },
-              ],
-              [{ question: "What's the capital of Finland ?", answer: 'Helsinki' }],
-              [
-                { question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                { question: "What's the capital of Hungary ?", answer: 'Budapest' },
-              ],
-              [{ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
-              [
-                { question: "What's the capital of Spain ?", answer: 'Madrid' },
-                { question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
-              ],
-              [{ question: "What's the capital of Russia ?", answer: 'Moscow' }],
-            ],
-          });
+          const boxToSave = mapBox(
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of France ?", answer: 'Paris' }),
+              partition: 1,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Italy ?", answer: 'Roma' }),
+              partition: 1,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({
+                question: "What's the capital of the Netherlands ?",
+                answer: 'Amsterdam',
+              }),
+              partition: 2,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Norway ?", answer: 'Oslo' }),
+              partition: 2,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Croatia ?", answer: 'Zagreb' }),
+              partition: 2,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Finland ?", answer: 'Helsinki' }),
+              partition: 3,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Sweden ?", answer: 'Stockholm' }),
+              partition: 4,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Hungary ?", answer: 'Budapest' }),
+              partition: 4,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }),
+              partition: 5,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Spain ?", answer: 'Madrid' }),
+              partition: 6,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Denmark ?", answer: 'Copenhagen' }),
+              partition: 6,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Russia ?", answer: 'Moscow' }),
+              partition: 7,
+            }),
+          )(Box({ name: 'Capitals of the World', playerId: currentPlayer.id }));
           await boxRepository.save(boxToSave);
           await StartSessionUseCase({ boxRepository, authenticationGateway }).handle({
             boxName: 'Capitals of the World',
@@ -72,34 +100,61 @@ describe('starting the first session in the box "Capitals of the World" of the p
         test('then the selected deck should contains flashcards from partition 3 and 1', async () => {
           const authenticationGateway = AuthenticationGateway();
           const boxRepository = BoxRepository();
-          await authenticationGateway.authenticate(Player.ofId('42'));
+          await authenticationGateway.authenticate(Player({ id: '42' }));
           const currentPlayer = authenticationGateway.getCurrentPlayer();
-          const boxToSave = createBox({
-            boxName: 'Capitals of the World',
-            ownedByPlayerWithId: currentPlayer.id,
-            partitions: [
-              [
-                { question: "What's the capital of France ?", answer: 'Paris' },
-                { question: "What's the capital of Italy ?", answer: 'Roma' },
-              ],
-              [
-                { question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                { question: "What's the capital of Norway ?", answer: 'Oslo' },
-                { question: "What's the capital of Croatia ?", answer: 'Zagreb' },
-              ],
-              [{ question: "What's the capital of Finland ?", answer: 'Helsinki' }],
-              [
-                { question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                { question: "What's the capital of Hungary ?", answer: 'Budapest' },
-              ],
-              [{ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
-              [
-                { question: "What's the capital of Spain ?", answer: 'Madrid' },
-                { question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
-              ],
-              [{ question: "What's the capital of Russia ?", answer: 'Moscow' }],
-            ],
-          });
+          const boxToSave = mapBox(
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of France ?", answer: 'Paris' }),
+              partition: 1,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Italy ?", answer: 'Roma' }),
+              partition: 1,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({
+                question: "What's the capital of the Netherlands ?",
+                answer: 'Amsterdam',
+              }),
+              partition: 2,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Norway ?", answer: 'Oslo' }),
+              partition: 2,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Croatia ?", answer: 'Zagreb' }),
+              partition: 2,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Finland ?", answer: 'Helsinki' }),
+              partition: 3,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Sweden ?", answer: 'Stockholm' }),
+              partition: 4,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Hungary ?", answer: 'Budapest' }),
+              partition: 4,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }),
+              partition: 5,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Spain ?", answer: 'Madrid' }),
+              partition: 6,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Denmark ?", answer: 'Copenhagen' }),
+              partition: 6,
+            }),
+            addFlashcard({
+              flashcard: Flashcard({ question: "What's the capital of Russia ?", answer: 'Moscow' }),
+              partition: 7,
+            }),
+          )(Box({ name: 'Capitals of the World', playerId: currentPlayer.id }));
           await boxRepository.save(boxToSave);
           await StartSessionUseCase({ boxRepository, authenticationGateway }).handle({
             boxName: 'Capitals of the World',
@@ -121,34 +176,64 @@ describe('starting the first session in the box "Capitals of the World" of the p
           test('then the selected deck should contains flashcards from partition 5,4,2 and 1', async () => {
             const authenticationGateway = AuthenticationGateway();
             const boxRepository = BoxRepository();
-            await authenticationGateway.authenticate(Player.ofId('42'));
+            await authenticationGateway.authenticate(Player({ id: '42' }));
             const currentPlayer = authenticationGateway.getCurrentPlayer();
-            const boxToSave = createBox({
-              boxName: 'Capitals of the World',
-              ownedByPlayerWithId: currentPlayer.id,
-              partitions: [
-                [
-                  { question: "What's the capital of France ?", answer: 'Paris' },
-                  { question: "What's the capital of Italy ?", answer: 'Roma' },
-                ],
-                [
-                  { question: "What's the capital of the Netherlands ?", answer: 'Amsterdam' },
-                  { question: "What's the capital of Norway ?", answer: 'Oslo' },
-                  { question: "What's the capital of Croatia ?", answer: 'Zagreb' },
-                ],
-                [{ question: "What's the capital of Finland ?", answer: 'Helsinki' }],
-                [
-                  { question: "What's the capital of Sweden ?", answer: 'Stockholm' },
-                  { question: "What's the capital of Hungary ?", answer: 'Budapest' },
-                ],
-                [{ question: "What's the capital of Luxembourg ?", answer: 'Luxembourg' }],
-                [
-                  { question: "What's the capital of Spain ?", answer: 'Madrid' },
-                  { question: "What's the capital of Denmark ?", answer: 'Copenhagen' },
-                ],
-                [{ question: "What's the capital of Russia ?", answer: 'Moscow' }],
-              ],
-            });
+            const boxToSave = mapBox(
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of France ?", answer: 'Paris' }),
+                partition: 1,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Italy ?", answer: 'Roma' }),
+                partition: 1,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({
+                  question: "What's the capital of the Netherlands ?",
+                  answer: 'Amsterdam',
+                }),
+                partition: 2,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Norway ?", answer: 'Oslo' }),
+                partition: 2,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Croatia ?", answer: 'Zagreb' }),
+                partition: 2,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Finland ?", answer: 'Helsinki' }),
+                partition: 3,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Sweden ?", answer: 'Stockholm' }),
+                partition: 4,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Hungary ?", answer: 'Budapest' }),
+                partition: 4,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({
+                  question: "What's the capital of Luxembourg ?",
+                  answer: 'Luxembourg',
+                }),
+                partition: 5,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Spain ?", answer: 'Madrid' }),
+                partition: 6,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Denmark ?", answer: 'Copenhagen' }),
+                partition: 6,
+              }),
+              addFlashcard({
+                flashcard: Flashcard({ question: "What's the capital of Russia ?", answer: 'Moscow' }),
+                partition: 7,
+              }),
+            )(Box({ name: 'Capitals of the World', playerId: currentPlayer.id }));
             await boxRepository.save(boxToSave);
             await StartSessionUseCase({ boxRepository, authenticationGateway }).handle({
               boxName: 'Capitals of the World',
