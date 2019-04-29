@@ -22,7 +22,7 @@ export const sessionRange = ({
   }
   return lastStartedSessionNumber > currentSessionNumber
     ? (range(lastStartedSessionNumber + 1, MAX_SESSION_NUMBER + 1).concat(
-        range(1, currentSessionNumber + 1),
-      ) as SessionNumber[])
+      range(1, currentSessionNumber + 1),
+    ) as SessionNumber[])
     : (range(lastStartedSessionNumber + 1, currentSessionNumber + 1) as SessionNumber[]);
 };

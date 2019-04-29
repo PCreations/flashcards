@@ -4,6 +4,7 @@ import { getPartitionsForSession } from '../getPartitionsForSession';
 test.each`
   sessionDate            | lastStartedSessionDate | partitions
   ${dayjs('2019-04-01')} | ${undefined}           | ${[2, 1]}
+  ${dayjs('2019-04-01')} | ${dayjs('2019-04-01')} | ${[2, 1]}
   ${dayjs('2019-04-02')} | ${dayjs('2019-04-01')} | ${[3, 1]}
   ${dayjs('2019-04-03')} | ${undefined}           | ${[3, 2, 1]}
   ${dayjs('2019-05-04')} | ${dayjs('2019-04-23')} | ${[6, 5, 4, 3, 2, 1]}
