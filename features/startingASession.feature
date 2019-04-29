@@ -8,7 +8,7 @@ Feature: Starting a session for a specific box
   Rule: deck of flashcards should be picked from the selected box, by following the Leitner schedule
   Rule: if a player missed one or many sessions, the deck must contain flashcards from missed sessions in addition to flashcards scheduled for today's session
 
-  Background: Box "Capitals of world" exists with some flashcards
+  Scenario: The current player has never played the box "Capitals of the World"
     Given a box named "Capitals of the World" containing the following flashcards:
       | partition | question                                | answer     |
       | 1         | What's the capital of France ?          | Paris      |
@@ -23,15 +23,27 @@ Feature: Starting a session for a specific box
       | 6         | What's the capital of Spain ?           | Madrid     |
       | 6         | What's the capital of Denmark ?         | Copenhagen |
       | 7         | What's the capital of Russia ?          | Moscow     |
-
-  Scenario: The current player has never played the box "Capitals of the World"
-    Given today is 2019-04-01
+    And today is 2019-04-01
     When the current player starts the session for the box "Capitals of the World"
     Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions 2,1
     And the flashcard question to review for the box "Capitals of the World" should be "What's the capital of the Netherlands ?"
 
   Scenario: The current player wants to play tow times the same day the box "Capitals of the World" that he has already played before
-    Given today is 2019-04-02
+    Given a box named "Capitals of the World" containing the following flashcards:
+      | partition | question                                | answer     |
+      | 1         | What's the capital of France ?          | Paris      |
+      | 1         | What's the capital of Italy ?           | Roma       |
+      | 2         | What's the capital of the Netherlands ? | Amsterdam  |
+      | 2         | What's the capital of Norway ?          | Oslo       |
+      | 2         | What's the capital of Croatia ?         | Zagreb     |
+      | 3         | What's the capital of Finland ?         | Helsinki   |
+      | 4         | What's the capital of Sweden ?          | Stockholm  |
+      | 4         | What's the capital of Hungary ?         | Budapest   |
+      | 5         | What's the capital of Luxembourg ?      | Luxembourg |
+      | 6         | What's the capital of Spain ?           | Madrid     |
+      | 6         | What's the capital of Denmark ?         | Copenhagen |
+      | 7         | What's the capital of Russia ?          | Moscow     |
+    And today is 2019-04-02
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at 2019-04-01
     When the current player starts the session for the box "Capitals of the World"
@@ -39,7 +51,21 @@ Feature: Starting a session for a specific box
     Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions 3,1
 
   Scenario Outline: The current player starts a session the <todaySessionDate> and hasn't missed the previous session for his box "Capitals of the World" started on 2019-04-01
-    Given today is <todaySessionDate>
+    Given a box named "Capitals of the World" containing the following flashcards:
+      | partition | question                                | answer     |
+      | 1         | What's the capital of France ?          | Paris      |
+      | 1         | What's the capital of Italy ?           | Roma       |
+      | 2         | What's the capital of the Netherlands ? | Amsterdam  |
+      | 2         | What's the capital of Norway ?          | Oslo       |
+      | 2         | What's the capital of Croatia ?         | Zagreb     |
+      | 3         | What's the capital of Finland ?         | Helsinki   |
+      | 4         | What's the capital of Sweden ?          | Stockholm  |
+      | 4         | What's the capital of Hungary ?         | Budapest   |
+      | 5         | What's the capital of Luxembourg ?      | Luxembourg |
+      | 6         | What's the capital of Spain ?           | Madrid     |
+      | 6         | What's the capital of Denmark ?         | Copenhagen |
+      | 7         | What's the capital of Russia ?          | Moscow     |
+    And today is <todaySessionDate>
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at <lastPlayedAt>
     When the current player starts the session for the box "Capitals of the World"
@@ -112,7 +138,21 @@ Feature: Starting a session for a specific box
       | 2019-06-02   | 2019-06-03       | 1          |
 
   Scenario Outline: The current player starts a session the <todaySessionDate> while the last session was played at <lastPlayedAt> for his box "Capitals of the World" started on 2019-04-01
-    Given today is <todaySessionDate>
+    Given a box named "Capitals of the World" containing the following flashcards:
+      | partition | question                                | answer     |
+      | 1         | What's the capital of France ?          | Paris      |
+      | 1         | What's the capital of Italy ?           | Roma       |
+      | 2         | What's the capital of the Netherlands ? | Amsterdam  |
+      | 2         | What's the capital of Norway ?          | Oslo       |
+      | 2         | What's the capital of Croatia ?         | Zagreb     |
+      | 3         | What's the capital of Finland ?         | Helsinki   |
+      | 4         | What's the capital of Sweden ?          | Stockholm  |
+      | 4         | What's the capital of Hungary ?         | Budapest   |
+      | 5         | What's the capital of Luxembourg ?      | Luxembourg |
+      | 6         | What's the capital of Spain ?           | Madrid     |
+      | 6         | What's the capital of Denmark ?         | Copenhagen |
+      | 7         | What's the capital of Russia ?          | Moscow     |
+    And today is <todaySessionDate>
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at <lastPlayedAt>
     When the current player starts the session for the box "Capitals of the World"

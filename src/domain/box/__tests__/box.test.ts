@@ -12,6 +12,7 @@ import {
 } from '../box';
 import { Flashcard } from '../flashcard';
 import { mapPartitions, addFlashcardInPartition } from '../partitions';
+import { start } from 'repl';
 
 const flashcards = [
   Flashcard({ question: 'some question', answer: 'some answer' }),
@@ -146,6 +147,19 @@ describe('given a box named "test" and containing some flashcards in its first p
         expect(box.partitions.get(2).isEmpty()).toBeFalsy();
         expect(box.startedAt).toEqual(dayjs('2019-04-01').toDate());
         expect(box.lastStartedSessionDate).toEqual(dayjs('2019-04-02').toDate());
+      });
+    });
+    describe('when starting a session (flashcards from partition [3,1]) while not having finished the last session (flashcards from partition [2,1])', () => {
+      test('then the flashcards from partition 3 and 1 should correctly be added in session flashcards', () => {
+        const box = mapBox(
+          startSession(dayjs('2019-04-01').toDate()),
+          startSession(dayjs('2019-04-02').toDate()),
+        )(getBox());
+        expect(box.sessionFlashcards.map(sessionFlashcard => sessionFlashcard.flashcard).toArray()).toEqual([
+          flashcards[3],
+          flashcards[0],
+          flashcards[1],
+        ]);
       });
     });
   });

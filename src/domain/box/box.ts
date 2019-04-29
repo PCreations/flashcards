@@ -41,11 +41,6 @@ const setSessionStartedAtIfNotStartedBefore = (sessionDate: Date) => (box: Box):
   box.update('startedAt', startedAt => (typeof startedAt === 'undefined' ? sessionDate : startedAt));
 
 const setSessionsPartitions = (sessionDate: Date) => (box: Box): Box => {
-  console.log({
-    dateOfFirstSession: box.startedAt,
-    sessionDate,
-    lastStartedSessionDate: box.lastStartedSessionDate,
-  });
   return box.set(
     'sessionsPartitions',
     getPartitionsForSession({
@@ -110,12 +105,22 @@ const emptyBoxPartition = (partition: PartitionNumber) => (box: Box): Box =>
   box.setIn(['partitions', partition], OrderedSet<Flashcard>());
 
 const removeSessionFlashcardsFromTheirPartitions = (sessionPartitions: Box['sessionsPartitions']) =>
-  flow(sessionPartitions.map(emptyBoxPartition));
+  mapBox(...sessionPartitions.map(emptyBoxPartition));
 
 const pickSelectedFlashcards = (box: Box): Box =>
   mapBox(
     setSessionFlashcardsFromSessionsPartitions,
     removeSessionFlashcardsFromTheirPartitions(box.sessionsPartitions),
+  )(box);
+
+const moveBackInTheirPartitionsFlashcardsFromPreviousSession = (box: Box): Box =>
+  mapBox(
+    ...box.sessionFlashcards.map(sessionFlashcard =>
+      addFlashcard({
+        flashcard: sessionFlashcard.flashcard,
+        partition: sessionFlashcard.fromPartition,
+      }),
+    ),
   )(box);
 
 export const addFlashcard = ({
@@ -130,6 +135,7 @@ export const startSession = (sessionDate: Date) => (box: Box): Box => {
   return dayjs(box.lastStartedSessionDate).isSame(dayjs(sessionDate))
     ? box
     : mapBox(
+        moveBackInTheirPartitionsFlashcardsFromPreviousSession,
         setSessionStartedAtIfNotStartedBefore(sessionDate),
         setSessionsPartitions(sessionDate),
         pickSelectedFlashcards,

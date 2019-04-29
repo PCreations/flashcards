@@ -1,5 +1,5 @@
 module.exports = {
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/features'],
   globals: {
     'ts-jest': {
       tsConfig: 'tsconfig.json',
@@ -9,6 +9,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
-  testMatch: ['**/__tests__/**/*.test.(ts|js)'],
+  testMatch: ['**/steps/*.steps.ts', '**/__tests__/**/*.test.ts'],
   testEnvironment: 'node',
+  coveragePathIgnorePatterns: ['<rootDir>/features']
 };

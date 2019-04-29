@@ -1,5 +1,6 @@
 import { BoxRepository } from '../domain/box/boxRepository';
 import { Flashcard } from '../domain/box/flashcard';
+import { SessionFlashcard } from '../domain/box/box';
 
 export const CurrentFlashcardQuestionQuery = ({ boxRepository }: { boxRepository: BoxRepository }) => ({
   async execute({
@@ -10,7 +11,7 @@ export const CurrentFlashcardQuestionQuery = ({ boxRepository }: { boxRepository
     playerId: string;
   }): Promise<Flashcard['question']> {
     const box = await boxRepository.getBoxByName({ boxName, playerId });
-
-    return box.sessionFlashcards[0].question;
+    const currentSessionFlashcard: SessionFlashcard = box.sessionFlashcards.first();
+    return currentSessionFlashcard.flashcard.question;
   },
 });

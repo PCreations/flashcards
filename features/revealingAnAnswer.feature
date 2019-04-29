@@ -20,6 +20,7 @@ Feature: Revealing the answer of the flashcard currently reviewed
       | 6         | What's the capital of Spain ?           | Madrid     |
       | 6         | What's the capital of Denmark ?         | Copenhagen |
       | 7         | What's the capital of Russia ?          | Moscow     |
+    And the flashcards to review for the current session of the box "Capitals of the World" are taken from partitions "2,1"
     And the flashcard question to review for the box "Capitals of the World" is "What's the capital of the Netherlands ?"
     When the player reveals the answer of the current reviewed flashcard for the box "Capitals of the World"
     Then the answer of the current reviewed flashcard for the box "Capitals of the World" should be "Amsterdam"
