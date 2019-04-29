@@ -11,6 +11,6 @@ export const SessionDeckQuery = ({ boxRepository }: { boxRepository: BoxReposito
   }): Promise<Flashcard['question'][]> {
     const box = await boxRepository.getBoxByName({ boxName, playerId });
 
-    return box.sessionFlashcards.map(({ question }) => question);
+    return box.sessionFlashcards.map(sessionFlashcard => sessionFlashcard.flashcard.question).toArray();
   },
 });

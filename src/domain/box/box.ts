@@ -1,104 +1,127 @@
-import flatMap from 'lodash/flatMap';
+import { Record, OrderedSet, Set, Stack } from 'immutable';
+import dayjs from 'dayjs';
+import identity from 'lodash/identity';
 import flow from 'lodash/flow';
-import { Player } from '../player/player';
 import { Flashcard } from './flashcard';
-import {
-  Partitions,
-  PartitionNumber,
-  moveFlashcardToItsNextPartition,
-  moveFlashcardToPartition,
-  addFlashcardInPartition,
-} from './partitions';
+import { Partitions, PartitionNumber, addFlashcardInPartition, mapPartitions } from './partitions';
 import { getPartitionsForSession } from './sessionDeckService/getPartitionsForSession';
+export type SessionFlashcard = { flashcard: Flashcard; fromPartition: PartitionNumber };
 
-export type FlashcardPositionInBox = Readonly<{
-  partition: PartitionNumber;
-  position: number;
-}>;
+export type SessionFlashcardSet = Stack<SessionFlashcard>;
 
-export type Box = Readonly<{
+export type BoxProps = {
   name?: string;
   playerId?: string;
   startedAt?: Date;
   lastStartedSessionDate?: Date;
   partitions: Partitions;
   sessionsPartitions: PartitionNumber[];
-  sessionFlashcards: Partitions[keyof Partitions];
+  sessionFlashcards: SessionFlashcardSet;
   sessionScore: number;
-  archivedFlashcards: Partitions[keyof Partitions];
-}>;
+  archivedFlashcards: Set<Flashcard>;
+};
 
-const defaultBox: Box = Object.freeze({
-  partitions: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
-  flashcardsByQuestion: {},
+export const Box = Record<BoxProps>({
+  name: undefined,
+  playerId: undefined,
+  startedAt: undefined,
+  lastStartedSessionDate: undefined,
+  partitions: mapPartitions(identity)(),
   sessionsPartitions: [],
-  sessionFlashcards: [],
+  sessionFlashcards: Stack<SessionFlashcard>(),
   sessionScore: 0,
-  archivedFlashcards: [],
+  archivedFlashcards: Set<Flashcard>(),
 });
 
-const mergeBox = (updater: (box: Box) => Partial<Box>) => (box: Box): Box =>
-  Object.freeze({
-    ...box,
-    ...updater(box),
-  });
+export type Box = ReturnType<typeof Box>;
 
-const updateSessionStartedAt = (sessionDate: Date) =>
-  mergeBox(box => whereFirstSessionStartedAt(box.startedAt || sessionDate)(box));
+export const mapBox = (...updaters: ((box: Box) => Box)[]) => (box = Box()): Box => flow(updaters)(box);
 
-const updateSessionsPartitions = (sessionDate: Date) =>
-  mergeBox(box => ({
-    sessionsPartitions: getPartitionsForSession({
+const setSessionStartedAtIfNotStartedBefore = (sessionDate: Date) => (box: Box): Box =>
+  box.update('startedAt', startedAt => (typeof startedAt === 'undefined' ? sessionDate : startedAt));
+
+const setSessionsPartitions = (sessionDate: Date) => (box: Box): Box => {
+  return box.set(
+    'sessionsPartitions',
+    getPartitionsForSession({
       dateOfFirstSession: box.startedAt,
       sessionDate,
       lastStartedSessionDate: box.lastStartedSessionDate,
     }),
-  }));
+  );
+};
 
-const pickSelectedQuestions = mergeBox(box => ({
-  sessionFlashcards: flatMap(box.sessionsPartitions, partitionNumber => box.partitions[partitionNumber]),
-}));
+const updateLastSessionStartedAt = (sessionDate: Date) => (box: Box): Box =>
+  box.set('lastStartedSessionDate', sessionDate);
 
-const updateLastSessionStartedAt = (sessionDate: Date) =>
-  mergeBox(() => ({ lastStartedSessionDate: sessionDate }));
+const incrementSessionScore = (box: Box): Box => box.update('sessionScore', sessionScore => sessionScore + 1);
 
-const incrementSessionScore = mergeBox(box => ({ sessionScore: box.sessionScore + 1 }));
+const archiveFlashcard = (flashcard: Flashcard) => (box: Box): Box =>
+  box.update('archivedFlashcards', archivedFlashcard => archivedFlashcard.add(flashcard));
 
-const archiveFlashcard = (flashcard: Flashcard) =>
-  mergeBox(box => ({
-    archivedFlashcards: box.archivedFlashcards.concat(flashcard),
-  }));
-
-const moveCurrentlyReviewedFlashcardToTheNextPartition = mergeBox(box => {
-  const flashcard = box.sessionFlashcards[0];
-  try {
-    return {
-      partitions: moveFlashcardToItsNextPartition({
-        flashcard,
-      })(box.partitions),
-    };
-  } catch (e) {
-    return archiveFlashcard(flashcard)(box);
+const moveCurrentlyReviewedFlashcardToItsNextPartition = (box: Box): Box => {
+  const sessionFlashcard: SessionFlashcard = box.sessionFlashcards.first();
+  if (sessionFlashcard.fromPartition === 7) {
+    return archiveFlashcard(sessionFlashcard.flashcard)(box);
   }
-});
+  return box.update(
+    'partitions',
+    addFlashcardInPartition({
+      partition: (sessionFlashcard.fromPartition + 1) as PartitionNumber,
+      flashcard: sessionFlashcard.flashcard,
+    }),
+  );
+};
 
-const moveCurrentlyReviewedFlashcardToTheFirstPartition = mergeBox(box => ({
-  partitions: moveFlashcardToPartition({ flashcard: box.sessionFlashcards[0], destPartition: 1 })(
-    box.partitions,
-  ),
-}));
+const moveCurrentlyReviewedFlashcardToTheFirstPartition = (box: Box): Box => {
+  const sessionFlashcard: SessionFlashcard = box.sessionFlashcards.first();
+  return box.update(
+    'partitions',
+    addFlashcardInPartition({ flashcard: sessionFlashcard.flashcard, partition: 1 }),
+  );
+};
 
-const pickNextFlashcardToReview = mergeBox(box => ({
-  sessionFlashcards: box.sessionFlashcards.slice(1, box.sessionFlashcards.length),
-}));
+const pickNextFlashcardToReview = (box: Box): Box =>
+  box.update('sessionFlashcards', sessionFlashcards => sessionFlashcards.rest());
 
-export const createBox = (...fns: ((box: Box) => Box)[]): Box => flow(fns)(defaultBox);
+const getFlashcardsFromPartitions = ({
+  partitions,
+  box,
+}: {
+  partitions: PartitionNumber[];
+  box: Box;
+}): Stack<SessionFlashcard> =>
+  Stack(partitions).flatMap(fromPartition =>
+    box.partitions.get(fromPartition).map(flashcard => ({
+      flashcard,
+      fromPartition,
+    })),
+  );
 
-export const named = (name: string) => mergeBox(() => ({ name }));
+const setSessionFlashcardsFromSessionsPartitions = (box: Box): Box =>
+  box.set('sessionFlashcards', getFlashcardsFromPartitions({ partitions: box.sessionsPartitions, box }));
 
-export const ownedBy = (player: Player) => mergeBox(() => ({ playerId: player.id }));
+const emptyBoxPartition = (partition: PartitionNumber) => (box: Box): Box =>
+  box.setIn(['partitions', partition], OrderedSet<Flashcard>());
 
-export const whereFirstSessionStartedAt = (startedAt: Date) => mergeBox(() => ({ startedAt }));
+const removeSessionFlashcardsFromTheirPartitions = (sessionPartitions: Box['sessionsPartitions']) =>
+  mapBox(...sessionPartitions.map(emptyBoxPartition));
+
+const pickSelectedFlashcards = (box: Box): Box =>
+  mapBox(
+    setSessionFlashcardsFromSessionsPartitions,
+    removeSessionFlashcardsFromTheirPartitions(box.sessionsPartitions),
+  )(box);
+
+const moveBackInTheirPartitionsFlashcardsFromPreviousSession = (box: Box): Box =>
+  mapBox(
+    ...box.sessionFlashcards.map(sessionFlashcard =>
+      addFlashcard({
+        flashcard: sessionFlashcard.flashcard,
+        partition: sessionFlashcard.fromPartition,
+      }),
+    ),
+  )(box);
 
 export const addFlashcard = ({
   flashcard,
@@ -106,34 +129,27 @@ export const addFlashcard = ({
 }: {
   flashcard: Flashcard;
   partition: PartitionNumber;
-}) =>
-  mergeBox(box => ({
-    partitions: addFlashcardInPartition({ partition, flashcard })(box.partitions),
-  }));
+}) => (box: Box): Box => box.update('partitions', addFlashcardInPartition({ partition, flashcard }));
 
-export const startSession = (sessionDate: Date) =>
-  flow(
-    updateSessionStartedAt(sessionDate),
-    updateSessionsPartitions(sessionDate),
-    pickSelectedQuestions,
-    updateLastSessionStartedAt(sessionDate),
-  );
+export const startSession = (sessionDate: Date) => (box: Box): Box => {
+  return dayjs(box.lastStartedSessionDate).isSame(dayjs(sessionDate))
+    ? box
+    : mapBox(
+        moveBackInTheirPartitionsFlashcardsFromPreviousSession,
+        setSessionStartedAtIfNotStartedBefore(sessionDate),
+        setSessionsPartitions(sessionDate),
+        pickSelectedFlashcards,
+        updateLastSessionStartedAt(sessionDate),
+      )(box);
+};
 
-export const notifyGoodAnswer = flow(
+export const notifyGoodAnswer = mapBox(
   incrementSessionScore,
-  moveCurrentlyReviewedFlashcardToTheNextPartition,
+  moveCurrentlyReviewedFlashcardToItsNextPartition,
   pickNextFlashcardToReview,
 );
 
-export const notifyWrongAnswer = flow(
+export const notifyWrongAnswer = mapBox(
   moveCurrentlyReviewedFlashcardToTheFirstPartition,
   pickNextFlashcardToReview,
 );
-
-export const getFlashcardsInPartitions = ({
-  box,
-  partitionsNumbers,
-}: {
-  box: Box;
-  partitionsNumbers: PartitionNumber[];
-}): Flashcard[] => flatMap(partitionsNumbers, partition => box.partitions[partition]);

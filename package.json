@@ -7,25 +7,24 @@
   "scripts": {
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "test:unit": "jest --verbose --coverage",
-    "test:acceptance": "yarn build-ts && cp features/*.feature dist/features/ && cucumber-js dist/features/ --world-parameters '{\"dependenciesPath\":{\"boxRepository\":\"src/adapters/inMemory/boxRepository\", \"authenticationGateway\":\"src/adapters/inMemory/authenticationGateway\"}}'",
-    "test:acceptance:report": "yarn test:acceptance -f json:report/cucumber_report.json; node ./dist/report/generate.js"
+    "test": "jest --verbose --coverage"
   },
   "devDependencies": {
     "@types/cucumber": "^4.0.5",
     "@types/invariant": "^2.2.29",
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
-    "cucumber": "^5.1.0",
     "cucumber-html-reporter": "^4.0.5",
     "invariant": "^2.2.4",
     "jest": "^24.7.1",
+    "jest-cucumber": "^2.0.11",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.0.3",
     "typescript": "^3.4.3"
   },
   "dependencies": {
     "dayjs": "^1.8.12",
+    "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.11"
   }
 }
