@@ -6,39 +6,23 @@ import { Player } from '../../src/domain/player/player';
 import { sessionDeckSteps } from './sessionDeckSteps';
 import { SessionFlashcard } from '../../src/domain/box/box';
 import { CurrentFlashcardAnswerQuery } from '../../src/queries/currentFlashcardAnswerQuery';
+import { createDepsContainer } from '../dependencies';
 
 const feature = loadFeature('./features/revealingAnAnswer.feature');
 
 defineFeature(feature, test => {
   let currentlyReviewedFlashcard: SessionFlashcard;
-  const dependencies = (() => {
-    let boxRepository: BoxRepository;
-    let authenticationGateway: AuthenticationGateway;
-    return {
-      get boxRepository() {
-        return boxRepository;
-      },
-      get authenticationGateway() {
-        return authenticationGateway;
-      },
-      set boxRepository(theBoxRepository) {
-        boxRepository = theBoxRepository;
-      },
-      set authenticationGateway(theAuthenticationGateway) {
-        authenticationGateway = theAuthenticationGateway;
-      },
-    };
-  })();
+  const depsContainer = createDepsContainer();
 
-  beforeEach(() => {
-    dependencies.boxRepository = BoxRepository();
-    dependencies.authenticationGateway = AuthenticationGateway();
-    return dependencies.authenticationGateway.authenticate(Player({ id: '42' }));
+  beforeEach(async () => {
+    await depsContainer.loadDependencies();
+    return depsContainer.dependencies.authenticationGateway.authenticate(Player({ id: '42' }));
   });
-  test('The player reveals the answer for the flashcard he is reviewing', ({ given, and, when, then }) => {
-    boxSteps["given a box named \"(.*)\" containing the following flashcards:"](given, dependencies);
 
-    sessionDeckSteps["and the flashcards to review for the current session of the box \"(.*)\" are taken from partitions \"(.*)\""](and, dependencies, theCurrentlyReviewedFlashcard => {
+  test('The player reveals the answer for the flashcard he is reviewing', ({ given, and, when, then }) => {
+    boxSteps["given a box named \"(.*)\" containing the following flashcards:"](given, depsContainer);
+
+    sessionDeckSteps["and the flashcards to review for the current session of the box \"(.*)\" are taken from partitions \"(.*)\""](and, depsContainer, theCurrentlyReviewedFlashcard => {
       currentlyReviewedFlashcard = theCurrentlyReviewedFlashcard;
     })
 
@@ -49,7 +33,7 @@ defineFeature(feature, test => {
     });
 
     then(/^the answer of the current reviewed flashcard for the box "(.*)" should be "(.*)"$/, async (boxName, expectedAnswer) => {
-      const { boxRepository, authenticationGateway } = dependencies;
+      const { boxRepository, authenticationGateway } = depsContainer.dependencies;
       const currentFlashcardAnswerQuery = CurrentFlashcardAnswerQuery({ boxRepository });
       const flashcardAnswer = await currentFlashcardAnswerQuery.execute({
         boxName,

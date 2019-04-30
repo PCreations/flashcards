@@ -7,7 +7,7 @@
   "scripts": {
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "test": "jest --verbose --coverage"
+    "test": "AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/inMemory/boxRepository jest --verbose --coverage"
   },
   "devDependencies": {
     "@types/cucumber": "^4.0.5",
