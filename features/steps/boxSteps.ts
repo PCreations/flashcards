@@ -1,10 +1,9 @@
 import { DefineStepFunction } from 'jest-cucumber';
-import { AuthenticationGateway } from '../../src/adapters/inMemory/authenticationGateway';
-import { BoxRepository } from '../../src/adapters/inMemory/boxRepository';
 import { OrderedSet } from 'immutable';
 import { Flashcard } from '../../src/domain/box/flashcard';
 import { mapBox, addFlashcard, Box } from '../../src/domain/box/box';
 import { PartitionNumber } from '../../src/domain/box/partitions';
+import { DependenciesContainer } from '../../features/dependencies';
 
 type FlashcardsDatatable = {
   partition: string;
@@ -33,7 +32,7 @@ export const createTestBox = ({
 export const boxSteps = {
   'given a box named "(.*)" containing the following flashcards:': (
     given: DefineStepFunction,
-    dependencies: { authenticationGateway: AuthenticationGateway; boxRepository: BoxRepository },
+    depsContainer: DependenciesContainer,
     setTheBoxBeforeHavingStartedTheSession: (box: Box) => void = () => { },
   ) => {
     given(/^a box named "(.*)" containing the following flashcards:$/, (boxName, flashcards) => {
@@ -43,19 +42,19 @@ export const boxSteps = {
         playerId: '42',
       });
       setTheBoxBeforeHavingStartedTheSession(box);
-      return dependencies.boxRepository.save(box);
+      return depsContainer.dependencies.boxRepository.save(box);
     });
   },
   'then the flashcards in the first partition of his box named "(.*)" should be:': (
     then: DefineStepFunction,
-    dependencies: { authenticationGateway: AuthenticationGateway; boxRepository: BoxRepository },
+    depsContainer: DependenciesContainer
   ) => {
     then(
       /^the flashcards in the first partition of his box named "(.*)" should be:$/,
       async (boxName, flashcards) => {
-        const box = await dependencies.boxRepository.getBoxByName({
+        const box = await depsContainer.dependencies.boxRepository.getBoxByName({
           boxName,
-          playerId: dependencies.authenticationGateway.getCurrentPlayer().id,
+          playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
         });
         expect(box.partitions.get(1)).toEqual(OrderedSet<Flashcard>(flashcards.map(Flashcard)));
       },
@@ -63,23 +62,23 @@ export const boxSteps = {
   },
   'given a box named "(.*)" for the current player does not exist$': (
     given: DefineStepFunction,
-    dependencies: { authenticationGateway: AuthenticationGateway; boxRepository: BoxRepository },
+    depsContainer: DependenciesContainer
   ) => {
     given(/^a box named "(.*)" for the current player does not exist$/, async boxName => {
       expect(
-        await dependencies.boxRepository.getBoxByName({
+        await depsContainer.dependencies.boxRepository.getBoxByName({
           boxName,
-          playerId: dependencies.authenticationGateway.getCurrentPlayer().id,
+          playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
         }),
       ).toBeUndefined;
     });
   },
   'and the current score for the box "(.*)" is (\d*)': (
     and: DefineStepFunction,
-    dependencies: { authenticationGateway: AuthenticationGateway; boxRepository: BoxRepository },
+    depsContainer: DependenciesContainer
   ) => {
     and(/^the current score for the box "(.*)" is (\d*)$/, async (boxName, score) => {
-      const { boxRepository, authenticationGateway } = dependencies;
+      const { boxRepository, authenticationGateway } = depsContainer.dependencies;
       let box = await boxRepository.getBoxByName({
         boxName,
         playerId: authenticationGateway.getCurrentPlayer().id,
@@ -90,10 +89,10 @@ export const boxSteps = {
   },
   'then the current score for the box "(.*)" should be (\d*)': (
     then: DefineStepFunction,
-    dependencies: { authenticationGateway: AuthenticationGateway; boxRepository: BoxRepository },
+    depsContainer: DependenciesContainer
   ) => {
     then(/^the current score for the box "(.*)" should be (\d*)$/, async (boxName, expectedScore) => {
-      const { boxRepository, authenticationGateway } = dependencies;
+      const { boxRepository, authenticationGateway } = depsContainer.dependencies;
       const box = await boxRepository.getBoxByName({
         boxName,
         playerId: authenticationGateway.getCurrentPlayer().id,

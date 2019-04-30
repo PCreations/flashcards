@@ -4,6 +4,7 @@ module.exports = function (w) {
       'tsconfig.json',
       'src/**/*.ts',
       'features/*.feature',
+      'features/dependencies.ts',
       'features/steps/*Steps.ts',
       'testsUtils/**/*.ts',
       '!features/steps/*.steps.ts',
@@ -13,6 +14,9 @@ module.exports = function (w) {
     env: {
       type: 'node',
       runner: 'node',
+      params: {
+        env: 'AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway;BOX_REPOSITORY=src/adapters/inMemory/boxRepository'
+      }
     },
     testFramework: 'jest',
     filesWithNoCoverageCalculated: ['features/**/*.ts'],
