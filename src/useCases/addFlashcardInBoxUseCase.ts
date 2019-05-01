@@ -18,6 +18,7 @@ export const AddFlashcardInBoxUseCase = ({
         boxName,
         playerId,
       })) || Box({ name: boxName, playerId });
+    debugger;
     return boxRepository.save(addFlashcard({ flashcard, partition: 1 })(box));
   },
 });

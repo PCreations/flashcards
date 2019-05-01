@@ -14,7 +14,8 @@ export const NotifyAnswerUseCase = ({
       boxName,
       playerId: authenticationGateway.getCurrentPlayer().id,
     });
-    return boxRepository.save(didCorrectlyAnswer ? notifyGoodAnswer(box) : notifyWrongAnswer(box));
+    const boxToSave = didCorrectlyAnswer ? notifyGoodAnswer(box) : notifyWrongAnswer(box);
+    return boxRepository.save(boxToSave);
   },
 });
 

@@ -37,7 +37,6 @@ defineFeature(feature, test => {
     given(
       /^a box named "(.*)" created by player of id "(.*)" containing the following flashcards:$/,
       (boxName, playerId, flashcards) => {
-        console.log(depsContainer.dependencies)
         return depsContainer.dependencies.boxRepository.save(
           createTestBox({
             boxName,
