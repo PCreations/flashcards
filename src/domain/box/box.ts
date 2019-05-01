@@ -5,6 +5,7 @@ import flow from 'lodash/flow';
 import { Flashcard } from './flashcard';
 import { Partitions, PartitionNumber, addFlashcardInPartition, mapPartitions } from './partitions';
 import { getPartitionsForSession } from './sessionDeckService/getPartitionsForSession';
+
 export type SessionFlashcard = { flashcard: Flashcard; fromPartition: PartitionNumber };
 
 export type SessionFlashcardSet = Stack<SessionFlashcard>;
@@ -135,12 +136,12 @@ export const startSession = (sessionDate: Date) => (box: Box): Box => {
   return dayjs(box.lastStartedSessionDate).isSame(dayjs(sessionDate))
     ? box
     : mapBox(
-        moveBackInTheirPartitionsFlashcardsFromPreviousSession,
-        setSessionStartedAtIfNotStartedBefore(sessionDate),
-        setSessionsPartitions(sessionDate),
-        pickSelectedFlashcards,
-        updateLastSessionStartedAt(sessionDate),
-      )(box);
+      moveBackInTheirPartitionsFlashcardsFromPreviousSession,
+      setSessionStartedAtIfNotStartedBefore(sessionDate),
+      setSessionsPartitions(sessionDate),
+      pickSelectedFlashcards,
+      updateLastSessionStartedAt(sessionDate),
+    )(box);
 };
 
 export const notifyGoodAnswer = mapBox(

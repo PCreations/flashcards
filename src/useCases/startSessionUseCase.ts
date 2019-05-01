@@ -15,7 +15,8 @@ export const StartSessionUseCase = ({
       playerId: authenticationGateway.getCurrentPlayer().id,
     });
 
-    return boxRepository.save(startSession(today)(box));
+    const boxToSave = startSession(today)(box);
+    return boxRepository.save(boxToSave);
   },
 });
 

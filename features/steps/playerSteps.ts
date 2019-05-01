@@ -1,11 +1,8 @@
 import { DefineStepFunction } from 'jest-cucumber';
 import dayjs from 'dayjs';
-import { AuthenticationGateway } from '../../src/adapters/inMemory/authenticationGateway';
-import { BoxRepository } from '../../src/adapters/inMemory/boxRepository';
 import { AddFlashcardInBoxUseCase } from '../../src/useCases/addFlashcardInBoxUseCase';
 import { Flashcard } from '../../src/domain/box/flashcard';
 import { StartSessionUseCase } from '../../src/useCases/startSessionUseCase';
-import { DateService } from '../../src/domain/box/dateService';
 import { NotifyAnswerUseCase } from '../../src/useCases/notifyAnswerUseCase';
 import { DependenciesContainer } from '../dependencies';
 
@@ -27,12 +24,12 @@ export const playerSteps = {
     when: DefineStepFunction,
     depsContainer: DependenciesContainer
   ) => {
-    when(/^the current player starts the session for the box "(.*)"$/, async boxName =>
-      StartSessionUseCase(depsContainer.dependencies).handle({
+    when(/^the current player starts the session for the box "(.*)"$/, async boxName => {
+      return StartSessionUseCase(depsContainer.dependencies).handle({
         boxName,
         today: depsContainer.dependencies.dateService.getToday(),
-      }),
-    );
+      })
+    });
   },
   'and the current player has started the box "(.*)" at (date)': (
     and: DefineStepFunction,
@@ -45,7 +42,7 @@ export const playerSteps = {
           boxName,
           playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
         });
-        return depsContainer.dependencies.boxRepository.save(box.set('startedAt', dayjs(startedAtDate).toDate()));
+        await depsContainer.dependencies.boxRepository.save(box.set('startedAt', dayjs(startedAtDate).toDate()));
       },
     );
   },
@@ -60,7 +57,7 @@ export const playerSteps = {
           return;
         }
         const { boxRepository, authenticationGateway } = depsContainer.dependencies;
-        return StartSessionUseCase({
+        await StartSessionUseCase({
           boxRepository,
           authenticationGateway,
         }).handle({ boxName, today: dayjs(lastPlayedSessionDate).toDate() });

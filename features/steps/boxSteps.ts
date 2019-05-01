@@ -35,14 +35,14 @@ export const boxSteps = {
     depsContainer: DependenciesContainer,
     setTheBoxBeforeHavingStartedTheSession: (box: Box) => void = () => { },
   ) => {
-    given(/^a box named "(.*)" containing the following flashcards:$/, (boxName, flashcards) => {
+    given(/^a box named "(.*)" containing the following flashcards:$/, async (boxName, flashcards) => {
       const box = createTestBox({
         boxName,
         flashcards,
         playerId: '42',
       });
-      setTheBoxBeforeHavingStartedTheSession(box);
-      return depsContainer.dependencies.boxRepository.save(box);
+      await depsContainer.dependencies.boxRepository.save(box);
+      setTheBoxBeforeHavingStartedTheSession(await depsContainer.dependencies.boxRepository.getBoxByName({ boxName, playerId: '42' }));
     });
   },
   'then the flashcards in the first partition of his box named "(.*)" should be:': (
@@ -70,7 +70,7 @@ export const boxSteps = {
           boxName,
           playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
         }),
-      ).toBeUndefined;
+      ).toBeUndefined();
     });
   },
   'and the current score for the box "(.*)" is (\d*)': (

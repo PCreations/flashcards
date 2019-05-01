@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { SessionDeckQuery } from '../../src/queries/sessionDeckQuery';
 import { flatMap, isEqual } from 'lodash';
 import { PartitionNumber } from '../../src/domain/box/partitions';
-import { Box, SessionFlashcard } from '../../src/domain/box/box';
+import { Box, SessionFlashcard, startSession } from '../../src/domain/box/box';
 import { StartSessionUseCase } from '../../src/useCases/startSessionUseCase';
 import { CurrentFlashcardQuestionQuery } from '../../src/queries/currentFlashcardQuestionQuery';
 import { DependenciesContainer } from '../dependencies';
@@ -23,17 +23,12 @@ export const sessionDeckSteps = {
         const partitions: PartitionNumber[] = commaSeparatedPartitions
           .split(',')
           .map((stringNumber: string) => parseInt(stringNumber, 10));
-        const box = await boxRepository.getBoxByName({
-          playerId,
-          boxName,
-        });
         const expectedFlashcardsQuestions = flatMap(partitions, partition =>
           getTheBoxBeforeHavingStartedTheSession()
             .partitions.get(partition)
             .map(flashcard => flashcard.question)
             .toArray(),
         );
-        box.sessionFlashcards.map(sessionFlashcard => sessionFlashcard.flashcard.question).toArray();
         const theFlashcardsInDeck = await sessionDeckQuery.execute({ boxName, playerId });
         expect(expectedFlashcardsQuestions.length).toBeGreaterThan(0);
         expect(theFlashcardsInDeck.length).toBeGreaterThan(0);
@@ -48,7 +43,6 @@ export const sessionDeckSteps = {
   ) => {
     and(/^the flashcards to review for the current session of the box "(.*)" are taken from partitions "(.*)"$/, async (boxName, commaSeparatedPartitions) => {
       const { boxRepository, authenticationGateway } = depsContainer.dependencies;
-      const startSessionUseCase = StartSessionUseCase({ boxRepository, authenticationGateway });
       const expectedPartitions = commaSeparatedPartitions
         .split(',')
         .map((stringNumber: string) => parseInt(stringNumber, 10)) as PartitionNumber[];
@@ -57,17 +51,12 @@ export const sessionDeckSteps = {
         playerId: authenticationGateway.getCurrentPlayer().id,
       });
       while (!isEqual(box.sessionsPartitions, expectedPartitions)) {
-        await startSessionUseCase.handle({
-          boxName,
-          today: dayjs(box.lastStartedSessionDate)
-            .add(1, 'day')
-            .toDate(),
-        });
-        box = await boxRepository.getBoxByName({
-          boxName,
-          playerId: authenticationGateway.getCurrentPlayer().id,
-        });
+        const today = dayjs(box.lastStartedSessionDate || undefined)
+          .add(1, 'day')
+          .toDate();
+        box = startSession(today)(box);
       }
+      await boxRepository.save(box);
       setCurrentReviewingFlashcard(box.sessionFlashcards.first());
     });
   },
