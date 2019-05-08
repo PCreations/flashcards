@@ -32,3 +32,6 @@ dist/**/*
 
 # Firebase config
 src/adapters/firestoreAdmin/config/*
+
+# Stryker
+.stryker-tmp

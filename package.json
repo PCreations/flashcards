@@ -8,7 +8,8 @@
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "test:unit": "AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/inMemory/boxRepository jest --verbose --coverage",
-    "test:integration": "GOOGLE_APPLICATION_CREDENTIALS=./src/adapters/firestoreAdmin/config/test.json AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/firestoreAdmin/boxRepository jest --verbose --coverage"
+    "test:integration": "GOOGLE_APPLICATION_CREDENTIALS=./src/adapters/firestoreAdmin/config/test.json AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/firestoreAdmin/boxRepository jest --verbose --coverage",
+    "test:mutants": "AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/inMemory/boxRepository stryker run --fileLogLevel trace --logLevel debug"
   },
   "devDependencies": {
     "@stryker-mutator/core": "^1.3.1",
