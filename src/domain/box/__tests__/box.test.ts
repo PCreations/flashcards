@@ -1,4 +1,4 @@
-import { OrderedSet, Stack } from 'immutable';
+import { OrderedSet, Stack, Set, Range } from 'immutable';
 import dayjs from 'dayjs';
 import identity from 'lodash/identity';
 import {
@@ -8,11 +8,11 @@ import {
   Box,
   notifyWrongAnswer,
   mapBox,
+  getTotalNumberOfFlashcards,
   SessionFlashcard,
 } from '../box';
 import { Flashcard } from '../flashcard';
 import { mapPartitions, addFlashcardInPartition } from '../partitions';
-import { start } from 'repl';
 
 const flashcards = [
   Flashcard({ question: 'some question', answer: 'some answer' }),
@@ -268,5 +268,36 @@ describe('notifying a wrong answer', () => {
         });
       });
     });
+  });
+});
+
+describe('given a box with 5 flashcards in its partitions, 2 archived flashcards, and 3 flashcards in the current session deck', () => {
+  test('then the total number of flashcards should be 10', () => {
+    const box = mapBox(
+      addFlashcard({ flashcard: Flashcard({ question: 'qA', answer: 'aA' }), partition: 1 }),
+      addFlashcard({ flashcard: Flashcard({ question: 'qB', answer: 'aB' }), partition: 2 }),
+      addFlashcard({ flashcard: Flashcard({ question: 'qC', answer: 'aC' }), partition: 3 }),
+      addFlashcard({ flashcard: Flashcard({ question: 'qD', answer: 'aD' }), partition: 3 }),
+      addFlashcard({ flashcard: Flashcard({ question: 'qE', answer: 'aE' }), partition: 5 }),
+    )(
+      Box({
+        playerId: '42',
+        archivedFlashcards: Set<Flashcard>(
+          Range(0, 2).map(count =>
+            Flashcard({
+              question: `q${count}`,
+              answer: `q${count}`,
+            }),
+          ),
+        ),
+        sessionFlashcards: Stack<SessionFlashcard>(
+          Range(0, 3).map(count => ({
+            flashcard: Flashcard({ question: `q${count}`, answer: `a${count}` }),
+            fromPartition: 4,
+          })),
+        ),
+      }),
+    );
+    expect(getTotalNumberOfFlashcards(box)).toBe(10);
   });
 });
