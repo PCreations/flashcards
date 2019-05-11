@@ -32,3 +32,6 @@ dist/**/*
 
 # Firebase config
 src/adapters/firestoreAdmin/config/*
+
+# Functions node_modules
+src/api/firebase/functions/node_modules

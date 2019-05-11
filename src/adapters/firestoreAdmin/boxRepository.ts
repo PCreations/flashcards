@@ -8,15 +8,16 @@ import { Stack, Set } from 'immutable';
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
-  databaseURL: "https://flashcards-7c174.firebaseio.com"
+  databaseURL: 'https://flashcards-7c174.firebaseio.com',
 });
 
 const firestore = admin.firestore();
 
-const getBoxId = ({ random, boxName, playerId }: { random: number; boxName: string; playerId: string }) => `test#${random}-${playerId}-${boxName}`;
+const getBoxId = ({ random, boxName, playerId }: { random: number; boxName: string; playerId: string }) =>
+  `test#${random}-${playerId}-${boxName}`;
 
 export const BoxRepository = () => {
-  const random = Math.random()
+  const random = Math.random();
   return BaseBoxRepository({
     async save(box) {
       const { startedAt, lastStartedSessionDate, ...boxToSave } = box.toJS();
@@ -24,29 +25,53 @@ export const BoxRepository = () => {
         ...boxToSave,
         ...(typeof startedAt === 'undefined' ? {} : { startedAt }),
         ...(typeof lastStartedSessionDate === 'undefined' ? {} : { lastStartedSessionDate }),
-      }
-      await firestore.
-        collection('boxes')
+      };
+      await firestore
+        .collection('boxes')
         .doc(getBoxId({ random, boxName: box.name, playerId: box.playerId }))
         .set(savedBox);
       return true;
     },
     async getBoxByName({ boxName, playerId }) {
-      return firestore.collection('boxes').doc(getBoxId({ random, boxName, playerId })).get()
+      return firestore
+        .collection('boxes')
+        .doc(getBoxId({ random, boxName, playerId }))
+        .get()
         .then(doc => {
-          return doc.exists ? Box({
-            ...doc.data(),
-            partitions: mapPartitions(
-              ...flatMap(Object.keys(doc.data().partitions), partitionNumber => doc.data().partitions[partitionNumber].map((flashcard: { question: string; answer: string; }) => addFlashcardInPartition({
-                partition: parseInt(partitionNumber, 10) as PartitionNumber,
-                flashcard: Flashcard(flashcard)
-              }))))(),
-            sessionFlashcards: Stack<SessionFlashcard>(doc.data().sessionFlashcards.map(({ flashcard, fromPartition }: SessionFlashcard) => ({ flashcard: Flashcard(flashcard), fromPartition }))),
-            archivedFlashcards: Set<Flashcard>(doc.data().archivedFlashcards.map(Flashcard)),
-            startedAt: !doc.data().startedAt ? undefined : doc.data().startedAt.toDate(),
-            lastStartedSessionDate: !doc.data().lastStartedSessionDate ? undefined : doc.data().lastStartedSessionDate.toDate()
-          }) : undefined;
+          return doc.exists
+            ? Box({
+                ...doc.data(),
+                partitions: mapPartitions(
+                  ...flatMap(Object.keys(doc.data().partitions), partitionNumber =>
+                    doc
+                      .data()
+                      .partitions[partitionNumber].map((flashcard: { question: string; answer: string }) =>
+                        addFlashcardInPartition({
+                          partition: parseInt(partitionNumber, 10) as PartitionNumber,
+                          flashcard: Flashcard(flashcard),
+                        }),
+                      ),
+                  ),
+                )(),
+                sessionFlashcards: Stack<SessionFlashcard>(
+                  doc
+                    .data()
+                    .sessionFlashcards.map(({ flashcard, fromPartition }: SessionFlashcard) => ({
+                      flashcard: Flashcard(flashcard),
+                      fromPartition,
+                    })),
+                ),
+                archivedFlashcards: Set<Flashcard>(doc.data().archivedFlashcards.map(Flashcard)),
+                startedAt: !doc.data().startedAt ? undefined : doc.data().startedAt.toDate(),
+                lastStartedSessionDate: !doc.data().lastStartedSessionDate
+                  ? undefined
+                  : doc.data().lastStartedSessionDate.toDate(),
+              })
+            : undefined;
         });
-    }
+    },
+    async getAllBoxOwnedBy(playerId) {
+      return [];
+    },
   });
-}
+};
