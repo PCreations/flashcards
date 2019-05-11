@@ -65,13 +65,15 @@ const moveCurrentlyReviewedFlashcardToItsNextPartition = (box: Box): Box => {
   if (sessionFlashcard.fromPartition === 7) {
     return archiveFlashcard(sessionFlashcard.flashcard)(box);
   }
-  return box.update(
+  const boxToReturn = box.update(
     'partitions',
     addFlashcardInPartition({
       partition: (sessionFlashcard.fromPartition + 1) as PartitionNumber,
       flashcard: sessionFlashcard.flashcard,
     }),
   );
+  console.log(boxToReturn.toJS());
+  return boxToReturn;
 };
 
 const moveCurrentlyReviewedFlashcardToTheFirstPartition = (box: Box): Box => {
@@ -136,12 +138,12 @@ export const startSession = (sessionDate: Date) => (box: Box): Box => {
   return dayjs(box.lastStartedSessionDate).isSame(dayjs(sessionDate))
     ? box
     : mapBox(
-      moveBackInTheirPartitionsFlashcardsFromPreviousSession,
-      setSessionStartedAtIfNotStartedBefore(sessionDate),
-      setSessionsPartitions(sessionDate),
-      pickSelectedFlashcards,
-      updateLastSessionStartedAt(sessionDate),
-    )(box);
+        moveBackInTheirPartitionsFlashcardsFromPreviousSession,
+        setSessionStartedAtIfNotStartedBefore(sessionDate),
+        setSessionsPartitions(sessionDate),
+        pickSelectedFlashcards,
+        updateLastSessionStartedAt(sessionDate),
+      )(box);
 };
 
 export const notifyGoodAnswer = mapBox(
@@ -154,3 +156,8 @@ export const notifyWrongAnswer = mapBox(
   moveCurrentlyReviewedFlashcardToTheFirstPartition,
   pickNextFlashcardToReview,
 );
+
+export const getTotalNumberOfFlashcards = (box: Box): number =>
+  box.partitions.reduce((total, flashcards) => total + flashcards.size, 0) +
+  box.archivedFlashcards.size +
+  box.sessionFlashcards.size;

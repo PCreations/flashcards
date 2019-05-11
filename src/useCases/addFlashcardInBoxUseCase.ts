@@ -2,7 +2,6 @@ import { BoxRepository } from '../domain/box/boxRepository';
 import { addFlashcard, Box } from '../domain/box/box';
 import { AuthenticationGateway } from '../domain/player/authenticationGateway';
 import { Flashcard } from '../domain/box/flashcard';
-import { Player } from '../domain/player/player';
 
 export const AddFlashcardInBoxUseCase = ({
   boxRepository,
@@ -18,7 +17,6 @@ export const AddFlashcardInBoxUseCase = ({
         boxName,
         playerId,
       })) || Box({ name: boxName, playerId });
-    debugger;
     return boxRepository.save(addFlashcard({ flashcard, partition: 1 })(box));
   },
 });
