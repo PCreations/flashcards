@@ -1,9 +1,10 @@
 {
-  "name": "flashcards-ts",
+  "name": "@pcriulan/flashcards-core",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "license": "MIT",
-  "private": true,
   "scripts": {
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
@@ -16,6 +17,7 @@
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
     "cucumber-html-reporter": "^4.0.5",
+    "firebase-tools": "^6.9.2",
     "invariant": "^2.2.4",
     "jest": "^24.7.1",
     "jest-cucumber": "^2.0.11",
