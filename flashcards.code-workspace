@@ -2,6 +2,9 @@
   "folders": [
     {
       "path": "."
+    },
+    {
+      "path": "/Users/pierre/Repositories/flashcards-firebase-api"
     }
   ],
   "settings": {}
