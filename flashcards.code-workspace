@@ -5,7 +5,15 @@
     },
     {
       "path": "/Users/pierre/Repositories/flashcards-firebase-api"
+    },
+    {
+      "path": "/Users/pierre/Repositories/flashcards-slack"
+    },
+    {
+      "path": "/Users/pierre/Repositories/flashcards-react"
     }
   ],
-  "settings": {}
+  "settings": {
+    "git.ignoreLimitWarning": true
+  }
 }

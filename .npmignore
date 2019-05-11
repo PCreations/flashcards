@@ -3,3 +3,6 @@ wallaby.js
 flashcards.code-workspace
 jest.config.js
 src
+dist/features
+dist/report
+dist/testUtils

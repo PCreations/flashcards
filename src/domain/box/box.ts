@@ -72,7 +72,6 @@ const moveCurrentlyReviewedFlashcardToItsNextPartition = (box: Box): Box => {
       flashcard: sessionFlashcard.flashcard,
     }),
   );
-  console.log(boxToReturn.toJS());
   return boxToReturn;
 };
 
