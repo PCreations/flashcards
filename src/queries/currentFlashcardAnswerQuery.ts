@@ -6,7 +6,7 @@ type CurrentFlashcardAnswerQuery = (
   getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
 ) => ({ boxName, playerId }: { boxName: string; playerId: string }) => Promise<Flashcard['answer']>;
 
-export const CurrentFlashcardAnswerQuery: CurrentFlashcardAnswerQuery = getBoxByNameAndPlayerId => async ({
+export const currentFlashcardAnswerQuery: CurrentFlashcardAnswerQuery = getBoxByNameAndPlayerId => async ({
   boxName,
   playerId,
 }) => {

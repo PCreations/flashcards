@@ -4,11 +4,9 @@ import { boxSteps } from './boxSteps';
 import { playerSteps } from './playerSteps';
 import { sessionDeckSteps } from './sessionDeckSteps';
 import { DateService } from '../../src/domain/box/dateService';
-import { BoxRepository } from '../../src/adapters/inMemory/boxRepository';
-import { AuthenticationGateway } from '../../src/adapters/inMemory/authenticationGateway';
 import { Player } from '../../src/domain/player/player';
 import { Box } from '../../src/domain/box/box';
-import { CurrentFlashcardQuestionQuery } from '../../src/queries/currentFlashcardQuestionQuery';
+import { currentFlashcardQuestionQuery as createCurrentFlashcardQuestionQuery } from '../../src/queries/currentFlashcardQuestionQuery';
 import { createDepsContainer, DependenciesContainer } from '../dependencies';
 
 const feature = loadFeature('./features/startingASession.feature');
@@ -27,7 +25,7 @@ defineFeature(feature, test => {
 
   beforeEach(async () => {
     await depsContainer.loadDependencies();
-    return depsContainer.dependencies.authenticationGateway.authenticate(Player({ id: '42' }));
+    return depsContainer.dependencies.player.authenticate(Player({ id: '42' }));
   });
 
   test('The current player has never played the box "Capitals of the World"', ({
@@ -48,11 +46,14 @@ defineFeature(feature, test => {
     and(
       /^the flashcard question to review for the box "(.*)" should be "(.*)"$/,
       async (boxName, expectedQuestion) => {
-        const { authenticationGateway, boxRepository } = depsContainer.dependencies;
-        const currentFlashcardQuestionQuery = CurrentFlashcardQuestionQuery({ boxRepository });
-        const actualQuestion = await currentFlashcardQuestionQuery.execute({
+        const {
+          box: { getBoxByNameAndPlayerId },
+          player: { getCurrentPlayerId },
+        } = depsContainer.dependencies;
+        const currentFlashcardQuestionQuery = createCurrentFlashcardQuestionQuery(getBoxByNameAndPlayerId);
+        const actualQuestion = await currentFlashcardQuestionQuery({
           boxName,
-          playerId: authenticationGateway.getCurrentPlayer().id,
+          playerId: getCurrentPlayerId(),
         });
         expect(actualQuestion).toEqual(expectedQuestion);
       },

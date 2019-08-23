@@ -33,7 +33,7 @@ export const boxSteps = {
   'given a box named "(.*)" containing the following flashcards:': (
     given: DefineStepFunction,
     depsContainer: DependenciesContainer,
-    setTheBoxBeforeHavingStartedTheSession: (box: Box) => void = () => { },
+    setTheBoxBeforeHavingStartedTheSession: (box: Box) => void = () => {},
   ) => {
     given(/^a box named "(.*)" containing the following flashcards:$/, async (boxName, flashcards) => {
       const box = createTestBox({
@@ -41,20 +41,22 @@ export const boxSteps = {
         flashcards,
         playerId: '42',
       });
-      await depsContainer.dependencies.boxRepository.save(box);
-      setTheBoxBeforeHavingStartedTheSession(await depsContainer.dependencies.boxRepository.getBoxByName({ boxName, playerId: '42' }));
+      await depsContainer.dependencies.box.saveBox(box);
+      setTheBoxBeforeHavingStartedTheSession(
+        await depsContainer.dependencies.box.getBoxByNameAndPlayerId({ boxName, playerId: '42' }),
+      );
     });
   },
   'then the flashcards in the first partition of his box named "(.*)" should be:': (
     then: DefineStepFunction,
-    depsContainer: DependenciesContainer
+    depsContainer: DependenciesContainer,
   ) => {
     then(
       /^the flashcards in the first partition of his box named "(.*)" should be:$/,
       async (boxName, flashcards) => {
-        const box = await depsContainer.dependencies.boxRepository.getBoxByName({
+        const box = await depsContainer.dependencies.box.getBoxByNameAndPlayerId({
           boxName,
-          playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
+          playerId: depsContainer.dependencies.player.getCurrentPlayerId(),
         });
         expect(box.partitions.get(1)).toEqual(OrderedSet<Flashcard>(flashcards.map(Flashcard)));
       },
@@ -62,42 +64,40 @@ export const boxSteps = {
   },
   'given a box named "(.*)" for the current player does not exist$': (
     given: DefineStepFunction,
-    depsContainer: DependenciesContainer
+    depsContainer: DependenciesContainer,
   ) => {
     given(/^a box named "(.*)" for the current player does not exist$/, async boxName => {
       expect(
-        await depsContainer.dependencies.boxRepository.getBoxByName({
+        await depsContainer.dependencies.box.getBoxByNameAndPlayerId({
           boxName,
-          playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
+          playerId: depsContainer.dependencies.player.getCurrentPlayerId(),
         }),
       ).toBeUndefined();
     });
   },
-  'and the current score for the box "(.*)" is (\d*)': (
+  'and the current score for the box "(.*)" is (d*)': (
     and: DefineStepFunction,
-    depsContainer: DependenciesContainer
+    depsContainer: DependenciesContainer,
   ) => {
     and(/^the current score for the box "(.*)" is (\d*)$/, async (boxName, score) => {
-      const { boxRepository, authenticationGateway } = depsContainer.dependencies;
-      let box = await boxRepository.getBoxByName({
+      let box = await depsContainer.dependencies.box.getBoxByNameAndPlayerId({
         boxName,
-        playerId: authenticationGateway.getCurrentPlayer().id,
+        playerId: depsContainer.dependencies.player.getCurrentPlayerId(),
       });
       // todo use a real user path
-      return boxRepository.save(box.set('sessionScore', parseInt(score, 10)))
+      return depsContainer.dependencies.box.saveBox(box.set('sessionScore', parseInt(score, 10)));
     });
   },
-  'then the current score for the box "(.*)" should be (\d*)': (
+  'then the current score for the box "(.*)" should be (d*)': (
     then: DefineStepFunction,
-    depsContainer: DependenciesContainer
+    depsContainer: DependenciesContainer,
   ) => {
     then(/^the current score for the box "(.*)" should be (\d*)$/, async (boxName, expectedScore) => {
-      const { boxRepository, authenticationGateway } = depsContainer.dependencies;
-      const box = await boxRepository.getBoxByName({
+      const box = await depsContainer.dependencies.box.getBoxByNameAndPlayerId({
         boxName,
-        playerId: authenticationGateway.getCurrentPlayer().id,
+        playerId: depsContainer.dependencies.player.getCurrentPlayerId(),
       });
       expect(box.sessionScore).toBe(parseInt(expectedScore, 10));
     });
-  }
+  },
 };

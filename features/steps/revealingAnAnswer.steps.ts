@@ -3,7 +3,7 @@ import { boxSteps } from './boxSteps';
 import { Player } from '../../src/domain/player/player';
 import { sessionDeckSteps } from './sessionDeckSteps';
 import { SessionFlashcard } from '../../src/domain/box/box';
-import { CurrentFlashcardAnswerQuery } from '../../src/queries/currentFlashcardAnswerQuery';
+import { currentFlashcardAnswerQuery as createCurrentFlashcardAnswerQuery } from '../../src/queries/currentFlashcardAnswerQuery';
 import { createDepsContainer } from '../dependencies';
 
 const feature = loadFeature('./features/revealingAnAnswer.feature');
@@ -36,11 +36,12 @@ defineFeature(feature, test => {
     then(
       /^the answer of the current reviewed flashcard for the box "(.*)" should be "(.*)"$/,
       async (boxName, expectedAnswer) => {
-        const { boxRepository, authenticationGateway } = depsContainer.dependencies;
-        const currentFlashcardAnswerQuery = CurrentFlashcardAnswerQuery({ boxRepository });
-        const flashcardAnswer = await currentFlashcardAnswerQuery.execute({
+        const currentFlashcardAnswerQuery = createCurrentFlashcardAnswerQuery(
+          depsContainer.dependencies.box.getBoxByNameAndPlayerId,
+        );
+        const flashcardAnswer = await currentFlashcardAnswerQuery({
           boxName,
-          playerId: authenticationGateway.getCurrentPlayer().id,
+          playerId: depsContainer.dependencies.player.getCurrentPlayerId(),
         });
         expect(flashcardAnswer).toEqual(expectedAnswer);
       },

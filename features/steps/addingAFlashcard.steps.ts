@@ -14,7 +14,7 @@ defineFeature(feature, test => {
 
   beforeEach(async () => {
     await depsContainer.loadDependencies();
-    return depsContainer.dependencies.authenticationGateway.authenticate(Player({ id: '42' }));
+    return depsContainer.dependencies.player.authenticate(Player({ id: '42' }));
   });
 
   test('The box exists and its first partition is not empty', ({ given, when, then }) => {
@@ -37,14 +37,14 @@ defineFeature(feature, test => {
     given(
       /^a box named "(.*)" created by player of id "(.*)" containing the following flashcards:$/,
       (boxName, playerId, flashcards) => {
-        return depsContainer.dependencies.boxRepository.save(
+        return depsContainer.dependencies.box.saveBox(
           createTestBox({
             boxName,
             flashcards,
             playerId,
           }),
-        )
-      }
+        );
+      },
     );
     boxSteps['given a box named "(.*)" for the current player does not exist$'](given, depsContainer);
     playerSteps['when the current player adds the following flashcard in his box named "(.*)":'](
@@ -58,7 +58,7 @@ defineFeature(feature, test => {
     and(
       /^the flashcards in the first partition of the box named "(.*)" owned by the player of id "(.*)" should be:$/,
       async (boxName, playerId, flashcards) => {
-        const box = await depsContainer.dependencies.boxRepository.getBoxByName({
+        const box = await depsContainer.dependencies.box.getBoxByNameAndPlayerId({
           boxName,
           playerId,
         });
@@ -68,10 +68,10 @@ defineFeature(feature, test => {
   });
   test('The box exists and its first partition is empty', ({ given, when, then }) => {
     given(/^the box named "(.*)" does not contain any flashcard in its first partition$/, boxName =>
-      depsContainer.dependencies.boxRepository.save(
+      depsContainer.dependencies.box.saveBox(
         Box({
           name: boxName,
-          playerId: depsContainer.dependencies.authenticationGateway.getCurrentPlayer().id,
+          playerId: depsContainer.dependencies.player.getCurrentPlayerId(),
         }),
       ),
     );
