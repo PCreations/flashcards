@@ -1,4 +1,4 @@
-module.exports = function (w) {
+module.exports = function(w) {
   return {
     files: [
       'tsconfig.json',
@@ -15,8 +15,8 @@ module.exports = function (w) {
       type: 'node',
       runner: 'node',
       params: {
-        env: 'AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway;BOX_REPOSITORY=src/adapters/inMemory/boxRepository'
-      }
+        env: 'PLAYER_DEPS=src/adapters/inMemory/player;BOX_DEPS=src/adapters/inMemory/box',
+      },
     },
     testFramework: 'jest',
     filesWithNoCoverageCalculated: ['features/**/*.ts'],

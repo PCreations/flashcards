@@ -1,10 +1,10 @@
 import * as admin from 'firebase-admin';
 import flatMap from 'lodash/flatMap';
-import { BoxRepository as BaseBoxRepository } from '../../domain/box/boxRepository';
 import { Box, SessionFlashcard } from '../../domain/box/box';
 import { mapPartitions, PartitionNumber, addFlashcardInPartition } from '../../domain/box/partitions';
 import { Flashcard } from '../../domain/box/flashcard';
 import { Stack, Set } from 'immutable';
+import { GetAllBoxesOwnedBy, SaveBox, GetBoxByNameAndPlayerId } from '../../domain/box/repository';
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
@@ -16,10 +16,14 @@ const firestore = admin.firestore();
 const getBoxId = ({ random, boxName, playerId }: { random: number; boxName: string; playerId: string }) =>
   `test#${random}-${playerId}-${boxName}`;
 
-export const BoxRepository = () => {
+export const createAdapters = (): {
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId;
+  saveBox: SaveBox;
+  getAllBoxesOwnedBy: GetAllBoxesOwnedBy;
+} => {
   const random = Math.random();
-  return BaseBoxRepository({
-    async save(box) {
+  return {
+    async saveBox(box) {
       const { startedAt, lastStartedSessionDate, ...boxToSave } = box.toJS();
       const savedBox = {
         ...boxToSave,
@@ -32,7 +36,7 @@ export const BoxRepository = () => {
         .set(savedBox);
       return true;
     },
-    async getBoxByName({ boxName, playerId }) {
+    async getBoxByNameAndPlayerId({ boxName, playerId }) {
       return firestore
         .collection('boxes')
         .doc(getBoxId({ random, boxName, playerId }))
@@ -54,12 +58,10 @@ export const BoxRepository = () => {
                   ),
                 )(),
                 sessionFlashcards: Stack<SessionFlashcard>(
-                  doc
-                    .data()
-                    .sessionFlashcards.map(({ flashcard, fromPartition }: SessionFlashcard) => ({
-                      flashcard: Flashcard(flashcard),
-                      fromPartition,
-                    })),
+                  doc.data().sessionFlashcards.map(({ flashcard, fromPartition }: SessionFlashcard) => ({
+                    flashcard: Flashcard(flashcard),
+                    fromPartition,
+                  })),
                 ),
                 archivedFlashcards: Set<Flashcard>(doc.data().archivedFlashcards.map(Flashcard)),
                 startedAt: !doc.data().startedAt ? undefined : doc.data().startedAt.toDate(),
@@ -70,8 +72,8 @@ export const BoxRepository = () => {
             : undefined;
         });
     },
-    async getAllBoxOwnedBy(playerId) {
+    async getAllBoxesOwnedBy(playerId) {
       return [];
     },
-  });
+  };
 };
