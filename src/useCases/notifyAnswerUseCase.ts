@@ -10,7 +10,7 @@ export type NotifyAnswerUseCase = (
   saveBox: SaveBox,
 ) => ({ boxName, didCorrectlyAnswer }: { boxName: string; didCorrectlyAnswer: boolean }) => Promise<boolean>;
 
-export const NotifyAnswerUseCase: NotifyAnswerUseCase = getCurrentPlayerId => getBoxByNameAndPlayerId => saveBox => async ({
+export const notifyAnswerUseCase: NotifyAnswerUseCase = getCurrentPlayerId => getBoxByNameAndPlayerId => saveBox => async ({
   boxName,
   didCorrectlyAnswer,
 }) => {

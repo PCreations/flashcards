@@ -8,7 +8,7 @@ export type StartSessionUseCase = (
   getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
 ) => (saveBox: SaveBox) => ({ boxName, today }: { boxName: string; today: Date }) => Promise<boolean>;
 
-export const StartSessionUseCase: StartSessionUseCase = getCurrentPlayerId => getBoxByNameAndPlayerId => saveBox => async ({
+export const startSessionUseCase: StartSessionUseCase = getCurrentPlayerId => getBoxByNameAndPlayerId => saveBox => async ({
   boxName,
   today,
 }) => {
