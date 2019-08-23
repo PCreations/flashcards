@@ -1,24 +1,25 @@
-import { BoxRepository } from '../domain/box/boxRepository';
+import { GetBoxByNameAndPlayerId, SaveBox } from '../domain/box/repository';
+import { GetCurrentPlayerId } from '../domain/player/authentication';
 import { addFlashcard, Box } from '../domain/box/box';
-import { AuthenticationGateway } from '../domain/player/authenticationGateway';
 import { Flashcard } from '../domain/box/flashcard';
 
-export const AddFlashcardInBoxUseCase = ({
-  boxRepository,
-  authenticationGateway,
-}: {
-  boxRepository: BoxRepository;
-  authenticationGateway: AuthenticationGateway;
-}) => ({
-  async handle({ boxName, flashcard }: { boxName: string; flashcard: Flashcard }) {
-    const playerId = authenticationGateway.getCurrentPlayer().id;
-    const box =
-      (await boxRepository.getBoxByName({
-        boxName,
-        playerId,
-      })) || Box({ name: boxName, playerId });
-    return boxRepository.save(addFlashcard({ flashcard, partition: 1 })(box));
-  },
-});
+export type AddFlashcardInBoxUseCase = (
+  getCurrentPlayerId: GetCurrentPlayerId,
+) => (
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
+) => (
+  saveBox: SaveBox,
+) => ({ boxName, flashcard }: { boxName: string; flashcard: Flashcard }) => Promise<boolean>;
 
-export type AddFlashcardInBoxUseCase = ReturnType<typeof AddFlashcardInBoxUseCase>;
+export const addFlashcardInBoxUseCase: AddFlashcardInBoxUseCase = getCurrentPlayerId => getBoxByNameAndPlayerId => saveBox => async ({
+  boxName,
+  flashcard,
+}) => {
+  const playerId = getCurrentPlayerId();
+  const box =
+    (await getBoxByNameAndPlayerId({
+      boxName,
+      playerId,
+    })) || Box({ name: boxName, playerId });
+  return saveBox(addFlashcard({ flashcard, partition: 1 })(box));
+};

@@ -1,36 +1,49 @@
-import { AuthenticationGateway } from "../src/domain/player/authenticationGateway";
-import { BoxRepository } from "../src/domain/box/boxRepository";
-import { DateService } from "../src/domain/box/dateService";
+import { Authenticate, GetCurrentPlayerId } from '../src/domain/player/authentication';
+import { GetBoxByNameAndPlayerId, SaveBox, GetAllBoxesOwnedBy } from '../src/domain/box/repository';
+import { DateService } from '../src/domain/box/dateService';
 
 type TestDependencies = {
-  authenticationGateway: AuthenticationGateway;
-  boxRepository: BoxRepository;
+  player: {
+    authenticate: Authenticate;
+    getCurrentPlayerId: GetCurrentPlayerId;
+  };
+  box: {
+    getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId;
+    saveBox: SaveBox;
+    getAllBoxesOwnedBy: GetAllBoxesOwnedBy;
+  };
   dateService?: DateService;
 };
 
 export type DependenciesContainer = {
   dependencies: TestDependencies;
-}
+};
 
-const authenticationGatewayPath = process.env.AUTHENTICATION_GATEWAY;
-const boxRepositoryPath = process.env.BOX_REPOSITORY;
+const playerDepsPath = process.env.PLAYER_DEPS;
+const boxDepsPath = process.env.BOX_DEPS;
 
 const getDependencies = async (): Promise<TestDependencies> => {
   const {
-    AuthenticationGateway,
+    createAdapters: createPlayerAdapters,
   }: {
-    AuthenticationGateway: () => TestDependencies['authenticationGateway'];
-  } = await import(`../${authenticationGatewayPath}`);
+    createAdapters: () => TestDependencies['player'];
+  } = await import(`../${playerDepsPath}`);
   const {
-    BoxRepository,
-  }: { BoxRepository: () => TestDependencies['boxRepository'] } = await import(`../${boxRepositoryPath}`);
-  const authenticationGateway = AuthenticationGateway();
-  const boxRepository = BoxRepository();
+    createAdapters: createBoxAdapters,
+  }: {
+    createAdapters: () => TestDependencies['box'];
+  } = await import(`../${boxDepsPath}`);
+  const player = createPlayerAdapters();
+  const box = createBoxAdapters();
   return {
-    get authenticationGateway() { return authenticationGateway; },
-    get boxRepository() { return boxRepository; },
+    get player() {
+      return player;
+    },
+    get box() {
+      return box;
+    },
   };
-}
+};
 
 export const createDepsContainer = () => {
   let dependencies: TestDependencies;
@@ -43,6 +56,6 @@ export const createDepsContainer = () => {
     },
     async loadDependencies() {
       dependencies = await getDependencies();
-    }
-  }
-}
+    },
+  };
+};

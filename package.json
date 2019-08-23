@@ -12,7 +12,7 @@
   "scripts": {
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "test:unit": "AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/inMemory/boxRepository jest --verbose --coverage",
+    "test:unit": "PLAYER_DEPS=src/adapters/inMemory/player BOX_DEPS=src/adapters/inMemory/box jest --verbose --coverage",
     "test:integration": "GOOGLE_APPLICATION_CREDENTIALS=./src/adapters/firestoreAdmin/config/test.json AUTHENTICATION_GATEWAY=src/adapters/inMemory/authenticationGateway BOX_REPOSITORY=src/adapters/firestoreAdmin/boxRepository jest --verbose --coverage"
   },
   "devDependencies": {
