@@ -1,13 +1,15 @@
 import { setInitialFixture } from '../testUtils/setInitialFixture';
-import { BoxRepository } from '../../adapters/inMemory/boxRepository';
-import { AuthenticationGateway } from '../../adapters/inMemory/authenticationGateway';
-import { SessionPreviewScreenQuery } from '../sessionPreviewScreenQuery';
+import { createAdapters as createBoxAdapters } from '../../adapters/inMemory/box';
+import { createAdapters as createPlayerAdapters } from '../../adapters/inMemory/player';
+import { sessionPreviewScreenQuery as createSessionPreviewScreenQuery } from '../sessionPreviewScreenQuery';
 
 test('SessionPreviewScreenQuery', async () => {
-  const boxRepository = BoxRepository();
-  const authenticationGateway = AuthenticationGateway();
-  await setInitialFixture(boxRepository, authenticationGateway);
-  const sessionPreviewScreenQuery = SessionPreviewScreenQuery({ boxRepository, authenticationGateway });
+  const { saveBox, getBoxByNameAndPlayerId } = createBoxAdapters();
+  const { authenticate, getCurrentPlayerId } = createPlayerAdapters();
+  await setInitialFixture(saveBox, authenticate);
+  const sessionPreviewScreenQuery = createSessionPreviewScreenQuery(getBoxByNameAndPlayerId)(
+    getCurrentPlayerId,
+  );
   const sessionPreviewScreen = await sessionPreviewScreenQuery({ boxName: 'box1' });
   expect(sessionPreviewScreen).toEqual({
     boxName: 'box1',

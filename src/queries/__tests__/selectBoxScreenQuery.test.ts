@@ -1,13 +1,13 @@
 import { setInitialFixture } from '../testUtils/setInitialFixture';
-import { BoxRepository } from '../../adapters/inMemory/boxRepository';
-import { AuthenticationGateway } from '../../adapters/inMemory/authenticationGateway';
-import { SelectBoxScreenQuery } from '../selectBoxScreenQuery';
+import { createAdapters as createBoxAdapters } from '../../adapters/inMemory/box';
+import { createAdapters as createPlayerAdapters } from '../../adapters/inMemory/player';
+import { selectBoxScreenQuery as createSelectBoxScreenQuery } from '../selectBoxScreenQuery';
 
 test('SelectBoxScreenQuery', async () => {
-  const boxRepository = BoxRepository();
-  const authenticationGateway = AuthenticationGateway();
-  await setInitialFixture(boxRepository, authenticationGateway);
-  const selectBoxScreenQuery = SelectBoxScreenQuery({ boxRepository, authenticationGateway });
+  const { saveBox, getAllBoxesOwnedBy } = createBoxAdapters();
+  const { authenticate, getCurrentPlayerId } = createPlayerAdapters();
+  await setInitialFixture(saveBox, authenticate);
+  const selectBoxScreenQuery = createSelectBoxScreenQuery(getAllBoxesOwnedBy)(getCurrentPlayerId);
   const selectBoxScreen = await selectBoxScreenQuery();
   expect(selectBoxScreen).toEqual([
     {

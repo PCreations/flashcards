@@ -1,13 +1,15 @@
 import { setInitialFixture } from '../testUtils/setInitialFixture';
-import { BoxRepository } from '../../adapters/inMemory/boxRepository';
-import { AuthenticationGateway } from '../../adapters/inMemory/authenticationGateway';
-import { CurrentQuestionScreenQuery } from '../currentQuestionScreenQuery';
+import { createAdapters as createBoxAdapters } from '../../adapters/inMemory/box';
+import { createAdapters as createPlayerAdapters } from '../../adapters/inMemory/player';
+import { currentQuestionScreenQuery as createCurrentQuestionScreenQuery } from '../currentQuestionScreenQuery';
 
-test('CurrentQuestionScreenQuery', async () => {
-  const boxRepository = BoxRepository();
-  const authenticationGateway = AuthenticationGateway();
-  await setInitialFixture(boxRepository, authenticationGateway);
-  const currentQuestionScreenQuery = CurrentQuestionScreenQuery({ boxRepository, authenticationGateway });
+test('currentQuestionScreenQuery', async () => {
+  const { saveBox, getBoxByNameAndPlayerId } = createBoxAdapters();
+  const { authenticate, getCurrentPlayerId } = createPlayerAdapters();
+  await setInitialFixture(saveBox, authenticate);
+  const currentQuestionScreenQuery = createCurrentQuestionScreenQuery(getBoxByNameAndPlayerId)(
+    getCurrentPlayerId,
+  );
   const currentQuestionScreen = await currentQuestionScreenQuery({ boxName: 'box1' });
   expect(currentQuestionScreen).toEqual({
     boxName: 'box1',

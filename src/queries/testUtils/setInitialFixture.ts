@@ -10,9 +10,9 @@ import {
 } from '../../domain/box/box';
 import { Flashcard } from '../../domain/box/flashcard';
 import { PartitionNumber } from '../../domain/box/partitions';
-import { BoxRepository } from '../../adapters/inMemory/boxRepository';
-import { AuthenticationGateway } from '../../adapters/inMemory/authenticationGateway';
 import { Player } from '../../domain/player/player';
+import { SaveBox } from '../../domain/box/repository';
+import { Authenticate } from '../../domain/player/authentication';
 
 const createFlashcard = (flashcardNumber: number) =>
   Flashcard({ question: `q${flashcardNumber}`, answer: `a${flashcardNumber}` });
@@ -38,11 +38,8 @@ const addFlashcardInPartition5 = addFlashcardsInPartition(5);
 const addFlashcardInPartition6 = addFlashcardsInPartition(6);
 const addFlashcardInPartition7 = addFlashcardsInPartition(7);
 
-export const setInitialFixture = async (
-  boxRepository: BoxRepository,
-  authenticationGateway: AuthenticationGateway,
-) => {
-  await authenticationGateway.authenticate(Player({ id: '42' }));
+export const setInitialFixture = async (saveBox: SaveBox, authenticate: Authenticate) => {
+  await authenticate(Player({ id: '42' }));
   const box1OwnedByPlayer42 = mapBox(
     ...addFlashcardInPartition1(5),
     ...addFlashcardInPartition2(5),
@@ -91,8 +88,8 @@ export const setInitialFixture = async (
     }),
   );
   await Promise.all([
-    boxRepository.save(box1OwnedByPlayer42),
-    boxRepository.save(box2OwnedByPlayer42),
-    boxRepository.save(box1OwnedByPlayer41),
+    saveBox(box1OwnedByPlayer42),
+    saveBox(box2OwnedByPlayer42),
+    saveBox(box1OwnedByPlayer41),
   ]);
 };
