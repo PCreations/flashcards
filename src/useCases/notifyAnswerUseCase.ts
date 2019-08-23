@@ -1,22 +1,23 @@
 import { notifyGoodAnswer, notifyWrongAnswer } from '../domain/box/box';
-import { BoxRepository } from '../domain/box/boxRepository';
-import { AuthenticationGateway } from '../domain/player/authenticationGateway';
+import { GetCurrentPlayerId } from '../domain/player/authentication';
+import { GetBoxByNameAndPlayerId, SaveBox } from '../domain/box/repository';
 
-export const NotifyAnswerUseCase = ({
-  boxRepository,
-  authenticationGateway,
-}: {
-  boxRepository: BoxRepository;
-  authenticationGateway: AuthenticationGateway;
-}) => ({
-  async handle({ boxName, didCorrectlyAnswer }: { boxName: string; didCorrectlyAnswer: Boolean }) {
-    const box = await boxRepository.getBoxByName({
-      boxName,
-      playerId: authenticationGateway.getCurrentPlayer().id,
-    });
-    const boxToSave = didCorrectlyAnswer ? notifyGoodAnswer(box) : notifyWrongAnswer(box);
-    return boxRepository.save(boxToSave);
-  },
-});
+export type NotifyAnswerUseCase = (
+  getCurrentPlayerId: GetCurrentPlayerId,
+) => (
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
+) => (
+  saveBox: SaveBox,
+) => ({ boxName, didCorrectlyAnswer }: { boxName: string; didCorrectlyAnswer: boolean }) => Promise<boolean>;
 
-export type NotifyAnswerUseCase = ReturnType<typeof NotifyAnswerUseCase>;
+export const NotifyAnswerUseCase: NotifyAnswerUseCase = getCurrentPlayerId => getBoxByNameAndPlayerId => saveBox => async ({
+  boxName,
+  didCorrectlyAnswer,
+}) => {
+  const box = await getBoxByNameAndPlayerId({
+    boxName,
+    playerId: getCurrentPlayerId(),
+  });
+  const boxToSave = didCorrectlyAnswer ? notifyGoodAnswer(box) : notifyWrongAnswer(box);
+  return saveBox(boxToSave);
+};
