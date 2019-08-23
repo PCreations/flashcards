@@ -1,16 +1,15 @@
-import { BoxRepository } from '../domain/box/boxRepository';
 import { Flashcard } from '../domain/box/flashcard';
+import { GetBoxByNameAndPlayerId } from '../domain/box/repository';
 
-export const SessionDeckQuery = ({ boxRepository }: { boxRepository: BoxRepository }) => ({
-  async execute({
-    boxName,
-    playerId,
-  }: {
-    boxName: string;
-    playerId: string;
-  }): Promise<Flashcard['question'][]> {
-    const box = await boxRepository.getBoxByName({ boxName, playerId });
+type SessionDeckQuery = (
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
+) => ({ boxName, playerId }: { boxName: string; playerId: string }) => Promise<Flashcard['question'][]>;
 
-    return box.sessionFlashcards.map(sessionFlashcard => sessionFlashcard.flashcard.question).toArray();
-  },
-});
+export const sessionDeckQuery: SessionDeckQuery = getBoxByNameAndPlayerId => async ({
+  boxName,
+  playerId,
+}) => {
+  const box = await getBoxByNameAndPlayerId({ boxName, playerId });
+
+  return box.sessionFlashcards.map(sessionFlashcard => sessionFlashcard.flashcard.question).toArray();
+};

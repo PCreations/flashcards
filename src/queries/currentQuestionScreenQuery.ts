@@ -1,6 +1,6 @@
-import { BoxRepository } from '../domain/box/boxRepository';
+import { GetBoxByNameAndPlayerId, SaveBox } from '../domain/box/repository';
 import { Box, SessionFlashcard } from '../domain/box/box';
-import { AuthenticationGateway } from '../domain/player/authenticationGateway';
+import { GetCurrentPlayerId } from '../domain/player/authentication';
 
 type CurrentQuestionScreen = {
   boxName: string;
@@ -9,16 +9,18 @@ type CurrentQuestionScreen = {
   currentFlashcardQuestion: string;
 };
 
-export const CurrentQuestionScreenQuery = ({
-  boxRepository,
-  authenticationGateway,
-}: {
-  boxRepository: BoxRepository;
-  authenticationGateway: AuthenticationGateway;
-}) => async ({ boxName }: { boxName: Box['name'] }): Promise<CurrentQuestionScreen> => {
-  const box = await boxRepository.getBoxByName({
+type CurrentQuestionScreenQuery = (
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
+) => (
+  getCurrentPlayerId: GetCurrentPlayerId,
+) => ({ boxName }: { boxName: Box['name'] }) => Promise<CurrentQuestionScreen>;
+
+export const currentQuestionScreenQuery: CurrentQuestionScreenQuery = getBoxByNameAndPlayerId => getCurrentPlayerId => async ({
+  boxName,
+}) => {
+  const box = await getBoxByNameAndPlayerId({
     boxName,
-    playerId: authenticationGateway.getCurrentPlayer().id,
+    playerId: getCurrentPlayerId(),
   });
   const totalFlashcardsToReview: number = box.sessionsPartitions.reduce(
     (total, partition) => total + box.partitions.get(partition).size,

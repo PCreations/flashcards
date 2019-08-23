@@ -1,11 +1,16 @@
-import { BoxRepository } from '../domain/box/boxRepository';
 import { Flashcard } from '../domain/box/flashcard';
-import { SessionFlashcard } from '../../src/domain/box/box';
+import { GetBoxByNameAndPlayerId } from '../domain/box/repository';
+import { SessionFlashcard } from '../domain/box/box';
 
-export const CurrentFlashcardAnswerQuery = ({ boxRepository }: { boxRepository: BoxRepository }) => ({
-  async execute({ boxName, playerId }: { boxName: string; playerId: string }): Promise<Flashcard['answer']> {
-    const box = await boxRepository.getBoxByName({ boxName, playerId });
-    const currentlyReviewedSessionFlashcard: SessionFlashcard = box.sessionFlashcards.first();
-    return currentlyReviewedSessionFlashcard.flashcard.answer;
-  },
-});
+type CurrentFlashcardAnswerQuery = (
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
+) => ({ boxName, playerId }: { boxName: string; playerId: string }) => Promise<Flashcard['answer']>;
+
+export const CurrentFlashcardAnswerQuery: CurrentFlashcardAnswerQuery = getBoxByNameAndPlayerId => async ({
+  boxName,
+  playerId,
+}) => {
+  const box = await getBoxByNameAndPlayerId({ boxName, playerId });
+  const currentlyReviewedSessionFlashcard: SessionFlashcard = box.sessionFlashcards.first();
+  return currentlyReviewedSessionFlashcard.flashcard.answer;
+};

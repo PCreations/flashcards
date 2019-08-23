@@ -1,6 +1,6 @@
-import { BoxRepository } from '../domain/box/boxRepository';
 import { Box, getTotalNumberOfFlashcards } from '../domain/box/box';
-import { AuthenticationGateway } from '../domain/player/authenticationGateway';
+import { GetBoxByNameAndPlayerId } from '../domain/box/repository';
+import { GetCurrentPlayerId } from '../domain/player/authentication';
 
 type SessionPreviewScreen = {
   boxName: string;
@@ -9,16 +9,20 @@ type SessionPreviewScreen = {
   numberOfFlashcardsToReviewRoday: number;
 };
 
-export const SessionPreviewScreenQuery = ({
-  boxRepository,
-  authenticationGateway,
+type SessionPreviewScreenQuery = (
+  getBoxByNameAndPlayerId: GetBoxByNameAndPlayerId,
+) => (
+  getCurrentPlayerId: GetCurrentPlayerId,
+) => ({ boxName }: { boxName: Box['name'] }) => Promise<SessionPreviewScreen>;
+
+export const sessionPreviewScreenQuery: SessionPreviewScreenQuery = getBoxByNameAndPlayerId => getCurrentPlayerId => async ({
+  boxName,
 }: {
-  boxRepository: BoxRepository;
-  authenticationGateway: AuthenticationGateway;
-}) => async ({ boxName }: { boxName: Box['name'] }): Promise<SessionPreviewScreen> => {
-  const box = await boxRepository.getBoxByName({
+  boxName: Box['name'];
+}): Promise<SessionPreviewScreen> => {
+  const box = await getBoxByNameAndPlayerId({
     boxName,
-    playerId: authenticationGateway.getCurrentPlayer().id,
+    playerId: getCurrentPlayerId(),
   });
   return {
     boxName,
