@@ -47,7 +47,8 @@ Feature: Starting a session for a specific box
     And the current player has started the box "Capitals of the World" at 2019-04-01
     And the current player last played session for the box "Capitals of the World" was at 2019-04-01
     When the current player starts the session for the box "Capitals of the World"
-    When the current player starts the session for the box "Capitals of the World"
+    # and he starts the session again later in the same day
+    And the current player starts the session for the box "Capitals of the World"
     Then the session deck for the box "Capitals of the World" should contain flashcards questions from partitions 3,1
 
   Scenario Outline: The current player starts a session the <todaySessionDate> and hasn't missed the previous session for his box "Capitals of the World" started on 2019-04-01
