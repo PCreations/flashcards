@@ -1,8 +1,9 @@
 module.exports = () => ({
-  files: ['src/**/*.js', '!**/__tests__/*.test.js'],
-  tests: ['**/__tests__/*.test.js'],
+  files: ['src/**/*.js', 'features/*.feature', '!src/**/__tests__/*.test.js', '!features/steps/*.steps.js'],
+  tests: ['src/**/__tests__/*.test.js', 'features/steps/*.steps.js'],
   env: {
     type: 'node',
   },
   testFramework: 'jest',
+  filesWithNoCoverageCalculated: ['features/**/*.js'],
 });
