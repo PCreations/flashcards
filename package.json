@@ -1,0 +1,22 @@
+{
+  "name": "flashcards",
+  "version": "1.0.0",
+  "description": "Flashcards core, BDD / TDD project",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PCreations/flashcards.git"
+  },
+  "author": "Pierre Criulanscy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PCreations/flashcards/issues"
+  },
+  "homepage": "https://github.com/PCreations/flashcards#readme",
+  "engines": {
+    "node": ">=10.16.3"
+  }
+}
