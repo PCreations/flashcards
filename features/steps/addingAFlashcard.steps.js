@@ -2,6 +2,7 @@ const { defineFeature, loadFeature } = require('jest-cucumber');
 const { createFlashcard } = require('../../src/createFlashcard');
 const getPlayerBoxByName = require('../../src/box/io/getPlayerBoxByName');
 const savePlayerBox = require('../../src/box/io/savePlayerBox');
+const { addFlashcardInPlayerBox } = require('../../src/useCases/addFlashcardInPlayerBox');
 
 const feature = loadFeature('./features/addingAFlashcard.feature');
 
@@ -28,6 +29,8 @@ defineFeature(feature, test => {
         answer: table[0].answer,
       });
       return addFlashcardInPlayerBox({
+        getPlayerBoxByName: IO.getPlayerBoxByName,
+        savePlayerBox: IO.savePlayerBox,
         playerId: currentPlayerId,
         boxName,
         flashcard: theFlashcardToAdd,
