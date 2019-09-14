@@ -5,7 +5,7 @@ Feature: Adding a flashcard in a box
   So I can review it later
 
   Scenario: Adding a flashcard in a new box
-    Given the current player player42
+    Given the current player id is player42
     And the current player has no box named Capitals of the World
     When the current player wants to add a flashcard in the box Capitals of the World:
       | question | answer |

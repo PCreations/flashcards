@@ -1,7 +1,6 @@
 const { defineFeature, loadFeature } = require('jest-cucumber');
 const { createFlashcard } = require('../../src/createFlashcard');
-const { getPlayerBoxByName } = require('../../src/getPlayerBoxByName');
-const { addFlashcardInPlayerBox } = require('../../src/addFlashcardInPlayerBox');
+const { addFlashcardInPlayerBox } = require('../../src/useCases/addFlashcardInPlayerBox');
 
 const feature = loadFeature('./features/addingAFlashcard.feature');
 
