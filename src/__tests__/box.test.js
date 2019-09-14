@@ -1,6 +1,8 @@
 const { createBox, addFlashcard } = require('../box');
 const { createFlashcard } = require('../createFlashcard');
 
+const createTestBox = ({ name = 'box name', partitions } = {}) => createBox({ name, partitions });
+
 describe('box', () => {
   describe('createBox', () => {
     test('should accept an object with required not empty string property "name"', () => {
@@ -9,10 +11,10 @@ describe('box', () => {
       expect(() => createBox({ name: 'box name' })).not.toThrow();
     });
     test('should accept a optional "partitions" property : an array of length 5', () => {
-      expect(() => createBox({ name: 'box name', partitions: 'bad format' })).toThrowError(
+      expect(() => createTestBox({ partitions: 'bad format' })).toThrowError(
         'partitions should be an array of length 5',
       );
-      expect(() => createBox({ name: 'box name', partitions: [] })).toThrowError(
+      expect(() => createTestBox({ partitions: [] })).toThrowError(
         'partitions should be an array of length 5',
       );
     });
@@ -30,7 +32,7 @@ describe('box', () => {
   describe('addFlashcard', () => {
     test('given a box with empty partitions it should add the flashcard in the first partition', () => {
       const theFlashcard = createFlashcard({ answer: 'answer', question: 'question' });
-      const box = createBox({ name: 'some box' });
+      const box = createTestBox();
       const boxWithFlashcard = addFlashcard({
         box,
         flashcard: theFlashcard,
