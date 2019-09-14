@@ -1,17 +1,23 @@
 const { defineFeature, loadFeature } = require('jest-cucumber');
 const { createFlashcard } = require('../../src/createFlashcard');
-const { addFlashcardInPlayerBox } = require('../../src/useCases/addFlashcardInPlayerBox');
+const getPlayerBoxByName = require('../../src/box/io/getPlayerBoxByName');
+const savePlayerBox = require('../../src/box/io/savePlayerBox');
 
 const feature = loadFeature('./features/addingAFlashcard.feature');
 
 defineFeature(feature, test => {
   let currentPlayerId;
+  const boxesDb = {};
+  const IO = {
+    getPlayerBoxByName: getPlayerBoxByName.create(boxesDb),
+    savePlayerBox: savePlayerBox.create(boxesDb),
+  };
   test('Adding a flashcard in a new box', ({ given, and, when, then }) => {
     given(/^the current player id is (.*)$/, playerId => {
       currentPlayerId = playerId;
     });
     and(/^the current player has no box named (.*)$/, boxName => {
-      return expect(getPlayerBoxByName({ playerId: currentPlayerId, boxName })).rejects.toMatch(
+      return expect(IO.getPlayerBoxByName({ playerId: currentPlayerId, boxName })).rejects.toThrowError(
         'box not found',
       );
     });
@@ -31,7 +37,7 @@ defineFeature(feature, test => {
     then(
       /^the current player's box (.*) should contain in its first partition the flashcard:$/,
       async (boxName, table) => {
-        const box = await getPlayerBoxByName({
+        const box = await IO.getPlayerBoxByName({
           playerId: currentPlayerId,
           boxName,
         });
