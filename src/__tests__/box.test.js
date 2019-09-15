@@ -40,5 +40,15 @@ describe('box', () => {
       expect(boxWithFlashcard.partitions[0]).toContainEqual(theFlashcard);
       expect(box.partitions).toEqual([[], [], [], [], []]);
     });
+    test('given a box with non empty first partition it should add the flashcard in last position of the first partition', () => {
+      const someFlashcard = createFlashcard({ answer: 'answer', question: 'question' });
+      const theFlashcard = createFlashcard({ answer: 'answer2', question: 'question2' });
+      const box = createBox({ name: 'some box', partitions: [[someFlashcard], [], [], [], []] });
+      const boxWithFlashcard = addFlashcard({
+        box,
+        flashcard: theFlashcard,
+      });
+      expect(boxWithFlashcard.partitions[0]).toEqual([someFlashcard, theFlashcard]);
+    });
   });
 });
