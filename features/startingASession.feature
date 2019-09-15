@@ -15,8 +15,10 @@ Feature: Starting a session
       | 4         | Germany   | Berlin    |
       | 5         | Island    | Reykjavik |
     And the current player has never played the box Capitals of the World before
+    And today is 2019-09-15
     When the current player starts a session for the box Capitals of the World
-    Then the flashcards to review should be
+    Then the flashcards to review for the current player's box Capitals of the World should be:
       | question  | answer   |
       | England   | London   |
       | Australia | Canberra |
+    And the current player box's Capitals of the World should be marked as started the 2019-09-15
