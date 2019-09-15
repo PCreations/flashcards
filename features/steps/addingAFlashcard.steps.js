@@ -1,57 +1,43 @@
 const { defineFeature, loadFeature } = require('jest-cucumber');
+const playerSteps = require('./player');
+const boxSteps = require('./box');
 const { createFlashcard } = require('../../src/createFlashcard');
-const { createBox, addFlashcard } = require('../../src/box');
+const { createBox } = require('../../src/box');
 const getPlayerBoxByName = require('../../src/box/io/getPlayerBoxByName');
 const savePlayerBox = require('../../src/box/io/savePlayerBox');
-const { addFlashcardInPlayerBox } = require('../../src/useCases/addFlashcardInPlayerBox');
 
 const feature = loadFeature('./features/addingAFlashcard.feature');
 
+const getIODependencies = () => {
+  let currentPlayerId;
+  const boxesDb = {};
+
+  return {
+    setCurrentPlayerId: playerId => {
+      currentPlayerId = playerId;
+    },
+    getCurrentPlayerId: () => currentPlayerId,
+    getPlayerBoxByName: getPlayerBoxByName.create(boxesDb),
+    savePlayerBox: savePlayerBox.create(boxesDb),
+  };
+};
+
 defineFeature(feature, test => {
   test('Adding a flashcard in a new box', ({ given, and, when, then }) => {
-    let currentPlayerId;
-    const boxesDb = {};
-    const IO = {
-      getPlayerBoxByName: getPlayerBoxByName.create(boxesDb),
-      savePlayerBox: savePlayerBox.create(boxesDb),
-    };
-    given(/^the current player id is (.*)$/, playerId => {
-      currentPlayerId = playerId;
-    });
+    const deps = getIODependencies();
+    given(...playerSteps['the current player id is (.*)'](deps));
     and(/^the current player has no box named (.*)$/, boxName => {
-      return expect(IO.getPlayerBoxByName({ playerId: currentPlayerId, boxName })).rejects.toThrowError(
-        'box not found',
-      );
+      return expect(
+        deps.getPlayerBoxByName({ playerId: deps.getCurrentPlayerId(), boxName }),
+      ).rejects.toThrowError('box not found');
     });
 
-    when(/^the current player wants to add a flashcard in the box (.*):$/, (boxName, table) => {
-      const theFlashcardToAdd = createFlashcard({
-        question: table[0].question,
-        answer: table[0].answer,
-      });
-      return addFlashcardInPlayerBox({
-        getPlayerBoxByName: IO.getPlayerBoxByName,
-        savePlayerBox: IO.savePlayerBox,
-        playerId: currentPlayerId,
-        boxName,
-        flashcard: theFlashcardToAdd,
-      });
-    });
+    when(...boxSteps['the current player wants to add a flashcard in the box (.*):'](deps));
 
     then(
-      /^the current player's box (.*) should contain in its first partition the flashcards:$/,
-      async (boxName, table) => {
-        const box = await IO.getPlayerBoxByName({
-          playerId: currentPlayerId,
-          boxName,
-        });
-        const theExpectedFlashcard = createFlashcard({
-          question: table[0].question,
-          answer: table[0].answer,
-        });
-
-        expect(box.partitions[0]).toContainEqual(theExpectedFlashcard);
-      },
+      ...boxSteps["the current player's box (.*) should contain in its first partition the flashcards:"](
+        deps,
+      ),
     );
   });
 
@@ -61,22 +47,8 @@ defineFeature(feature, test => {
     when,
     then,
   }) => {
-    let currentPlayerId;
-    const boxesDb = (() => {
-      const boxes = {};
-      return {
-        get value() {
-          return boxes;
-        },
-      };
-    })();
-    const IO = {
-      getPlayerBoxByName: getPlayerBoxByName.create(boxesDb.value),
-      savePlayerBox: savePlayerBox.create(boxesDb.value),
-    };
-    given(/^the current player id is (.*)$/, playerId => {
-      currentPlayerId = playerId;
-    });
+    const deps = getIODependencies();
+    given(...playerSteps['the current player id is (.*)'](deps));
     and(/the current player has box named (.*) containing flashcards:$/, (boxName, table) => {
       const partitions = [[], [], [], [], []];
       table.forEach(
@@ -86,31 +58,13 @@ defineFeature(feature, test => {
           )),
       );
       const box = createBox({ name: boxName, partitions });
-      return IO.savePlayerBox({ playerId: currentPlayerId, box });
+      return deps.savePlayerBox({ playerId: deps.getCurrentPlayerId(), box });
     });
-    when(/^the current player wants to add a flashcard in the box (.*):$/, (boxName, table) => {
-      const theFlashcardToAdd = createFlashcard({
-        question: table[0].question,
-        answer: table[0].answer,
-      });
-      return addFlashcardInPlayerBox({
-        getPlayerBoxByName: IO.getPlayerBoxByName,
-        savePlayerBox: IO.savePlayerBox,
-        playerId: currentPlayerId,
-        boxName,
-        flashcard: theFlashcardToAdd,
-      });
-    });
+    when(...boxSteps['the current player wants to add a flashcard in the box (.*):'](deps));
     then(
-      /^the current player's box (.*) should contain in its first partition the flashcards:$/,
-      async (boxName, table) => {
-        const box = await IO.getPlayerBoxByName({
-          playerId: currentPlayerId,
-          boxName,
-        });
-        const expectedFlashcardsInFirstPartition = table.map(createFlashcard);
-        expect(box.partitions[0]).toEqual(expectedFlashcardsInFirstPartition);
-      },
+      ...boxSteps["the current player's box (.*) should contain in its first partition the flashcards:"](
+        deps,
+      ),
     );
   });
 
@@ -120,24 +74,10 @@ defineFeature(feature, test => {
     when,
     then,
   }) => {
-    let currentPlayerId;
     let addFlashcardInPlayerBoxError;
-    const boxesDb = (() => {
-      const boxes = {};
-      return {
-        get value() {
-          return boxes;
-        },
-      };
-    })();
-    const IO = {
-      getPlayerBoxByName: getPlayerBoxByName.create(boxesDb.value),
-      savePlayerBox: savePlayerBox.create(boxesDb.value),
-    };
-    given(/^the current player id is (.*)$/, playerId => {
-      currentPlayerId = playerId;
-    });
-    and(/the current player has box named (.*) containing flashcards:$/, (boxName, table) => {
+    const deps = getIODependencies();
+    given(...playerSteps['the current player id is (.*)'](deps));
+    and(/the current player has box named (.*) containing flashcards:$/, async (boxName, table) => {
       const partitions = [[], [], [], [], []];
       table.forEach(
         ({ partition, question, answer }) =>
@@ -146,33 +86,20 @@ defineFeature(feature, test => {
           )),
       );
       const box = createBox({ name: boxName, partitions });
-      return IO.savePlayerBox({ playerId: currentPlayerId, box });
+      return deps.savePlayerBox({ playerId: deps.getCurrentPlayerId(), box });
     });
-    when(/^the current player wants to add a flashcard in the box (.*):$/, (boxName, table) => {
-      const theFlashcardToAdd = createFlashcard({
-        question: table[0].question,
-        answer: table[0].answer,
-      });
-      return addFlashcardInPlayerBox({
-        getPlayerBoxByName: IO.getPlayerBoxByName,
-        savePlayerBox: IO.savePlayerBox,
-        playerId: currentPlayerId,
-        boxName,
-        flashcard: theFlashcardToAdd,
-      }).catch(err => {
-        addFlashcardInPlayerBoxError = err;
-      });
-    });
+    when(
+      ...boxSteps['the current player wants to add a flashcard in the box (.*):']({
+        ...deps,
+        setAddFlashcardInPlayerBoxError: err => {
+          addFlashcardInPlayerBoxError = err;
+        },
+      }),
+    );
     then(
-      /^the current player's box (.*) should contain in its first partition the flashcards:$/,
-      async (boxName, table) => {
-        const box = await IO.getPlayerBoxByName({
-          playerId: currentPlayerId,
-          boxName,
-        });
-        const expectedFlashcardsInFirstPartition = table.map(createFlashcard);
-        expect(box.partitions[0]).toEqual(expectedFlashcardsInFirstPartition);
-      },
+      ...boxSteps["the current player's box (.*) should contain in its first partition the flashcards:"](
+        deps,
+      ),
     );
     and('an error should be returned to inform the player this flashcard is already in the box', () => {
       expect(addFlashcardInPlayerBoxError.message).toMatch('flashcard already in the box');
