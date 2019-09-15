@@ -1,4 +1,5 @@
 const { createStep } = require('../createStep');
+const { createBox } = require('../../../src/box');
 const { createFlashcard } = require('../../../src/createFlashcard');
 const { addFlashcardInPlayerBox } = require('../../../src/useCases/addFlashcardInPlayerBox');
 
@@ -35,6 +36,20 @@ module.exports = {
         boxName,
         flashcard: theFlashcardToAdd,
       }).catch(setAddFlashcardInPlayerBoxError);
+    },
+  ),
+  ...createStep(
+    'the current player has a box named (.*) containing flashcards:',
+    ({ getCurrentPlayerId, savePlayerBox }) => async (boxName, table) => {
+      const partitions = [[], [], [], [], []];
+      table.forEach(
+        ({ partition, question, answer }) =>
+          (partitions[parseInt(partition, 10) - 1] = partitions[parseInt(partition, 10) - 1].concat(
+            createFlashcard({ answer, question }),
+          )),
+      );
+      const box = createBox({ name: boxName, partitions });
+      return savePlayerBox({ playerId: getCurrentPlayerId(), box });
     },
   ),
 };

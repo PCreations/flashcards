@@ -1,8 +1,6 @@
 const { defineFeature, loadFeature } = require('jest-cucumber');
 const playerSteps = require('./player');
 const boxSteps = require('./box');
-const { createFlashcard } = require('../../src/createFlashcard');
-const { createBox } = require('../../src/box');
 const getPlayerBoxByName = require('../../src/box/io/getPlayerBoxByName');
 const savePlayerBox = require('../../src/box/io/savePlayerBox');
 
@@ -25,7 +23,9 @@ const getIODependencies = () => {
 defineFeature(feature, test => {
   test('Adding a flashcard in a new box', ({ given, and, when, then }) => {
     const deps = getIODependencies();
+
     given(...playerSteps['the current player id is (.*)'](deps));
+
     and(/^the current player has no box named (.*)$/, boxName => {
       return expect(
         deps.getPlayerBoxByName({ playerId: deps.getCurrentPlayerId(), boxName }),
@@ -48,19 +48,13 @@ defineFeature(feature, test => {
     then,
   }) => {
     const deps = getIODependencies();
+
     given(...playerSteps['the current player id is (.*)'](deps));
-    and(/the current player has a box named (.*) containing flashcards:$/, (boxName, table) => {
-      const partitions = [[], [], [], [], []];
-      table.forEach(
-        ({ partition, question, answer }) =>
-          (partitions[parseInt(partition, 10) - 1] = partitions[parseInt(partition, 10) - 1].concat(
-            createFlashcard({ answer, question }),
-          )),
-      );
-      const box = createBox({ name: boxName, partitions });
-      return deps.savePlayerBox({ playerId: deps.getCurrentPlayerId(), box });
-    });
+
+    and(...boxSteps['the current player has a box named (.*) containing flashcards:'](deps));
+
     when(...boxSteps['the current player wants to add a flashcard in the box (.*):'](deps));
+
     then(
       ...boxSteps["the current player's box (.*) should contain in its first partition the flashcards:"](
         deps,
@@ -76,18 +70,11 @@ defineFeature(feature, test => {
   }) => {
     let addFlashcardInPlayerBoxError;
     const deps = getIODependencies();
+
     given(...playerSteps['the current player id is (.*)'](deps));
-    and(/the current player has box named (.*) containing flashcards:$/, async (boxName, table) => {
-      const partitions = [[], [], [], [], []];
-      table.forEach(
-        ({ partition, question, answer }) =>
-          (partitions[parseInt(partition, 10) - 1] = partitions[parseInt(partition, 10) - 1].concat(
-            createFlashcard({ answer, question }),
-          )),
-      );
-      const box = createBox({ name: boxName, partitions });
-      return deps.savePlayerBox({ playerId: deps.getCurrentPlayerId(), box });
-    });
+
+    and(...boxSteps['the current player has a box named (.*) containing flashcards:'](deps));
+
     when(
       ...boxSteps['the current player wants to add a flashcard in the box (.*):']({
         ...deps,
@@ -96,11 +83,13 @@ defineFeature(feature, test => {
         },
       }),
     );
+
     then(
       ...boxSteps["the current player's box (.*) should contain in its first partition the flashcards:"](
         deps,
       ),
     );
+
     and('an error should be returned to inform the player this flashcard is already in the box', () => {
       expect(addFlashcardInPlayerBoxError.message).toMatch('flashcard already in the box');
     });
