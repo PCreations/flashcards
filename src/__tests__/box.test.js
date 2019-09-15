@@ -50,5 +50,12 @@ describe('box', () => {
       });
       expect(boxWithFlashcard.partitions[0]).toEqual([someFlashcard, theFlashcard]);
     });
+    test('given a box already containing a flashcard with the same question that the one we want to add, it should throw an error', () => {
+      const someFlashcard = createFlashcard({ answer: 'answer', question: 'question' });
+      const box = createBox({ name: 'some box', partitions: [[], [], [someFlashcard], [], []] });
+      expect(() =>
+        addFlashcard({ box, flashcard: createFlashcard({ answer: 'some answer', question: 'question' }) }),
+      ).toThrowError('flashcard already in the box');
+    });
   });
 });

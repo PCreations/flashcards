@@ -175,7 +175,7 @@ defineFeature(feature, test => {
       },
     );
     and('an error should be returned to inform the player this flashcard is already in the box', () => {
-      expect(addFlashcardInPlayerBoxError).toMatch('Flashcard already in the box');
+      expect(addFlashcardInPlayerBoxError.message).toMatch('flashcard already in the box');
     });
   });
 });
