@@ -16,7 +16,7 @@ Feature: Adding a flashcard in a box
 
   Scenario: Adding a flashcard in an already existing box with a not empty first partition
     Given the current player id is player42
-    And the current player has box named Capitals of the World containing flashcards:
+    And the current player has a box named Capitals of the World containing flashcards:
       | partition | question  | answer   |
       | 1         | England   | London   |
       | 1         | Australia | Canberra |
@@ -31,7 +31,7 @@ Feature: Adding a flashcard in a box
 
   Scenario: Adding a flashcard with the same question than an other flashcard already in the box
     Given the current player id is player42
-    And the current player has box named Capitals of the World containing flashcards:
+    And the current player has a box named Capitals of the World containing flashcards:
       | partition | question  | answer   |
       | 1         | England   | London   |
       | 1         | Australia | Canberra |

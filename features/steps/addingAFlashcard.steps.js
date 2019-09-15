@@ -49,7 +49,7 @@ defineFeature(feature, test => {
   }) => {
     const deps = getIODependencies();
     given(...playerSteps['the current player id is (.*)'](deps));
-    and(/the current player has box named (.*) containing flashcards:$/, (boxName, table) => {
+    and(/the current player has a box named (.*) containing flashcards:$/, (boxName, table) => {
       const partitions = [[], [], [], [], []];
       table.forEach(
         ({ partition, question, answer }) =>
