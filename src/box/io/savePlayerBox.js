@@ -7,7 +7,7 @@ const create = boxMap => {
     try {
       await getPlayerBoxByName({ boxName: box.name, playerId });
       boxExists = true;
-    } catch {}
+    } catch (err) {}
     boxMap[playerId] = boxMap[playerId] || [];
     boxMap[playerId] = boxExists
       ? boxMap[playerId].filter(b => b.name !== box.name).concat(box)

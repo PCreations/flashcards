@@ -18,6 +18,10 @@ describe('box', () => {
         'partitions should be an array of length 5',
       );
     });
+    test('box should have a startedAt property set to null by default', () => {
+      const box = createTestBox();
+      expect(box.startedAt).toBe(null);
+    });
     test('should return an immutable object', () => {
       const box = createBox({ name: 'box name' });
       box.name = 'other box name';

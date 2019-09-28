@@ -8,6 +8,7 @@ const createBox = ({ name = '', partitions = [[], [], [], [], []] } = {}) => {
   return Object.freeze({
     name,
     partitions,
+    startedAt: null,
   });
 };
 
