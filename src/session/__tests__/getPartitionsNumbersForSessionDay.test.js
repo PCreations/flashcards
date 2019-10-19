@@ -91,4 +91,24 @@ describe('getIndexOfPartitionsToPickForSessionDay', () => {
       expect(getIndexOfPartitionsToPickForSessionDay(100)).toContainEqual(4);
     });
   });
+  test.each`
+    day   | expectedPartitions
+    ${1}  | ${[0]}
+    ${2}  | ${[1, 0]}
+    ${3}  | ${[2, 0]}
+    ${4}  | ${[3, 1, 0]}
+    ${5}  | ${[4, 0]}
+    ${6}  | ${[2, 1, 0]}
+    ${7}  | ${[0]}
+    ${8}  | ${[3, 1, 0]}
+    ${9}  | ${[2, 0]}
+    ${10} | ${[4, 1, 0]}
+    ${11} | ${[0]}
+    ${12} | ${[3, 2, 1, 0]}
+    ${13} | ${[0]}
+    ${14} | ${[1, 0]}
+    ${15} | ${[4, 2, 0]}
+  `('returns $expectedPartitions for day $day', ({ day, expectedPartitions }) => {
+    expect(getIndexOfPartitionsToPickForSessionDay(day)).toEqual(expectedPartitions);
+  });
 });
