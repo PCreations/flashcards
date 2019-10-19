@@ -1,18 +1,9 @@
 const getIndexOfPartitionsToPickForSessionDay = day => {
-  const partitions = [];
-  if (day % 5 === 0) {
-    partitions.push(4);
-  }
-  if (day % 4 === 0) {
-    partitions.push(3);
-  }
-  if (day % 3 === 0) {
-    partitions.push(2);
-  }
-  if (day % 2 === 0) {
-    partitions.push(1);
-  }
-  return partitions.concat([0]);
+  const daysInterval = [5, 4, 3, 2, 1];
+  return daysInterval.reduce(
+    (partitions, dayNumber) => (day % dayNumber === 0 ? partitions.concat([dayNumber - 1]) : partitions),
+    [],
+  );
 };
 
 describe('getIndexOfPartitionsToPickForSessionDay', () => {
