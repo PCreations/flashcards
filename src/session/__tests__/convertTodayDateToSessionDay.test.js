@@ -1,8 +1,4 @@
-const { daysBetweenTwoDates } = require('../../dateUtils/daysBetweenTwoDates');
-
-const convertTodayDateToSessionDay = ({ startedAtDate, todayDate } = {}) => {
-  return (daysBetweenTwoDates(todayDate, startedAtDate) % 5) + 1;
-};
+const { convertTodayDateToSessionDay } = require('../convertTodayDateToSessionDay');
 
 describe('convertTodayDateToSessionDay', () => {
   describe('days should be contained in a 1-5 range', () => {
@@ -13,56 +9,30 @@ describe('convertTodayDateToSessionDay', () => {
         }),
       ).toBe(1);
     });
-    describe('startedAtDate is 2019-10-20', () => {
-      const startedAtDate = new Date('2019-10-20');
-      test('todayDate is 2019-10-21', () => {
+    test.each`
+      todayDate                          | expectedSessionDay
+      ${new Date('2019-10-21T00:00:00')} | ${2}
+      ${new Date('2019-10-22T00:00:00')} | ${3}
+      ${new Date('2019-10-23T00:00:00')} | ${4}
+      ${new Date('2019-10-24T00:00:00')} | ${5}
+      ${new Date('2019-10-25T00:00:00')} | ${1}
+      ${new Date('2019-10-26T00:00:00')} | ${2}
+      ${new Date('2019-10-27T00:00:00')} | ${3}
+      ${new Date('2019-10-28T00:00:00')} | ${4}
+      ${new Date('2019-10-29T00:00:00')} | ${5}
+      ${new Date('2019-10-30T00:00:00')} | ${1}
+      ${new Date('2019-11-01T00:00:00')} | ${3}
+    `(
+      'given the started at is 2019-10-20 and today date is $todayDate, expected session day should be $expectedSessionDay',
+      ({ todayDate, expectedSessionDay }) => {
+        const startedAtDate = new Date('2019-10-20T00:00:00');
         expect(
           convertTodayDateToSessionDay({
             startedAtDate,
-            todayDate: new Date('2019-10-21'),
+            todayDate,
           }),
-        ).toBe(2);
-      });
-      test('todayDate is 2019-10-22', () => {
-        expect(
-          convertTodayDateToSessionDay({
-            startedAtDate,
-            todayDate: new Date('2019-10-22'),
-          }),
-        ).toBe(3);
-      });
-      test('todayDate is 2019-10-23', () => {
-        expect(
-          convertTodayDateToSessionDay({
-            startedAtDate,
-            todayDate: new Date('2019-10-23'),
-          }),
-        ).toBe(4);
-      });
-      test('todayDate is 2019-10-24', () => {
-        expect(
-          convertTodayDateToSessionDay({
-            startedAtDate,
-            todayDate: new Date('2019-10-24'),
-          }),
-        ).toBe(5);
-      });
-      test('todayDate is 2019-10-25', () => {
-        expect(
-          convertTodayDateToSessionDay({
-            startedAtDate,
-            todayDate: new Date('2019-10-25'),
-          }),
-        ).toBe(1);
-      });
-      test('todayDate is 2019-10-31', () => {
-        expect(
-          convertTodayDateToSessionDay({
-            startedAtDate,
-            todayDate: new Date('2019-10-31'),
-          }),
-        ).toBe(1);
-      });
-    });
+        ).toBe(expectedSessionDay);
+      },
+    );
   });
 });
