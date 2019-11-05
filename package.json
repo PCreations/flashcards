@@ -22,5 +22,11 @@
   "devDependencies": {
     "jest": "^24.9.0",
     "jest-cucumber": "^2.0.11"
+  },
+  "dependencies": {
+    "dayjs": "^1.8.16",
+    "lodash.sortby": "^4.7.0",
+    "lodash.sorteduniq": "^4.2.0",
+    "lodash.uniq": "^4.5.0"
   }
 }

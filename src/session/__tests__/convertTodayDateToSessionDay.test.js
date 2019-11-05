@@ -1,16 +1,23 @@
-const { convertTodayDateToSessionDay } = require('../convertTodayDateToSessionDay');
+const { convertDateToSessionDay } = require('../convertDateToSessionDay');
 
-describe('convertTodayDateToSessionDay', () => {
+describe('convertDateToSessionDay', () => {
   describe('days should be contained in a 1-5 range', () => {
-    test('given startedAtDate is null, todayDate should be considered day 1', () => {
+    test('given startedAtDate is undefined, todayDate should be considered day 1', () => {
       expect(
-        convertTodayDateToSessionDay({
-          todayDate: new Date(),
+        convertDateToSessionDay({
+          dateToConvert: new Date(),
         }),
       ).toBe(1);
     });
+    test('given dateToConvert is undefined, it should throw an error', () => {
+      expect(() =>
+        convertDateToSessionDay({
+          startedAtDate: new Date(),
+        }),
+      ).toThrowErrorMatchingInlineSnapshot();
+    });
     test.each`
-      todayDate                          | expectedSessionDay
+      dateToConvert                      | expectedSessionDay
       ${new Date('2019-10-21T00:00:00')} | ${2}
       ${new Date('2019-10-22T00:00:00')} | ${3}
       ${new Date('2019-10-23T00:00:00')} | ${4}
@@ -23,13 +30,13 @@ describe('convertTodayDateToSessionDay', () => {
       ${new Date('2019-10-30T00:00:00')} | ${1}
       ${new Date('2019-11-01T00:00:00')} | ${3}
     `(
-      'given the started at is 2019-10-20 and today date is $todayDate, expected session day should be $expectedSessionDay',
-      ({ todayDate, expectedSessionDay }) => {
+      'given the started at is 2019-10-20 and today date is $dateToConvert, expected session day should be $expectedSessionDay',
+      ({ dateToConvert, expectedSessionDay }) => {
         const startedAtDate = new Date('2019-10-20T00:00:00');
         expect(
-          convertTodayDateToSessionDay({
+          convertDateToSessionDay({
             startedAtDate,
-            todayDate,
+            dateToConvert,
           }),
         ).toBe(expectedSessionDay);
       },
