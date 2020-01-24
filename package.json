@@ -1,31 +1,7 @@
 {
-  "name": "flashcards",
-  "version": "1.0.0",
-  "description": "Flashcards project",
-  "main": "index.js",
-  "scripts": {
-    "cy:open": "env-path cypress open"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PCreations/flashcards.git"
-  },
-  "author": "Pierre Criulanscy",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/PCreations/flashcards/issues"
-  },
-  "homepage": "https://github.com/PCreations/flashcards#readme",
-  "engines": {
-    "node": ">=10.16.3"
-  },
-  "dependencies": {
-    "convict": "^5.2.0",
-    "env-path": "^1.0.7"
-  },
-  "devDependencies": {
-    "@testing-library/cypress": "^5.0.2",
-    "cypress": "^3.8.2",
-    "jest": "^25.1.0"
-  }
+  "private": true,
+  "workspaces": [
+    "flashcards-front",
+    "flashcards-back"
+  ]
 }
