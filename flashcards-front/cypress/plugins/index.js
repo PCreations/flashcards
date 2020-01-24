@@ -1,4 +1,4 @@
-const { getConfig } = require("../../config");
+const { getConfig } = require("../../src/config");
 
 module.exports = (on, config) => {
   const appConfig = getConfig();

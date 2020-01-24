@@ -1,11 +1,11 @@
 const convict = require("convict");
 
 const schema = {
-  CYPRESS_BASE_URL: {
-    doc: "The cypress base url",
-    format: String,
+  PORT: {
+    doc: "The port the server will listen on",
+    format: "port",
     default: null,
-    env: "CYPRESS_baseUrl"
+    env: "PORT"
   }
 };
 

@@ -1,4 +1,13 @@
 {
   "name": "flashcards-back",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "scripts": {
+    "start": "env-path node ./src/server.js"
+  },
+  "dependencies": {
+    "convict": "^5.2.0",
+    "cors": "^2.8.5",
+    "env-path": "^1.0.7",
+    "express": "^4.17.1"
+  }
 }

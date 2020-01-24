@@ -1,12 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getConfig } from "./config";
+
+const config = getConfig();
 
 function App() {
+  const [greetings, setGreetings] = useState(null);
+  useEffect(() => {
+    fetch(config.API_URL)
+      .then(res => res.text())
+      .then(setGreetings);
+  }, []);
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+        <p>{greetings}</p>
         <a
           className="App-link"
           href="https://reactjs.org"
