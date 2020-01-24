@@ -1,7 +1,7 @@
 {
   "name": "flashcards",
   "version": "1.0.0",
-  "description": "Flashcards core, BDD / TDD project",
+  "description": "Flashcards project",
   "main": "index.js",
   "scripts": {
     "test": ""
