@@ -2,7 +2,8 @@
   "name": "flashcards-back",
   "version": "1.0.0",
   "scripts": {
-    "start": "env-path firebase emulators:start --only functions"
+    "start": "env-path firebase emulators:start --only functions",
+    "deploy": "firebase deploy"
   },
   "dependencies": {
     "convict": "^5.2.0",

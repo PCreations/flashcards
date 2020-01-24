@@ -17,7 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "cy:open": "env-path cypress open"
+    "cy:open": "env-path cypress open",
+    "deploy": "env-path -p ./.env.prod yarn build && firebase deploy"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@testing-library/cypress": "^5.0.2",
-    "cypress": "^3.8.3"
+    "cypress": "^3.8.3",
+    "firebase-tools": "^7.12.1"
   }
 }
