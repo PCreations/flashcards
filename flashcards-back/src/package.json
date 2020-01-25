@@ -6,10 +6,11 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "jest"
   },
   "engines": {
-    "node": "8"
+    "node": "10"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -18,7 +19,8 @@
     "firebase-functions": "^3.3.0"
   },
   "devDependencies": {
-    "firebase-functions-test": "^0.1.6"
+    "firebase-functions-test": "^0.1.6",
+    "jest": "^25.1.0"
   },
   "private": true
 }
