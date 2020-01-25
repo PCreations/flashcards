@@ -97,7 +97,7 @@ module.exports = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  // reporters: undefined,
+  reporters: ["default", "jest-junit"],
 
   // Automatically reset mock state between every test
   // resetMocks: false,
@@ -132,7 +132,7 @@ module.exports = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: "node",
+  testEnvironment: "node"
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},

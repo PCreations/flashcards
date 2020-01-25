@@ -1,8 +1,31 @@
-version: 2.1
-jobs:
-  build:
-    docker:
-      - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
-    steps:
-      - checkout # check out the code in the project directory
-      - run: echo "hello world" # run the `echo` command
+version: 2.1 # use CircleCI 2.1
+jobs: # a collection of steps
+  build: # runs not using Workflows must have a `build` job as entry point
+    docker: # run the steps with Docker
+      - image: circleci/node:10.16.3 # ...with this image as the primary container; this is where all `steps` will run
+    steps: # a collection of executable commands
+      - checkout # special step to check out source code to working directory
+      - restore_cache: # special step to restore the dependency cache
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install JUnit coverage reporter
+          command: cd flashcards-back && yarn add --dev jest-junit
+      - run:
+          name: install-dependencies
+          command: cd flashcards-back && yarn install
+      - save_cache: # special step to save the dependency cache
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ./flashcards-back/node_modules
+      - run: # run tests
+          name: test
+          command: cd flashcards-back && yarn test --ci --runInBand --reporters=default --reporters=jest-junit --collectCoverage=true
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: "flashcards-back/reports/junit/js-test-results.xml"
+      - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: coverage
+          prefix: coverage
+      - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: flashcards-back/reports/junit/js-test-results.xml
+      # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
