@@ -1,5 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import { Authenticated } from "./Authenticated";
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(
+  <Authenticated>
+    <App />
+  </Authenticated>,
+  document.getElementById("root")
+);
