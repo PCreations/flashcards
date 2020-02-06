@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { getConfig } from "./config";
+import firebase from "firebase/app";
+import "firebase/auth";
 
 const config = getConfig();
 
 function App() {
   const [greetings, setGreetings] = useState(null);
   useEffect(() => {
-    fetch(config.API_URL)
-      .then(res => res.text())
-      .then(setGreetings);
+    firebase
+      .auth()
+      .currentUser.getIdToken(/* forceRefresh */ true)
+      .then(idToken => {
+        fetch(config.API_URL, {
+          headers: {
+            Authorization: idToken
+          }
+        })
+          .then(res => res.text())
+          .then(setGreetings);
+      });
   }, []);
   return (
     <div className="App">

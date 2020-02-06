@@ -2,6 +2,9 @@ const firebase = require("firebase/app");
 require("firebase/auth");
 require("@testing-library/cypress/add-commands");
 
+const TEST_USER_EMAIL = "pcriulanf+cypress@gmail.com";
+const TEST_USER_PASSWORD = "cypress";
+
 // Configure Firebase.
 const config = {
   apiKey: "AIzaSyDc91KhC87B_ktsR9RhlFAxz8ufKbTIaHE",
@@ -14,6 +17,8 @@ const config = {
 };
 firebase.initializeApp(config);
 
-Cypress.Commands.add("login", ({ email, password }) => {
-  firebase.auth().signInWithEmailAndPassword(email, password);
+Cypress.Commands.add("login", () => {
+  firebase
+    .auth()
+    .signInWithEmailAndPassword(TEST_USER_EMAIL, TEST_USER_PASSWORD);
 });
