@@ -2,7 +2,7 @@ const firebase = require("firebase/app");
 require("firebase/auth");
 require("@testing-library/cypress/add-commands");
 
-const TEST_USER_EMAIL = "pcriulanf+cypress@gmail.com";
+const TEST_USER_EMAIL = "pcriulan+cypress@gmail.com";
 const TEST_USER_PASSWORD = "cypress";
 
 // Configure Firebase.

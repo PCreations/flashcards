@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "isolatedModules": false,
+    "baseUrl": "..",
+    "types": ["cypress", "@types/testing-library__cypress"],
+    "allowJs": true,
+    "noEmit": false
+  },
+  "exclude": ["node_modules"],
+  "include": ["**/*.*"]
+}

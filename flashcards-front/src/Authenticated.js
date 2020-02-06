@@ -57,12 +57,6 @@ export class Authenticated extends React.Component {
         />
       );
     }
-    return (
-      <div>
-        {firebase.auth().currentUser.email}
-        {this.props.children}
-        <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
-      </div>
-    );
+    return <div>{this.props.children}</div>;
   }
 }
