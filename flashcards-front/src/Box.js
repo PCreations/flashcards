@@ -1,6 +1,6 @@
 import React from "react";
-import { useFlashcardFormState } from "./add-flashcard-form/use-flashcard-form-state";
-import { AddFlashcardForm } from "./add-flashcard-form/add-flashcard-form";
+import { useFlashcardFormState, AddFlashcardForm } from "./add-flashcard-form";
+import { Partition } from "./partition";
 
 export const Box = () => {
   const {
@@ -11,14 +11,7 @@ export const Box = () => {
   } = useFlashcardFormState();
   return (
     <div>
-      <section>
-        <strong>Partition 1</strong>
-        {question && (
-          <ul>
-            <li>{question}</li>
-          </ul>
-        )}
-      </section>
+      <Partition partitionNumber="1" flashcards={[{ question }]} />
       {isFormOpened ? (
         <AddFlashcardForm onSubmit={submitForm} />
       ) : (
