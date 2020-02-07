@@ -10,22 +10,17 @@ export const useFlashcardFormState = ({
   const [answer, setAnswer] = useState(defaultAnswer);
 
   const open = useCallback(() => setOpened(true), []);
-  const close = useCallback(() => setOpened(false), []);
-  const submit = useCallback(
-    ({ question, answer }) => {
-      setQuestion(question);
-      setAnswer(answer);
-      close();
-    },
-    [close]
-  );
+  const submit = useCallback(({ question, answer }) => {
+    setQuestion(question);
+    setAnswer(answer);
+    setOpened(false);
+  }, []);
 
   return {
     isOpened,
     question,
     answer,
     open,
-    close,
     submit
   };
 };

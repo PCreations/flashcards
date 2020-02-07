@@ -13,16 +13,6 @@ describe("useFlashcardFormState", () => {
     });
     expect(result.current.isOpened).toBe(true);
   });
-  test("form can be closed given it is opened", () => {
-    const { result } = renderHook(() =>
-      useFlashcardFormState({ isOpened: true })
-    );
-    expect(result.current.isOpened).toBe(true);
-    act(() => {
-      result.current.close();
-    });
-    expect(result.current.isOpened).toBe(false);
-  });
   test("question and answer can be submited thus closing the form", () => {
     const { result } = renderHook(() =>
       useFlashcardFormState({ isOpened: true })

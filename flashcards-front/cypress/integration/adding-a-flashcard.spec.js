@@ -8,8 +8,10 @@ describe("Adding a flashcard", () => {
     );
     cy.findByPlaceholderText(/answer/).type("Venus");
     cy.findByText(/^add$/i).click();
-    cy.findByText(/partition 1/i).within(() => {
-      cy.findByText("What is the hottest planet of our solar system ?");
-    });
+    cy.findByText(/partition 1/i)
+      .parent()
+      .within(() => {
+        cy.findByText("What is the hottest planet of our solar system ?");
+      });
   });
 });
