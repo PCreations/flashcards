@@ -1,6 +1,8 @@
 describe("View the flashcard list", () => {
   it("shows all the flashcards in each partition", () => {
-    cy.server();
+    cy.server({
+      delay: 100
+    });
     cy.fixture("flashcards.json")
       .as("flashcardsJSON")
       .then(flashcardsByPartition => {
