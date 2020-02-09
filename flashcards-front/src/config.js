@@ -7,11 +7,11 @@ const schema = {
     default: null,
     env: "REACT_APP_CYPRESS_baseUrl"
   },
-  API_URL: {
-    doc: "The api of the url",
+  API_ROOT_URL: {
+    doc: "The root url of the api",
     format: String,
     default: null,
-    env: "REACT_APP_API_URL"
+    env: "REACT_APP_API_ROOT_URL"
   }
 };
 

@@ -20,7 +20,16 @@ app.get("/", async (req, res) => {
   }
 });
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
-
 exports.helloWorld = functions.https.onRequest(app);
+
+const testApp = express();
+
+testApp.use(cors());
+testApp.use(express.json());
+
+testApp.post("/", async (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
+exports.seedDatabase = functions.https.onRequest(testApp);
