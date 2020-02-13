@@ -1,10 +1,4 @@
-const admin = require("firebase-admin");
-const path = require("path");
-
-const serviceAccountPath = path.join(
-  __dirname,
-  "./firebase-service-account.json"
-);
+const firebase = require("@firebase/testing");
 
 const PartitionsStore = require("../partitions-store");
 
@@ -64,47 +58,56 @@ const partitionsData = [
 
 describe("PartitionsStore", () => {
   describe("firestore", () => {
-    let firestore, testApp, testId;
-    beforeEach(async () => {
-      testId = `test_${Math.floor(Math.random() * new Date())}`;
-      testApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountPath)
+    let firebaseApp, projectId;
+    beforeAll(async () => {
+      projectId = `${Math.floor(Math.random() * new Date())}`;
+      firebaseApp = firebase.initializeAdminApp({
+        projectId
       });
-      firestore = admin.firestore();
-      return firestore
-        .collection("partitions")
-        .doc(testId)
-        .set(
-          partitionsData.reduce(
-            (partitionsMap, flashcards, index) => ({
-              ...partitionsMap,
-              [index + 1]: flashcards
-            }),
-            {}
-          )
-        );
     });
-    it("getAll", async () => {
-      const partitionsStore = PartitionsStore.create(firestore);
-      const partitions = await partitionsStore.getAll(testId);
+    it("should get all partitions", async () => {
+      const partitionsStore = PartitionsStore.create({
+        firestore: firebaseApp.firestore(),
+        partitionsData: {
+          testId: partitionsData
+        }
+      });
+      const partitions = await partitionsStore.getAll("testId");
 
       expect(partitions).toEqual(partitionsData);
     });
-    afterEach(async () => {
-      await firestore
-        .collection("partitions")
-        .doc(testId)
-        .delete();
-      return testApp.delete();
+    it("should throw an error if partitions can't be retrieved", async () => {
+      const partitionsStore = PartitionsStore.create({
+        firestore: firebaseApp.firestore()
+      });
+      return partitionsStore.getAll("erroneousId").catch(err => {
+        expect(err.message).toEqual(
+          "Can't find partitions for box erroneousId"
+        );
+      });
+    });
+    afterAll(async () => {
+      await Promise.all(firebase.apps().map(app => app.delete()));
+      await firebase.clearFirestoreData();
     });
   });
   describe("in memory", () => {
-    it("getPartitions", async () => {
+    it("should get all partitions", async () => {
       const partitionsStore = PartitionsStore.createInMemory({
-        testId: partitionsData
+        partitionsData: {
+          testId: partitionsData
+        }
       });
       const partitions = await partitionsStore.getAll("testId");
       expect(partitions).toEqual(partitionsData);
+    });
+    it("should throw an error if partitions can't be retrieved", async () => {
+      const partitionsStore = PartitionsStore.createInMemory();
+      return partitionsStore.getAll("erroneousId").catch(err => {
+        expect(err.message).toEqual(
+          "Can't find partitions for box erroneousId"
+        );
+      });
     });
   });
 });

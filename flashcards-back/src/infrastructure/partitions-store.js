@@ -1,23 +1,48 @@
-const create = firestore => ({
-  async getAll(boxId) {
-    let doc;
-    try {
-      doc = await firestore
-        .collection("partitions")
-        .doc(boxId)
-        .get();
-    } catch (err) {
-      throw new Error("Error getting document", err);
-    }
-    if (!doc.exists) {
-      throw new Error(`Can't find partitions for box ${boxId}`);
-    }
-    return Object.values(doc.data());
-  }
-});
+const createPartitionsNotFoundError = boxId =>
+  new Error(`Can't find partitions for box ${boxId}`);
 
-const createInMemory = (partitionsData = {}) => ({
+const create = ({ firestore, partitionsData } = {}) => {
+  let init = Promise.resolve();
+  if (typeof partitionsData !== "undefined") {
+    const [[boxId, partitions]] = Object.entries(partitionsData);
+    init = firestore
+      .collection("partitions")
+      .doc(boxId)
+      .set(
+        partitions.reduce(
+          (partitionsMap, flashcards, index) => ({
+            ...partitionsMap,
+            [index + 1]: flashcards
+          }),
+          {}
+        )
+      );
+  }
+  return {
+    async getAll(boxId) {
+      await init;
+      let doc;
+      try {
+        doc = await firestore
+          .collection("partitions")
+          .doc(boxId)
+          .get();
+      } catch (err) {
+        throw new Error(`Error getting document : ${err.message}`);
+      }
+      if (!doc.exists) {
+        throw createPartitionsNotFoundError(boxId);
+      }
+      return Object.values(doc.data());
+    }
+  };
+};
+
+const createInMemory = ({ partitionsData = {} } = {}) => ({
   async getAll(boxId) {
+    if (typeof partitionsData[boxId] === "undefined") {
+      throw createPartitionsNotFoundError(boxId);
+    }
     return partitionsData[boxId];
   }
 });

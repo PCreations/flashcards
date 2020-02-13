@@ -7,8 +7,12 @@ const createApp = ({
   const app = express();
   app.get("/flashcards", async (req, res) => {
     const { boxId } = req.query;
-    const partitions = await partitionsStore.getAll(boxId);
-    res.json(partitions);
+    try {
+      const partitions = await partitionsStore.getAll(boxId);
+      res.json(partitions);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
   return app;
 };
