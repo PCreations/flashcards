@@ -1,5 +1,6 @@
 const request = require("supertest");
 const { createApp } = require("../app");
+const PartitionsStore = require("../infrastructure/partitions-store");
 
 describe("application", () => {
   it("should get flashcards", async () => {
@@ -56,8 +57,10 @@ describe("application", () => {
         }
       ]
     ];
-    const app = createApp();
-    const response = await request(app).get("/flashcards");
+    const app = createApp({
+      partitionsStore: PartitionsStore.createInMemory({ 42: partitionsData })
+    });
+    const response = await request(app).get("/flashcards?boxId=42");
     expect(response.statusCode).toEqual(200);
     expect(response.body).toEqual(partitionsData);
   });
