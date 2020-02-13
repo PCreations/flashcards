@@ -100,8 +100,10 @@ describe("PartitionsStore", () => {
   });
   describe("in memory", () => {
     it("getPartitions", async () => {
-      const partitionsStore = PartitionsStore.createInMemory(partitionsData);
-      const partitions = await partitionsStore.getAll();
+      const partitionsStore = PartitionsStore.createInMemory({
+        testId: partitionsData
+      });
+      const partitions = await partitionsStore.getAll("testId");
       expect(partitions).toEqual(partitionsData);
     });
   });

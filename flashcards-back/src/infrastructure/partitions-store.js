@@ -16,9 +16,9 @@ const create = firestore => ({
   }
 });
 
-const createInMemory = (partitionsData = []) => ({
-  async getAll() {
-    return partitionsData;
+const createInMemory = (partitionsData = {}) => ({
+  async getAll(boxId) {
+    return partitionsData[boxId];
   }
 });
 
