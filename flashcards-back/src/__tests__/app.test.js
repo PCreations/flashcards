@@ -60,7 +60,7 @@ describe("application", () => {
       ];
       const app = createApp({
         boxStore: BoxStore.createInMemory({
-          partitionsData: { 42: partitionsData }
+          partitionsByBoxId: { 42: partitionsData }
         })
       });
       const response = await request(app).get("/flashcards?boxId=42");
@@ -130,7 +130,7 @@ describe("application", () => {
         ]
       ];
       const boxStore = BoxStore.createInMemory({
-        partitionsData: { testId: partitionsData }
+        partitionsByBoxId: { testId: partitionsData }
       });
       const app = createApp({
         boxStore
@@ -147,16 +147,17 @@ describe("application", () => {
           }
         });
 
+      const [partition1, ...partitionsRest] = partitionsData;
+      const expectedNewPartition1 = partition1.concat({
+        id: "9",
+        question:
+          "What was once considered the ninth planet of our solar system ?",
+        answer: "Pluto"
+      });
       const box = await boxStore.get("testId");
       expect(response.statusCode).toEqual(200);
-      expect(box.partitions[0]).toEqual(
-        partitionsData[0].concat({
-          id: "9",
-          question:
-            "What was once considered the ninth planet of our solar system ?",
-          answer: "Pluto"
-        })
-      );
+      expect(response.body).toEqual([expectedNewPartition1, ...partitionsRest]);
+      expect(box.partitions[0]).toEqual(expectedNewPartition1);
     });
   });
 });

@@ -3,15 +3,31 @@ const { createBox } = require("../domain/box");
 const createPartitionsNotFoundError = boxId =>
   new Error(`Can't find box ${boxId}`);
 
-const create = ({ firestore, partitionsData } = {}) => {
-  let init = Promise.resolve();
-  if (typeof partitionsData !== "undefined") {
-    const [[boxId, partitions]] = Object.entries(partitionsData);
-    init = firestore
+const BoxStore = ({ firestore }) => ({
+  async get(boxId) {
+    let doc;
+    try {
+      doc = await firestore
+        .collection("partitions")
+        .doc(boxId)
+        .get();
+    } catch (err) {
+      throw new Error(`Error getting document : ${err.message}`);
+    }
+    if (!doc.exists) {
+      throw createPartitionsNotFoundError(boxId);
+    }
+    return createBox({
+      id: boxId,
+      partitions: Object.values(doc.data())
+    });
+  },
+  async save(box = createBox()) {
+    return firestore
       .collection("partitions")
-      .doc(boxId)
+      .doc(box.id)
       .set(
-        partitions.reduce(
+        box.partitions.reduce(
           (partitionsMap, flashcards, index) => ({
             ...partitionsMap,
             [index + 1]: flashcards
@@ -20,60 +36,47 @@ const create = ({ firestore, partitionsData } = {}) => {
         )
       );
   }
-  return {
-    async get(boxId) {
-      await init;
-      let doc;
-      try {
-        doc = await firestore
-          .collection("partitions")
-          .doc(boxId)
-          .get();
-      } catch (err) {
-        throw new Error(`Error getting document : ${err.message}`);
-      }
-      if (!doc.exists) {
-        throw createPartitionsNotFoundError(boxId);
-      }
-      return createBox({
-        id: boxId,
-        partitions: Object.values(doc.data())
-      });
-    },
-    async save(box = createBox()) {
-      await init;
-      await firestore
-        .collection("partitions")
-        .doc(box.id)
-        .set(
-          box.partitions.reduce(
-            (partitionsMap, flashcards, index) => ({
-              ...partitionsMap,
-              [index + 1]: flashcards
-            }),
-            {}
-          )
-        );
-    }
-  };
-};
+});
 
-const createInMemory = ({ partitionsData = {} } = {}) => {
-  const store = partitionsData;
+const create = BoxStore;
+
+const createInMemory = ({ partitionsByBoxId } = {}) =>
+  BoxStore({ firestore: createNullFirestore(partitionsByBoxId) });
+
+const createNullFirestore = (partitionsByBoxId = {}) => {
+  const store = Object.keys(partitionsByBoxId).reduce(
+    (boxes, boxId) => ({
+      ...boxes,
+      [boxId]: partitionsByBoxId[boxId].reduce(
+        (partitions, flashcards, index) => ({
+          ...partitions,
+          [index + 1]: flashcards
+        }),
+        {}
+      )
+    }),
+    {}
+  );
   return {
-    async get(boxId) {
-      if (typeof store[boxId] === "undefined") {
-        throw createPartitionsNotFoundError(boxId);
-      }
-      return createBox({
-        id: boxId,
-        partitions: store[boxId]
-      });
-    },
-    async save(box = createBox()) {
-      store[box.id] = box.partitions;
-    },
-    _store: store
+    collection() {
+      return {
+        doc(boxId) {
+          return {
+            async get() {
+              return {
+                exists: typeof store[boxId] !== "undefined",
+                data() {
+                  return store[boxId];
+                }
+              };
+            },
+            async set(partitions) {
+              store[boxId] = partitions;
+            }
+          };
+        }
+      };
+    }
   };
 };
 
