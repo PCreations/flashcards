@@ -34,18 +34,40 @@ const create = ({ firestore, partitionsData } = {}) => {
         throw createPartitionsNotFoundError(boxId);
       }
       return Object.values(doc.data());
+    },
+    async save({ boxId, partitionsData }) {
+      await init;
+      await firestore
+        .collection("partitions")
+        .doc(boxId)
+        .set(
+          partitionsData.reduce(
+            (partitionsMap, flashcards, index) => ({
+              ...partitionsMap,
+              [index + 1]: flashcards
+            }),
+            {}
+          )
+        );
     }
   };
 };
 
-const createInMemory = ({ partitionsData = {} } = {}) => ({
-  async getAll(boxId) {
-    if (typeof partitionsData[boxId] === "undefined") {
-      throw createPartitionsNotFoundError(boxId);
-    }
-    return partitionsData[boxId];
-  }
-});
+const createInMemory = ({ partitionsData = {} } = {}) => {
+  const store = partitionsData;
+  return {
+    async getAll(boxId) {
+      if (typeof store[boxId] === "undefined") {
+        throw createPartitionsNotFoundError(boxId);
+      }
+      return store[boxId];
+    },
+    async save({ boxId, partitionsData }) {
+      store[boxId] = partitionsData;
+    },
+    _store: store
+  };
+};
 
 module.exports = {
   create,

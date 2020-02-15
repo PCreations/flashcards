@@ -86,6 +86,14 @@ describe("PartitionsStore", () => {
         );
       });
     });
+    it("should save partitions", async () => {
+      const partitionsStore = PartitionsStore.create({
+        firestore: firebaseApp.firestore()
+      });
+      await partitionsStore.save({ boxId: "testId2", partitionsData });
+      const retrievedPartitions = await partitionsStore.getAll("testId2");
+      expect(retrievedPartitions).toEqual(partitionsData);
+    });
     afterAll(async () => {
       await Promise.all(firebase.apps().map(app => app.delete()));
       await firebase.clearFirestoreData();
@@ -108,6 +116,16 @@ describe("PartitionsStore", () => {
           "Can't find partitions for box erroneousId"
         );
       });
+    });
+    it("should save partitions", async () => {
+      const partitionsStore = PartitionsStore.createInMemory({
+        partitionsData: {
+          testId: partitionsData
+        }
+      });
+      await partitionsStore.save({ boxId: "testId2", partitionsData });
+      const retrievedPartitions = await partitionsStore.getAll("testId2");
+      expect(retrievedPartitions).toEqual(partitionsData);
     });
   });
 });
