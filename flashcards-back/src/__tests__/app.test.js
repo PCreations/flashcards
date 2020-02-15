@@ -130,7 +130,8 @@ describe("application", () => {
         ]
       ];
       const boxStore = BoxStore.createInMemory({
-        partitionsByBoxId: { testId: partitionsData }
+        partitionsByBoxId: { testId: partitionsData },
+        nextFlashcardId: "9"
       });
       const app = createApp({
         boxStore

@@ -24,7 +24,7 @@ const createApp = ({ boxStore = BoxStore.createInMemory() } = {}) => {
     try {
       const box = await boxStore.get(boxId);
       const editedBox = box.addFlashcard({
-        id: "9",
+        id: boxStore.getNextFlashcardId(),
         question,
         answer
       });

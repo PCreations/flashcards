@@ -1,9 +1,10 @@
+const uuidv1 = require("uuid/v1");
 const { createBox } = require("../domain/box");
 
 const createPartitionsNotFoundError = boxId =>
   new Error(`Can't find box ${boxId}`);
 
-const BoxStore = ({ firestore }) => ({
+const BoxStore = ({ firestore, uuid }) => ({
   async get(boxId) {
     let doc;
     try {
@@ -35,13 +36,19 @@ const BoxStore = ({ firestore }) => ({
           {}
         )
       );
+  },
+  getNextFlashcardId() {
+    return uuid();
   }
 });
 
-const create = BoxStore;
+const create = ({ firestore }) => BoxStore({ firestore, uuid: uuidv1 });
 
-const createInMemory = ({ partitionsByBoxId } = {}) =>
-  BoxStore({ firestore: createNullFirestore(partitionsByBoxId) });
+const createInMemory = ({ partitionsByBoxId, nextFlashcardId } = {}) =>
+  BoxStore({
+    firestore: createNullFirestore(partitionsByBoxId),
+    uuid: () => nextFlashcardId
+  });
 
 const createNullFirestore = (partitionsByBoxId = {}) => {
   const store = Object.keys(partitionsByBoxId).reduce(

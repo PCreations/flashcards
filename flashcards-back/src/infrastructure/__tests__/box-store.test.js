@@ -107,6 +107,13 @@ describe("BoxStore", () => {
       const retrievedBox = await boxStore.get("testId2");
       expect(retrievedBox.partitions).toEqual(partitionsData);
     });
+    it("should get the next flashcard id as a string", async () => {
+      const boxStore = BoxStore.create({
+        firestore: firebaseApp.firestore()
+      });
+      const nextFlashcardId = boxStore.getNextFlashcardId();
+      expect(typeof nextFlashcardId).toBe("string");
+    });
     afterAll(async () => {
       await Promise.all(firebase.apps().map(app => app.delete()));
       await firebase.clearFirestoreData();
@@ -133,6 +140,10 @@ describe("BoxStore", () => {
       );
       const box = await boxStore.get("testId2");
       expect(box.partitions).toEqual(partitionsData);
+    });
+    it("should return the pre-defined next flashcard id", () => {
+      const boxStore = BoxStore.createInMemory({ nextFlashcardId: "id42" });
+      expect(boxStore.getNextFlashcardId()).toBe("id42");
     });
   });
 });
