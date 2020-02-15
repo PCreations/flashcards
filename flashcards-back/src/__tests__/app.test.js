@@ -1,6 +1,6 @@
 const request = require("supertest");
 const { createApp } = require("../app");
-const PartitionsStore = require("../infrastructure/partitions-store");
+const BoxStore = require("../infrastructure/box-store");
 
 describe("application", () => {
   describe("get flashcards", () => {
@@ -59,7 +59,7 @@ describe("application", () => {
         ]
       ];
       const app = createApp({
-        partitionsStore: PartitionsStore.createInMemory({
+        boxStore: BoxStore.createInMemory({
           partitionsData: { 42: partitionsData }
         })
       });
@@ -71,9 +71,7 @@ describe("application", () => {
       const app = createApp();
       const response = await request(app).get("/flashcards?boxId=erroneousId");
       expect(response.statusCode).toEqual(500);
-      expect(response.body.error).toEqual(
-        "Can't find partitions for box erroneousId"
-      );
+      expect(response.body.error).toEqual("Can't find box erroneousId");
     });
   });
   describe("adding a flashcard", () => {
@@ -131,17 +129,17 @@ describe("application", () => {
           }
         ]
       ];
-      const partitionsStore = PartitionsStore.createInMemory({
-        partitionsData: { 42: partitionsData }
+      const boxStore = BoxStore.createInMemory({
+        partitionsData: { testId: partitionsData }
       });
       const app = createApp({
-        partitionsStore
+        boxStore
       });
 
       const response = await request(app)
         .post("/flashcards")
         .send({
-          boxId: "42",
+          boxId: "testId",
           flashcard: {
             question:
               "What was once considered the ninth planet of our solar system ?",
@@ -149,9 +147,9 @@ describe("application", () => {
           }
         });
 
-      const partitions = await partitionsStore.getAll(42);
+      const box = await boxStore.get("testId");
       expect(response.statusCode).toEqual(200);
-      expect(partitions[0]).toEqual(
+      expect(box.partitions[0]).toEqual(
         partitionsData[0].concat({
           id: "9",
           question:

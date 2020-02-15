@@ -1,6 +1,7 @@
 const firebase = require("@firebase/testing");
 
-const PartitionsStore = require("../partitions-store");
+const BoxStore = require("../box-store");
+const { createBox } = require("../../domain/box");
 
 const partitionsData = [
   [
@@ -56,7 +57,7 @@ const partitionsData = [
   ]
 ];
 
-describe("PartitionsStore", () => {
+describe("BoxStore", () => {
   describe("firestore", () => {
     let firebaseApp, projectId;
     beforeAll(async () => {
@@ -65,34 +66,34 @@ describe("PartitionsStore", () => {
         projectId
       });
     });
-    it("should get all partitions", async () => {
-      const partitionsStore = PartitionsStore.create({
+    it("should get a box", async () => {
+      const boxStore = BoxStore.create({
         firestore: firebaseApp.firestore(),
         partitionsData: {
           testId: partitionsData
         }
       });
-      const partitions = await partitionsStore.getAll("testId");
+      const box = await boxStore.get("testId");
 
-      expect(partitions).toEqual(partitionsData);
+      expect(box.partitions).toEqual(partitionsData);
     });
-    it("should throw an error if partitions can't be retrieved", async () => {
-      const partitionsStore = PartitionsStore.create({
+    it("should throw an error if box can't be retrieved", async () => {
+      const boxStore = BoxStore.create({
         firestore: firebaseApp.firestore()
       });
-      return partitionsStore.getAll("erroneousId").catch(err => {
-        expect(err.message).toEqual(
-          "Can't find partitions for box erroneousId"
-        );
+      return boxStore.get("erroneousId").catch(err => {
+        expect(err.message).toEqual("Can't find box erroneousId");
       });
     });
-    it("should save partitions", async () => {
-      const partitionsStore = PartitionsStore.create({
+    it("should save box", async () => {
+      const boxStore = BoxStore.create({
         firestore: firebaseApp.firestore()
       });
-      await partitionsStore.save({ boxId: "testId2", partitionsData });
-      const retrievedPartitions = await partitionsStore.getAll("testId2");
-      expect(retrievedPartitions).toEqual(partitionsData);
+      await boxStore.save(
+        createBox({ id: "testId2", partitions: partitionsData })
+      );
+      const retrievedBox = await boxStore.get("testId2");
+      expect(retrievedBox.partitions).toEqual(partitionsData);
     });
     afterAll(async () => {
       await Promise.all(firebase.apps().map(app => app.delete()));
@@ -100,32 +101,32 @@ describe("PartitionsStore", () => {
     });
   });
   describe("in memory", () => {
-    it("should get all partitions", async () => {
-      const partitionsStore = PartitionsStore.createInMemory({
+    it("should get a box", async () => {
+      const boxStore = BoxStore.createInMemory({
         partitionsData: {
           testId: partitionsData
         }
       });
-      const partitions = await partitionsStore.getAll("testId");
-      expect(partitions).toEqual(partitionsData);
+      const box = await boxStore.get("testId");
+      expect(box.partitions).toEqual(partitionsData);
     });
-    it("should throw an error if partitions can't be retrieved", async () => {
-      const partitionsStore = PartitionsStore.createInMemory();
-      return partitionsStore.getAll("erroneousId").catch(err => {
-        expect(err.message).toEqual(
-          "Can't find partitions for box erroneousId"
-        );
+    it("should throw an error if box can't be retrieved", async () => {
+      const boxStore = BoxStore.createInMemory();
+      return boxStore.get("erroneousId").catch(err => {
+        expect(err.message).toEqual("Can't find box erroneousId");
       });
     });
     it("should save partitions", async () => {
-      const partitionsStore = PartitionsStore.createInMemory({
+      const boxStore = BoxStore.createInMemory({
         partitionsData: {
           testId: partitionsData
         }
       });
-      await partitionsStore.save({ boxId: "testId2", partitionsData });
-      const retrievedPartitions = await partitionsStore.getAll("testId2");
-      expect(retrievedPartitions).toEqual(partitionsData);
+      await boxStore.save(
+        createBox({ id: "testId2", partitions: partitionsData })
+      );
+      const box = await boxStore.get("testId2");
+      expect(box.partitions).toEqual(partitionsData);
     });
   });
 });

@@ -1,5 +1,7 @@
+const { createBox } = require("../domain/box");
+
 const createPartitionsNotFoundError = boxId =>
-  new Error(`Can't find partitions for box ${boxId}`);
+  new Error(`Can't find box ${boxId}`);
 
 const create = ({ firestore, partitionsData } = {}) => {
   let init = Promise.resolve();
@@ -19,7 +21,7 @@ const create = ({ firestore, partitionsData } = {}) => {
       );
   }
   return {
-    async getAll(boxId) {
+    async get(boxId) {
       await init;
       let doc;
       try {
@@ -33,15 +35,18 @@ const create = ({ firestore, partitionsData } = {}) => {
       if (!doc.exists) {
         throw createPartitionsNotFoundError(boxId);
       }
-      return Object.values(doc.data());
+      return createBox({
+        id: boxId,
+        partitions: Object.values(doc.data())
+      });
     },
-    async save({ boxId, partitionsData }) {
+    async save(box = createBox()) {
       await init;
       await firestore
         .collection("partitions")
-        .doc(boxId)
+        .doc(box.id)
         .set(
-          partitionsData.reduce(
+          box.partitions.reduce(
             (partitionsMap, flashcards, index) => ({
               ...partitionsMap,
               [index + 1]: flashcards
@@ -56,14 +61,17 @@ const create = ({ firestore, partitionsData } = {}) => {
 const createInMemory = ({ partitionsData = {} } = {}) => {
   const store = partitionsData;
   return {
-    async getAll(boxId) {
+    async get(boxId) {
       if (typeof store[boxId] === "undefined") {
         throw createPartitionsNotFoundError(boxId);
       }
-      return store[boxId];
+      return createBox({
+        id: boxId,
+        partitions: store[boxId]
+      });
     },
-    async save({ boxId, partitionsData }) {
-      store[boxId] = partitionsData;
+    async save(box = createBox()) {
+      store[box.id] = box.partitions;
     },
     _store: store
   };
