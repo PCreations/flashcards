@@ -4,7 +4,7 @@ const {
   createFirebaseExpressAuthMiddleware
 } = require("../firebase-express-auth-middleware");
 
-describe("firebaseExpressAuthMiddleware", () => {
+describe.skip("firebaseExpressAuthMiddleware", () => {
   it("should verify the id token from the authorization token", async () => {
     const app = express();
     const verifyIdToken = jest

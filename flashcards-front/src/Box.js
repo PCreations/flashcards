@@ -57,28 +57,38 @@ export const Box = () => {
         addFlashcardRequestStarted();
         console.log("starting POST request ", `${apiRootUrl}/flashcards`);
         axios
-          .post(`${apiRootUrl}/flashcards`, {
-            boxId: "test",
-            flashcard: {
-              question,
-              answer
+          .post(
+            `${apiRootUrl}/flashcards`,
+            {
+              boxId: "test",
+              flashcard: {
+                question,
+                answer
+              }
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${idToken}`
+              }
             }
-          })
+          )
           .then(res => res.data)
           .then(partitions => {
-            console.log("Received partitions", partitions);
-            if (!partitions) {
-              addFlashcardRequestEnded({ error: "no partitions received" });
-            } else {
-              addFlashcardRequestEnded({ partitions });
-            }
+            addFlashcardRequestEnded({ partitions });
           })
-          .catch(err => addFlashcardRequestEnded({ error: err.message }));
+          .catch(err => {
+            if (!err.response) {
+              throw err;
+            } else {
+              addFlashcardRequestEnded({ error: err.response.data.error });
+            }
+          });
       }
     },
     [
       addFlashcardRequestStatus,
       addFlashcardRequestStarted,
+      idToken,
       addFlashcardRequestEnded,
       closeForm
     ]
@@ -86,6 +96,7 @@ export const Box = () => {
 
   return (
     <div>
+      {addFlashcardRequestError && <strong>{addFlashcardRequestError}</strong>}
       <FlashcardList loading={arePartitionsLoading} partitions={partitions} />
       {isFormOpened ? (
         <AddFlashcardForm onSubmit={handleSubmit} />

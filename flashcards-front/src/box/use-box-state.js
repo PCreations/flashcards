@@ -5,10 +5,16 @@ import {
   getPartitions,
   getFetchPartitionsError,
   arePartitionsLoading,
+  addFlashcardRequestStatus,
+  getAddFlashcardRequestError,
   fetchPartitionsStarted,
   fetchPartitionsFinished,
-  flashcardAdded
+  addFlashcardRequestStarted,
+  addFlashcardRequestEnded
 } from "./box-state";
+
+const actionDispatcher = (dispatch, action) => (...args) =>
+  dispatch(action(...args));
 
 export const useBoxState = () => {
   const [state, dispatch] = useReducer(boxStateReducer, defaultState);
@@ -17,17 +23,22 @@ export const useBoxState = () => {
     partitions: getPartitions(state),
     fetchPartitionsError: getFetchPartitionsError(state),
     arePartitionsLoading: arePartitionsLoading(state),
+    addFlashcardRequestStatus: addFlashcardRequestStatus(state),
+    addFlashcardRequestError: getAddFlashcardRequestError(state),
     fetchPartitionsStarted: useCallback(
-      () => dispatch(fetchPartitionsStarted()),
+      actionDispatcher(dispatch, fetchPartitionsStarted),
       []
     ),
     fetchPartitionFinished: useCallback(
-      (partitionsData, error) =>
-        dispatch(fetchPartitionsFinished(partitionsData, error)),
+      actionDispatcher(dispatch, fetchPartitionsFinished),
       []
     ),
-    flashcardAdded: useCallback(
-      flashcard => dispatch(flashcardAdded(flashcard)),
+    addFlashcardRequestStarted: useCallback(
+      actionDispatcher(dispatch, addFlashcardRequestStarted),
+      []
+    ),
+    addFlashcardRequestEnded: useCallback(
+      actionDispatcher(dispatch, addFlashcardRequestEnded),
       []
     )
   };

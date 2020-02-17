@@ -13,6 +13,7 @@ const createApp = ({
 
   app.get("/flashcards", async (req, res) => {
     const { boxId } = req.query;
+    console.log("getting box of id", boxId);
     try {
       const box = await boxStore.get(boxId);
       res.json(box.partitions);

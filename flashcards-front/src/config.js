@@ -12,6 +12,12 @@ const schema = {
     format: String,
     default: null,
     env: "REACT_APP_API_ROOT_URL"
+  },
+  API_TEST_URL: {
+    doc: "The root url of the test api",
+    format: String,
+    default: null,
+    env: "REACT_APP_TEST_ROOT_URL"
   }
 };
 

@@ -59,7 +59,7 @@ const partitionsData = [
 
 const setUpFirestoreData = async firestore =>
   firestore
-    .collection("partitions")
+    .collection("boxes")
     .doc("testId")
     .set(
       partitionsData.reduce(

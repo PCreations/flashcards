@@ -90,7 +90,7 @@ describe("box state", () => {
           ...defaultState,
           loading: true
         },
-        fetchPartitionsFinished(partitionsData)
+        fetchPartitionsFinished({ partitions: partitionsData })
       );
       expect(arePartitionsLoading(state)).toBe(false);
       expect(arePartitionsLoaded(state)).toBe(true);
@@ -102,7 +102,7 @@ describe("box state", () => {
           ...defaultState,
           loading: true
         },
-        fetchPartitionsFinished(null, "error message")
+        fetchPartitionsFinished({ error: "error message" })
       );
       expect(arePartitionsLoading(state)).toBe(false);
       expect(arePartitionsLoaded(state)).toBe(true);
@@ -158,26 +158,5 @@ describe("box state", () => {
         AddFlashcardRequestStatus.ERRORED
       );
     });
-  });
-  test("flashcardAdded should add the flashcard in the first partition", () => {
-    const addedFlashcard = {
-      id: "9",
-      question:
-        "What was long considered the ninth planet of our solar system ?"
-    };
-    const state = boxStateReducer(
-      {
-        ...defaultState,
-        partitions: partitionsData
-      },
-      flashcardAdded(addedFlashcard)
-    );
-    expect(getPartitions(state)).toEqual([
-      [...partitionsData[0], addedFlashcard],
-      partitionsData[1],
-      partitionsData[2],
-      partitionsData[3],
-      partitionsData[4]
-    ]);
   });
 });

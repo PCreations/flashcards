@@ -2,7 +2,6 @@ const FETCH_PARTITIONS_STARTED = "FETCH_PARTITIONS_STARTED";
 const FETCH_PARTITIONS_FINISHED = "FETCH_PARTITIONS_FINISHED";
 const ADD_FLASHCARD_REQUEST_STARTED = "ADD_FLASHCARD_REQUEST_STARTED";
 const ADD_FLASHCARD_REQUEST_ENDED = "ADD_FLASHCARD_REQUEST_ENDED";
-const FLASHCARD_ADDED = "FLASHCARD_ADDED";
 
 export const AddFlashcardRequestStatus = {
   NEVER_STARTED: "NEVER_STARTED",
@@ -59,17 +58,6 @@ export const boxStateReducer = (state = defaultState, action) => {
             partitions: action.payload.partitions,
             addFlashcardRequestStatus: AddFlashcardRequestStatus.SUCCEEDED
           };
-    case FLASHCARD_ADDED:
-      return {
-        ...state,
-        partitions: [
-          [...state.partitions[0], action.payload.flashcard],
-          state.partitions[1],
-          state.partitions[2],
-          state.partitions[3],
-          state.partitions[4]
-        ]
-      };
     default:
       return state;
   }
@@ -80,7 +68,7 @@ export const fetchPartitionsStarted = () => ({
   type: FETCH_PARTITIONS_STARTED
 });
 
-export const fetchPartitionsFinished = (partitionsData, error) => ({
+export const fetchPartitionsFinished = ({ partitions, error }) => ({
   type: FETCH_PARTITIONS_FINISHED,
   ...(error
     ? {
@@ -88,7 +76,7 @@ export const fetchPartitionsFinished = (partitionsData, error) => ({
       }
     : {
         payload: {
-          partitions: partitionsData
+          partitions
         }
       })
 });
@@ -108,13 +96,6 @@ export const addFlashcardRequestEnded = ({ partitions, error }) => ({
           partitions
         }
       })
-});
-
-export const flashcardAdded = flashcard => ({
-  type: FLASHCARD_ADDED,
-  payload: {
-    flashcard
-  }
 });
 
 // selectors

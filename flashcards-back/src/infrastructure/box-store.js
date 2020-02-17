@@ -9,7 +9,7 @@ const BoxStore = ({ firestore, uuid }) => ({
     let doc;
     try {
       doc = await firestore
-        .collection("partitions")
+        .collection("boxes")
         .doc(boxId)
         .get();
     } catch (err) {
@@ -25,7 +25,7 @@ const BoxStore = ({ firestore, uuid }) => ({
   },
   async save(box = createBox()) {
     return firestore
-      .collection("partitions")
+      .collection("boxes")
       .doc(box.id)
       .set(
         box.partitions.reduce(

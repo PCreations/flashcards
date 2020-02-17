@@ -18,30 +18,19 @@ describe("useFlashcardFormState", () => {
       useFlashcardFormState({ isOpened: true })
     );
     act(() => {
-      result.current.submit({
-        question: "What is the hottest planet of our solar system ?",
-        answer: "Venus"
-      });
+      result.current.submit();
     });
-    expect(result.current.question).toBe(
-      "What is the hottest planet of our solar system ?"
-    );
-    expect(result.current.answer).toBe("Venus");
     expect(result.current.isOpened).toBe(false);
   });
   test("accepts a default state", () => {
     const { result } = renderHook(() =>
       useFlashcardFormState({
-        isOpened: false,
-        question: "What is the hottest planet of our solar system ?",
-        answer: "Venus"
+        isOpened: false
       })
     );
-    const { isOpened, question, answer } = result.current;
-    expect({ isOpened, question, answer }).toEqual({
-      isOpened: false,
-      question: "What is the hottest planet of our solar system ?",
-      answer: "Venus"
+    const { isOpened } = result.current;
+    expect({ isOpened }).toEqual({
+      isOpened: false
     });
   });
 });
