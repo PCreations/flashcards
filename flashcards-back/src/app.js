@@ -1,10 +1,15 @@
 const express = require("express");
 const BoxStore = require("./infrastructure/box-store");
 
-const createApp = ({ boxStore = BoxStore.createInMemory() } = {}) => {
+const createApp = ({
+  boxStore = BoxStore.createInMemory(),
+  middlewares = []
+} = {}) => {
   const app = express();
 
   app.use(express.json());
+
+  middlewares.forEach(middleware => app.use(middleware));
 
   app.get("/flashcards", async (req, res) => {
     const { boxId } = req.query;

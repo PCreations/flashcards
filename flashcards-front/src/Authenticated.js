@@ -2,6 +2,7 @@ import React from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import "firebase/auth";
+import { AuthContext } from "./auth-context";
 
 // Configure Firebase.
 const config = {
@@ -18,7 +19,8 @@ firebase.initializeApp(config);
 export class Authenticated extends React.Component {
   // The component's Local state.
   state = {
-    isSignedIn: false // Local signed-in state.
+    isSignedIn: false, // Local signed-in state.
+    idToken: ""
   };
 
   // Configure FirebaseUI.
@@ -40,7 +42,13 @@ export class Authenticated extends React.Component {
   componentDidMount() {
     this.unregisterAuthObserver = firebase
       .auth()
-      .onAuthStateChanged(user => this.setState({ isSignedIn: !!user }));
+      .onAuthStateChanged(async user => {
+        const idToken = await user.getIdToken(true);
+        this.setState(() => ({
+          isSignedIn: !!user,
+          idToken
+        }));
+      });
   }
 
   // Make sure we un-register Firebase observers when the component unmounts.
@@ -57,6 +65,10 @@ export class Authenticated extends React.Component {
         />
       );
     }
-    return <div>{this.props.children}</div>;
+    return (
+      <AuthContext.Provider value={this.state.idToken}>
+        <div>{this.props.children}</div>
+      </AuthContext.Provider>
+    );
   }
 }

@@ -3,10 +3,9 @@ const createFirebaseExpressAuthMiddleware = firebaseAuth => async (
   res,
   next
 ) => {
-  const idToken = req.headers["authorization"];
+  const idToken = req.headers["authorization"].split("Bearer ")[1];
   try {
     const decodedToken = await firebaseAuth.verifyIdToken(idToken);
-    console.log("decodedToken", decodedToken);
     next();
   } catch (err) {
     return res.status(403).json({ error: err.message });
