@@ -8,7 +8,7 @@ describe("View the flashcard list", () => {
       .then(flashcardsByPartition => {
         cy.route(
           "GET",
-          `${Cypress.env("API_ROOT_URL")}/flashcards`,
+          `${Cypress.env("API_ROOT_URL")}/flashcards?boxId=test`,
           "@flashcardsJSON"
         ).as("getFlashcards");
         cy.visit("/");

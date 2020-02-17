@@ -26,7 +26,7 @@ export const Box = () => {
     if (!arePartitionsLoaded) {
       fetchPartitionsStarted();
       axios
-        .get(`${apiRootUrl}/flashcards`)
+        .get(`${apiRootUrl}/flashcards?boxId=test`)
         .then(res => res.data)
         .then(fetchPartitionFinished)
         .catch(err => fetchPartitionFinished(undefined, err.message));
@@ -41,7 +41,6 @@ export const Box = () => {
       ) : (
         <button onClick={openForm}>Add a flashcard</button>
       )}
-      {}
     </div>
   );
 };

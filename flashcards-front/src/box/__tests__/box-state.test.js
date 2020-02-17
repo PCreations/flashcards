@@ -4,10 +4,15 @@ import {
   arePartitionsLoading,
   arePartitionsLoaded,
   getFetchPartitionsError,
+  addFlashcardRequestStatus,
   fetchPartitionsStarted,
   fetchPartitionsFinished,
+  addFlashcardRequestStarted,
+  addFlashcardRequestEnded,
+  getAddFlashcardRequestError,
   flashcardAdded,
-  defaultState
+  defaultState,
+  AddFlashcardRequestStatus
 } from "../box-state";
 
 const partitionsData = [
@@ -70,35 +75,89 @@ describe("box state", () => {
     expect(getPartitions(state)).toEqual([[], [], [], [], []]);
     expect(arePartitionsLoading(state)).toBe(false);
     expect(arePartitionsLoaded(state)).toBe(false);
-  });
-  test("fetchPartitionsStarted should set the loading state to true", () => {
-    const state = boxStateReducer(undefined, fetchPartitionsStarted());
-    expect(arePartitionsLoading(state)).toBe(true);
-  });
-  test("fetchPartitionsFinished should set the loading state to false the loaded state to true and populate the partitions if there is no error", () => {
-    const state = boxStateReducer(
-      {
-        ...defaultState,
-        loading: true
-      },
-      fetchPartitionsFinished(partitionsData)
+    expect(addFlashcardRequestStatus(state)).toBe(
+      AddFlashcardRequestStatus.NEVER_STARTED
     );
-    expect(arePartitionsLoading(state)).toBe(false);
-    expect(arePartitionsLoaded(state)).toBe(true);
-    expect(getPartitions(state)).toEqual(partitionsData);
   });
-  test("fetchPartitionsFinished should set the loading state to false and the loaded state to true and set the error state to true if there is an error", () => {
-    const state = boxStateReducer(
-      {
-        ...defaultState,
-        loading: true
-      },
-      fetchPartitionsFinished(null, "error message")
-    );
-    expect(arePartitionsLoading(state)).toBe(false);
-    expect(arePartitionsLoaded(state)).toBe(true);
-    expect(getFetchPartitionsError(state)).toBe("error message");
-    expect(getPartitions(state)).toEqual(defaultState.partitions);
+  describe("fetchPartitions", () => {
+    test("fetchPartitionsStarted should set the loading state to true", () => {
+      const state = boxStateReducer(undefined, fetchPartitionsStarted());
+      expect(arePartitionsLoading(state)).toBe(true);
+    });
+    test("fetchPartitionsFinished should set the loading state to false the loaded state to true and populate the partitions if there is no error", () => {
+      const state = boxStateReducer(
+        {
+          ...defaultState,
+          loading: true
+        },
+        fetchPartitionsFinished(partitionsData)
+      );
+      expect(arePartitionsLoading(state)).toBe(false);
+      expect(arePartitionsLoaded(state)).toBe(true);
+      expect(getPartitions(state)).toEqual(partitionsData);
+    });
+    test("fetchPartitionsFinished should set the loading state to false and the loaded state to true and set the error state to true if there is an error", () => {
+      const state = boxStateReducer(
+        {
+          ...defaultState,
+          loading: true
+        },
+        fetchPartitionsFinished(null, "error message")
+      );
+      expect(arePartitionsLoading(state)).toBe(false);
+      expect(arePartitionsLoaded(state)).toBe(true);
+      expect(getFetchPartitionsError(state)).toBe("error message");
+      expect(getPartitions(state)).toEqual(defaultState.partitions);
+    });
+  });
+  describe("addFlashcardRequest", () => {
+    test("addFlashcardRequestStarted should set the addFlashcardRequest status to PENDING", () => {
+      const state = boxStateReducer(undefined, addFlashcardRequestStarted());
+      expect(addFlashcardRequestStatus(state)).toBe(
+        AddFlashcardRequestStatus.PENDING
+      );
+    });
+    test("addFlashcardRequestEnded should update the partitions with the given response if there is no error and set the addFlashcardRequestStatus to SUCCEEDED", () => {
+      const newPartitionsData = [...partitionsData];
+      newPartitionsData[0] = [
+        ...newPartitionsData[0],
+        {
+          id: "9",
+          question:
+            "What was long considered the ninth planet of our solar system ?",
+          answer: "Pluto"
+        }
+      ];
+
+      const state = boxStateReducer(
+        {
+          ...defaultState,
+          partitions: partitionsData
+        },
+        addFlashcardRequestEnded({ partitions: newPartitionsData })
+      );
+
+      expect(getPartitions(state)).toEqual(newPartitionsData);
+      expect(addFlashcardRequestStatus(state)).toEqual(
+        AddFlashcardRequestStatus.SUCCEEDED
+      );
+    });
+    test("addFlashcardRequestEnded should set the addFlashcardRequestError with the given error and set the addFlashcardRequestStatus to ERRORED", () => {
+      const state = boxStateReducer(
+        {
+          ...defaultState,
+          partitions: partitionsData
+        },
+        addFlashcardRequestEnded({ error: "some error has occured" })
+      );
+
+      expect(getAddFlashcardRequestError(state)).toEqual(
+        "some error has occured"
+      );
+      expect(addFlashcardRequestStatus(state)).toBe(
+        AddFlashcardRequestStatus.ERRORED
+      );
+    });
   });
   test("flashcardAdded should add the flashcard in the first partition", () => {
     const addedFlashcard = {
