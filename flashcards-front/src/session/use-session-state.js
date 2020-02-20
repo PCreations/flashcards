@@ -7,9 +7,11 @@ import {
   areFlashcardsLoading,
   getFlashcardsRequestError,
   getScore,
+  shouldShowAnswer,
   areFlashcardsLoaded,
   flashcardsRequestStarted,
-  flashcardsRequestEnded
+  flashcardsRequestEnded,
+  showAnswerRequested
 } from "./session-state";
 
 const actionDispatcher = (dispatch, action) => (...args) =>
@@ -27,6 +29,7 @@ export const useSessionState = () => {
     areFlashcardsLoading: areFlashcardsLoading(sessionState),
     areFlashcardsLoaded: areFlashcardsLoaded(sessionState),
     flashcardsRequestError: getFlashcardsRequestError(sessionState),
+    shouldShowAnswer: shouldShowAnswer(sessionState),
     score: getScore(sessionState),
     flashcardsRequestStarted: useCallback(
       actionDispatcher(dispatch, flashcardsRequestStarted),
@@ -34,6 +37,10 @@ export const useSessionState = () => {
     ),
     flashcardsRequestEnded: useCallback(
       actionDispatcher(dispatch, flashcardsRequestEnded),
+      []
+    ),
+    showAnswerRequested: useCallback(
+      actionDispatcher(dispatch, showAnswerRequested),
       []
     )
   };

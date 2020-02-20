@@ -1,6 +1,7 @@
 const FLASHCARDS_REQUEST_STARTED =
   "[session] - the flashcards request has started";
 const FLASHCARDS_REQUEST_ENDED = "[session] - the flashcards request has ended";
+const SHOW_ANSWER_REQUESTED = "[session] - show answer requested";
 
 const IDLE_STATUS = "idle";
 const LOADING_STATUS = "loading";
@@ -13,7 +14,8 @@ export const defaultState = {
     data: [],
     error: null
   },
-  score: 0
+  score: 0,
+  showAnswer: false
 };
 
 const idleFlashcardsReducer = (flashcards, action) => {
@@ -54,11 +56,19 @@ const flashcardsReducer = (flashcards, action) => {
   }
 };
 
+const showAnswerReducer = (showAnswer, action) => {
+  if (!showAnswer && action.type === SHOW_ANSWER_REQUESTED) {
+    return true;
+  }
+  return showAnswer;
+};
+
 export const sessionStateReducer = (sessionState = defaultState, action) => {
   if (!action) return sessionState;
   return {
     flashcards: flashcardsReducer(sessionState.flashcards, action),
-    score: sessionState.score
+    score: sessionState.score,
+    showAnswer: showAnswerReducer(sessionState.showAnswer, action)
   };
 };
 
@@ -84,6 +94,8 @@ export const areFlashcardsLoaded = sessionState =>
   sessionState.flashcards.status === SUCCESS_STATUS ||
   sessionState.flashcards.status === FAIL_STATUS;
 
+export const shouldShowAnswer = sessionState => sessionState.showAnswer;
+
 export const flashcardsRequestStarted = () => ({
   type: FLASHCARDS_REQUEST_STARTED
 });
@@ -99,4 +111,8 @@ export const flashcardsRequestEnded = ({ flashcards, error }) => ({
           flashcards
         }
       })
+});
+
+export const showAnswerRequested = () => ({
+  type: SHOW_ANSWER_REQUESTED
 });

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useSessionState } from "./use-session-state";
 import { getConfig } from "../config";
 import { AuthContext } from "../auth-context";
+import { showAnswerRequested } from "./session-state";
 
 const apiRootUrl = getConfig().API_ROOT_URL;
 
@@ -12,12 +13,14 @@ export const Session = () => {
   const {
     currentQuestion,
     currentAnswer,
+    shouldShowAnswer,
     areFlashcardsLoaded,
     areFlashcardsLoading,
     flashcardsRequestError,
     score,
     flashcardsRequestStarted,
-    flashcardsRequestEnded
+    flashcardsRequestEnded,
+    showAnswerRequested
   } = useSessionState();
 
   useEffect(() => {
@@ -33,14 +36,27 @@ export const Session = () => {
         .then(flashcards => flashcardsRequestEnded({ flashcards }))
         .catch(err => flashcardsRequestEnded({ error: err.message }));
     }
-  });
+  }, [
+    areFlashcardsLoaded,
+    flashcardsRequestStarted,
+    idToken,
+    flashcardsRequestEnded
+  ]);
 
   return areFlashcardsLoading ? (
     <div>loading...</div>
   ) : (
     <div>
       {flashcardsRequestError && <strong>{flashcardsRequestError}</strong>}
-      <h1>{currentQuestion}</h1>
+      <h1>{shouldShowAnswer ? currentAnswer : currentQuestion}</h1>
+      {shouldShowAnswer ? (
+        <div>
+          <button>i was right</button>
+          <button>i was wrong</button>
+        </div>
+      ) : (
+        <button onClick={showAnswerRequested}>show answer</button>
+      )}
       <strong>score: {score}</strong>
     </div>
   );

@@ -7,8 +7,10 @@ import {
   getFlashcardsRequestError,
   getScore,
   areFlashcardsLoaded,
+  shouldShowAnswer,
   flashcardsRequestStarted,
-  flashcardsRequestEnded
+  flashcardsRequestEnded,
+  showAnswerRequested
 } from "../session-state";
 
 describe("session state", () => {
@@ -20,6 +22,7 @@ describe("session state", () => {
     expect(getFlashcardsRequestError(sessionState)).toEqual(null);
     expect(getScore(sessionState)).toEqual(0);
     expect(areFlashcardsLoaded(sessionState)).toEqual(false);
+    expect(shouldShowAnswer(sessionState)).toEqual(false);
   });
   it("flashcards are loading when the flashcards request has started", () => {
     const sessionState = sessionStateReducer(
@@ -106,5 +109,9 @@ describe("session state", () => {
         }
       })
     ).toBe(true);
+  });
+  it("should show answer when shhow answer is requested", () => {
+    const sessionState = sessionStateReducer(undefined, showAnswerRequested());
+    expect(shouldShowAnswer(sessionState)).toBe(true);
   });
 });
