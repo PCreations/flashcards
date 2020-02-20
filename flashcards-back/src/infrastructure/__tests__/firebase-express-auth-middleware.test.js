@@ -4,7 +4,7 @@ const {
   createFirebaseExpressAuthMiddleware
 } = require("../firebase-express-auth-middleware");
 
-describe.skip("firebaseExpressAuthMiddleware", () => {
+describe("firebaseExpressAuthMiddleware", () => {
   it("should verify the id token from the authorization token", async () => {
     const app = express();
     const verifyIdToken = jest
@@ -20,7 +20,7 @@ describe.skip("firebaseExpressAuthMiddleware", () => {
     app.get("/", (_, res) => res.json({ test: "ok" }));
     const response = await request(app)
       .get("/")
-      .set("authorization", "some valid client token");
+      .set("authorization", "Bearer some valid client token");
 
     expect(verifyIdToken).toHaveBeenCalledWith("some valid client token");
     expect(response.statusCode).toBe(200);
@@ -38,7 +38,7 @@ describe.skip("firebaseExpressAuthMiddleware", () => {
 
     const response = await request(app)
       .get("/")
-      .set("authorization", "some invalid client token");
+      .set("authorization", "Bearer some invalid client token");
 
     expect(verifyIdToken).toHaveBeenCalledWith("some invalid client token");
     expect(response.statusCode).toBe(403);

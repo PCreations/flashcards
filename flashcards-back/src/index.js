@@ -21,7 +21,7 @@ const boxStore = BoxStore.create({
 
 const app = createApp({
   boxStore,
-  middlewares: [cors({ origin: true }) /*firebaseExpressAuthMiddleware*/]
+  middlewares: [cors({ origin: true }), firebaseExpressAuthMiddleware]
 });
 
 const test = express();
