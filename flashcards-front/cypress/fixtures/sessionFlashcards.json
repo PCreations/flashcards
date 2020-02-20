@@ -1,0 +1,26 @@
+[
+  {
+    "flashcard": {
+      "id": "1",
+      "question": "What is the first planet of our solar system ?",
+      "answer": "Mercury"
+    },
+    "fromPartition": 0
+  },
+  {
+    "flashcard": {
+      "id": "2",
+      "question": "What is the second planet of our solar system ?",
+      "answer": "Venus"
+    },
+    "fromPartition": 0
+  },
+  {
+    "flashcard": {
+      "id": "3",
+      "question": "What is the third planet of our solar system ?",
+      "answer": "Earth"
+    },
+    "fromPartition": 1
+  }
+]
