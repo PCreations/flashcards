@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Box } from "./Box";
 import { Authenticated } from "./Authenticated";
+import { App } from "./app";
 
 ReactDOM.render(
   <Authenticated>
-    <Box />
+    <App />
   </Authenticated>,
   document.getElementById("root")
 );

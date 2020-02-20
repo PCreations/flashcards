@@ -6,7 +6,7 @@ describe("session", () => {
 
       cy.visit("/");
 
-      cy.findByText("start session").click();
+      cy.findByText(/start session/i).click();
 
       // the score is initially 0
       cy.findByText(/score: 0/i);
