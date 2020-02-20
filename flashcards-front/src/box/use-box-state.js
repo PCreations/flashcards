@@ -5,7 +5,7 @@ import {
   getPartitions,
   getFetchPartitionsError,
   arePartitionsLoading,
-  addFlashcardRequestStatus,
+  isAddFlashcardRequestLoading,
   getAddFlashcardRequestError,
   fetchPartitionsStarted,
   fetchPartitionsFinished,
@@ -23,7 +23,7 @@ export const useBoxState = () => {
     partitions: getPartitions(state),
     fetchPartitionsError: getFetchPartitionsError(state),
     arePartitionsLoading: arePartitionsLoading(state),
-    addFlashcardRequestStatus: addFlashcardRequestStatus(state),
+    isAddFlashcardRequestLoading: isAddFlashcardRequestLoading(state),
     addFlashcardRequestError: getAddFlashcardRequestError(state),
     fetchPartitionsStarted: useCallback(
       actionDispatcher(dispatch, fetchPartitionsStarted),

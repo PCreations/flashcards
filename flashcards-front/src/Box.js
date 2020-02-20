@@ -5,7 +5,6 @@ import { getConfig } from "./config";
 import { useFlashcardFormState, AddFlashcardForm } from "./add-flashcard-form";
 import { FlashcardList } from "./flashcard-list";
 import { useBoxState } from "./box/use-box-state";
-import { AddFlashcardRequestStatus } from "./box/box-state";
 
 const apiRootUrl = getConfig().API_ROOT_URL;
 
@@ -25,7 +24,7 @@ export const Box = () => {
     fetchPartitionFinished,
     addFlashcardRequestStarted,
     addFlashcardRequestEnded,
-    addFlashcardRequestStatus,
+    isAddFlashcardRequestLoading,
     addFlashcardRequestError,
     partitions
   } = useBoxState();
@@ -52,7 +51,7 @@ export const Box = () => {
 
   const handleSubmit = useCallback(
     ({ question, answer }) => {
-      if (addFlashcardRequestStatus !== AddFlashcardRequestStatus.PENDING) {
+      if (!isAddFlashcardRequestLoading) {
         closeForm({ question, answer });
         addFlashcardRequestStarted();
         console.log("starting POST request ", `${apiRootUrl}/flashcards`);
@@ -86,7 +85,7 @@ export const Box = () => {
       }
     },
     [
-      addFlashcardRequestStatus,
+      isAddFlashcardRequestLoading,
       addFlashcardRequestStarted,
       idToken,
       addFlashcardRequestEnded,

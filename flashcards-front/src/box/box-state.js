@@ -3,64 +3,128 @@ const FETCH_PARTITIONS_FINISHED = "FETCH_PARTITIONS_FINISHED";
 const ADD_FLASHCARD_REQUEST_STARTED = "ADD_FLASHCARD_REQUEST_STARTED";
 const ADD_FLASHCARD_REQUEST_ENDED = "ADD_FLASHCARD_REQUEST_ENDED";
 
-export const AddFlashcardRequestStatus = {
-  NEVER_STARTED: "NEVER_STARTED",
-  PENDING: "PENDING",
-  SUCCEEDED: "SUCCEEDED",
-  ERRORED: "ERRORED"
-};
+const IDLE_STATUS = "idle";
+const LOADING_STATUS = "loading";
+const SUCCESS_STATUS = "success";
+const FAILURE_STATUS = "failure";
 
 export const defaultState = {
-  partitions: [[], [], [], [], []],
-  loading: false,
-  loaded: false,
-  fetchPartitionsError: undefined,
-  addFlashcardRequestStatus: AddFlashcardRequestStatus.NEVER_STARTED,
-  addFlashcardRequestError: undefined
+  partitions: {
+    status: IDLE_STATUS,
+    data: [[], [], [], [], []],
+    error: null
+  },
+  addFlashcardRequest: {
+    status: IDLE_STATUS,
+    error: null
+  }
+};
+
+const idlePartitionsReducer = (partitions, action) => {
+  if (action.type === FETCH_PARTITIONS_STARTED) {
+    return {
+      ...partitions,
+      status: LOADING_STATUS
+    };
+  }
+  return partitions;
+};
+
+const loadingPartitionsReducer = (partitions, action) => {
+  if (action.type === FETCH_PARTITIONS_FINISHED) {
+    return action.error
+      ? {
+          ...partitions,
+          status: FAILURE_STATUS,
+          error: action.error
+        }
+      : {
+          ...partitions,
+          status: SUCCESS_STATUS,
+          data: action.payload.partitions
+        };
+  }
+  return partitions;
+};
+
+const successPartitionsReducer = (partitions, action) => {
+  if (action.type === ADD_FLASHCARD_REQUEST_ENDED && !action.error) {
+    return {
+      ...partitions,
+      data: action.payload.partitions
+    };
+  }
+  return partitions;
+};
+
+const partitionsReducer = (partitions, action) => {
+  switch (partitions.status) {
+    case IDLE_STATUS:
+      return idlePartitionsReducer(partitions, action);
+    case LOADING_STATUS:
+      return loadingPartitionsReducer(partitions, action);
+    case SUCCESS_STATUS:
+      return successPartitionsReducer(partitions, action);
+
+    default:
+      return partitions;
+  }
+};
+
+const idleOrSuccessAddFlashcardRequestReducer = (
+  addFlashcardRequest,
+  action
+) => {
+  if (action.type === ADD_FLASHCARD_REQUEST_STARTED) {
+    return {
+      ...addFlashcardRequest,
+      status: LOADING_STATUS
+    };
+  }
+  return addFlashcardRequest;
+};
+
+const loadingAddFlashcardRequestReducer = (addFlashcardRequest, action) => {
+  if (action.type === ADD_FLASHCARD_REQUEST_ENDED) {
+    return action.error
+      ? {
+          ...addFlashcardRequest,
+          status: FAILURE_STATUS,
+          error: action.error
+        }
+      : {
+          ...addFlashcardRequest,
+          status: SUCCESS_STATUS
+        };
+  }
+  return addFlashcardRequest;
+};
+
+const addFlashcardRequestReducer = (addFlashcardRequest, action) => {
+  switch (addFlashcardRequest.status) {
+    case IDLE_STATUS:
+    case SUCCESS_STATUS:
+      return idleOrSuccessAddFlashcardRequestReducer(
+        addFlashcardRequest,
+        action
+      );
+    case LOADING_STATUS:
+      return loadingAddFlashcardRequestReducer(addFlashcardRequest, action);
+    default:
+      return addFlashcardRequest;
+  }
 };
 
 // reducer
 export const boxStateReducer = (state = defaultState, action) => {
   if (!action) return state;
-  switch (action.type) {
-    case FETCH_PARTITIONS_STARTED:
-      return {
-        ...state,
-        loading: true
-      };
-    case FETCH_PARTITIONS_FINISHED:
-      return {
-        ...state,
-        loading: false,
-        loaded: true,
-        ...(action.error
-          ? {
-              fetchPartitionsError: action.error
-            }
-          : {
-              partitions: action.payload.partitions
-            })
-      };
-    case ADD_FLASHCARD_REQUEST_STARTED:
-      return {
-        ...state,
-        addFlashcardRequestStatus: AddFlashcardRequestStatus.PENDING
-      };
-    case ADD_FLASHCARD_REQUEST_ENDED:
-      return action.error
-        ? {
-            ...state,
-            addFlashcardRequestError: action.error,
-            addFlashcardRequestStatus: AddFlashcardRequestStatus.ERRORED
-          }
-        : {
-            ...state,
-            partitions: action.payload.partitions,
-            addFlashcardRequestStatus: AddFlashcardRequestStatus.SUCCEEDED
-          };
-    default:
-      return state;
-  }
+  return {
+    partitions: partitionsReducer(state.partitions, action),
+    addFlashcardRequest: addFlashcardRequestReducer(
+      state.addFlashcardRequest,
+      action
+    )
+  };
 };
 
 // actions creator
@@ -99,17 +163,18 @@ export const addFlashcardRequestEnded = ({ partitions, error }) => ({
 });
 
 // selectors
-export const getPartitions = boxState => boxState.partitions;
+export const getPartitions = boxState => boxState.partitions.data;
 
-export const getFetchPartitionsError = boxState =>
-  boxState.fetchPartitionsError;
+export const getFetchPartitionsError = boxState => boxState.partitions.error;
 
-export const arePartitionsLoading = boxState => boxState.loading;
+export const arePartitionsLoading = boxState =>
+  boxState.partitions.status === LOADING_STATUS;
 
-export const arePartitionsLoaded = boxState => boxState.loaded;
+export const arePartitionsLoaded = boxState =>
+  boxState.partitions.status !== IDLE_STATUS;
 
-export const addFlashcardRequestStatus = boxState =>
-  boxState.addFlashcardRequestStatus;
+export const isAddFlashcardRequestLoading = boxState =>
+  boxState.addFlashcardRequest.status === LOADING_STATUS;
 
 export const getAddFlashcardRequestError = boxState =>
-  boxState.addFlashcardRequestError;
+  boxState.addFlashcardRequest.error;

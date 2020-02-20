@@ -4,15 +4,13 @@ import {
   arePartitionsLoading,
   arePartitionsLoaded,
   getFetchPartitionsError,
-  addFlashcardRequestStatus,
+  isAddFlashcardRequestLoading,
   fetchPartitionsStarted,
   fetchPartitionsFinished,
   addFlashcardRequestStarted,
   addFlashcardRequestEnded,
   getAddFlashcardRequestError,
-  flashcardAdded,
-  defaultState,
-  AddFlashcardRequestStatus
+  defaultState
 } from "../box-state";
 
 const partitionsData = [
@@ -75,9 +73,7 @@ describe("box state", () => {
     expect(getPartitions(state)).toEqual([[], [], [], [], []]);
     expect(arePartitionsLoading(state)).toBe(false);
     expect(arePartitionsLoaded(state)).toBe(false);
-    expect(addFlashcardRequestStatus(state)).toBe(
-      AddFlashcardRequestStatus.NEVER_STARTED
-    );
+    expect(isAddFlashcardRequestLoading(state)).toBe(false);
   });
   describe("fetchPartitions", () => {
     test("fetchPartitionsStarted should set the loading state to true", () => {
@@ -88,7 +84,10 @@ describe("box state", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          loading: true
+          partitions: {
+            ...defaultState.partitions,
+            status: "loading"
+          }
         },
         fetchPartitionsFinished({ partitions: partitionsData })
       );
@@ -100,24 +99,25 @@ describe("box state", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          loading: true
+          partitions: {
+            ...defaultState.partitions,
+            status: "loading"
+          }
         },
         fetchPartitionsFinished({ error: "error message" })
       );
       expect(arePartitionsLoading(state)).toBe(false);
       expect(arePartitionsLoaded(state)).toBe(true);
       expect(getFetchPartitionsError(state)).toBe("error message");
-      expect(getPartitions(state)).toEqual(defaultState.partitions);
+      expect(getPartitions(state)).toEqual(defaultState.partitions.data);
     });
   });
   describe("addFlashcardRequest", () => {
-    test("addFlashcardRequestStarted should set the addFlashcardRequest status to PENDING", () => {
+    test("addFlashcardRequestStarted should lead to isAddFlashcardRequestLoading to be true", () => {
       const state = boxStateReducer(undefined, addFlashcardRequestStarted());
-      expect(addFlashcardRequestStatus(state)).toBe(
-        AddFlashcardRequestStatus.PENDING
-      );
+      expect(isAddFlashcardRequestLoading(state)).toBe(true);
     });
-    test("addFlashcardRequestEnded should update the partitions with the given response if there is no error and set the addFlashcardRequestStatus to SUCCEEDED", () => {
+    test("addFlashcardRequestEnded should update the partitions with the given response if there is no error and isAddFlashcardRequestLoading should return false", () => {
       const newPartitionsData = [...partitionsData];
       newPartitionsData[0] = [
         ...newPartitionsData[0],
@@ -132,21 +132,25 @@ describe("box state", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          partitions: partitionsData
+          partitions: {
+            partitionsData,
+            status: "success"
+          }
         },
         addFlashcardRequestEnded({ partitions: newPartitionsData })
       );
 
       expect(getPartitions(state)).toEqual(newPartitionsData);
-      expect(addFlashcardRequestStatus(state)).toEqual(
-        AddFlashcardRequestStatus.SUCCEEDED
-      );
+      expect(isAddFlashcardRequestLoading(state)).toBe(false);
     });
     test("addFlashcardRequestEnded should set the addFlashcardRequestError with the given error and set the addFlashcardRequestStatus to ERRORED", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          partitions: partitionsData
+          addFlashcardRequest: {
+            ...defaultState.addFlashcardRequest,
+            status: "loading"
+          }
         },
         addFlashcardRequestEnded({ error: "some error has occured" })
       );
@@ -154,9 +158,7 @@ describe("box state", () => {
       expect(getAddFlashcardRequestError(state)).toEqual(
         "some error has occured"
       );
-      expect(addFlashcardRequestStatus(state)).toBe(
-        AddFlashcardRequestStatus.ERRORED
-      );
+      expect(isAddFlashcardRequestLoading(state)).toBe(false);
     });
   });
 });
