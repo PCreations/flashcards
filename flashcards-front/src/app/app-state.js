@@ -20,7 +20,8 @@ export const appStateReducer = (appState = defaultState, action) => {
   return appState;
 };
 
-export const getCurrentScreen = appState => appState.currentScreen;
+export const isSessionScreen = appState =>
+  appState.currentScreen === SESSION_SCREEN;
 
 export const sessionStarted = () => ({
   type: SESSION_STARTED

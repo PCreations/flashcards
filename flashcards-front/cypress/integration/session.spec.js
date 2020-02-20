@@ -1,8 +1,13 @@
 describe("session", () => {
   it("a user should be able to notify her answer to the sessions flashcards and see her session's score", () => {
     cy.fixture("sessionFlashcards.json").then(flashcards => {
-      cy.server();
-      cy.route(`${Cypress.env.API_ROOT_URL}/session-flashcards`, flashcards);
+      cy.server({
+        delay: 100
+      });
+      cy.route(
+        `${Cypress.env("API_ROOT_URL")}/session-flashcards?boxId=test`,
+        flashcards
+      ).as("sessionFlashcards");
 
       cy.visit("/");
 
@@ -10,6 +15,8 @@ describe("session", () => {
 
       // the score is initially 0
       cy.findByText(/score: 0/i);
+
+      cy.wait("@sessionFlashcards");
 
       // the first flashcard question is shown
       cy.findByText(flashcards[0].flashcard.question);
