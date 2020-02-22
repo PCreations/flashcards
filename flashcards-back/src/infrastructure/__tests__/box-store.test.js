@@ -118,7 +118,9 @@ describe("BoxStore", () => {
     });
     afterAll(async () => {
       await Promise.all(firebase.apps().map(app => app.delete()));
-      await firebase.clearFirestoreData();
+      await firebase.clearFirestoreData({
+        projectId
+      });
     });
   });
   describe("in memory", () => {

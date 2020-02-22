@@ -11,11 +11,11 @@ module.exports = (on, config) => {
   };
 
   on("task", {
-    seedTestBox({ partitions }) {
-      console.log("PARTITIONS", partitions);
+    seedTestBox({ partitions, sessionDay = 1 } = {}) {
       return axios
         .post(`${appConfig.API_TEST_URL}/__seedDb`, {
-          partitions
+          partitions,
+          sessionDay
         })
         .then(res => res.data);
     }
