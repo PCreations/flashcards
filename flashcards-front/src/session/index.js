@@ -3,7 +3,6 @@ import axios from "axios";
 import { useSessionState } from "./use-session-state";
 import { getConfig } from "../config";
 import { AuthContext } from "../auth-context";
-import { showAnswerRequested } from "./session-state";
 
 const apiRootUrl = getConfig().API_ROOT_URL;
 

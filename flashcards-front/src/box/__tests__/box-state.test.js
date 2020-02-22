@@ -84,8 +84,8 @@ describe("box state", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          partitions: {
-            ...defaultState.partitions,
+          box: {
+            ...defaultState.box,
             status: "loading"
           }
         },
@@ -99,8 +99,8 @@ describe("box state", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          partitions: {
-            ...defaultState.partitions,
+          box: {
+            ...defaultState.box,
             status: "loading"
           }
         },
@@ -109,7 +109,7 @@ describe("box state", () => {
       expect(arePartitionsLoading(state)).toBe(false);
       expect(arePartitionsLoaded(state)).toBe(true);
       expect(getFetchPartitionsError(state)).toBe("error message");
-      expect(getPartitions(state)).toEqual(defaultState.partitions.data);
+      expect(getPartitions(state)).toEqual(defaultState.box.data);
     });
   });
   describe("addFlashcardRequest", () => {
@@ -132,8 +132,8 @@ describe("box state", () => {
       const state = boxStateReducer(
         {
           ...defaultState,
-          partitions: {
-            partitionsData,
+          box: {
+            data: partitionsData,
             status: "success"
           }
         },

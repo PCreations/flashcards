@@ -66,7 +66,7 @@ describe("session state", () => {
           status: "loading"
         }
       },
-      flashcardsRequestEnded({ flashcards: sessionFlashcards })
+      flashcardsRequestEnded({ data: sessionFlashcards })
     );
     expect(getCurrentQuestion(sessionState)).toEqual(
       sessionFlashcards[0].flashcard.question
