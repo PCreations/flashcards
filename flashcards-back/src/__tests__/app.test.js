@@ -218,7 +218,7 @@ describe("application", () => {
       ];
       const app = createApp({
         boxStore: BoxStore.createInMemory({
-          partitionsByBoxId: { 42: partitionsData }
+          box: createBox({ id: 42, partitions: partitionsData })
         })
       });
       const response = await request(app).get("/session-flashcards?boxId=42");
@@ -298,8 +298,7 @@ describe("application", () => {
       ];
       const app = createApp({
         boxStore: BoxStore.createInMemory({
-          partitionsByBoxId: { 42: partitionsData },
-          sessionDay: 2
+          box: createBox({ id: 42, partitions: partitionsData, sessionDay: 2 })
         })
       });
       const response = await request(app).get("/session-flashcards?boxId=42");
@@ -322,7 +321,7 @@ describe("application", () => {
           fromPartition: 0
         },
         {
-          flashcards: {
+          flashcard: {
             id: "3",
             question: "What is the third planet of our solar system ?",
             answer: "Earth"

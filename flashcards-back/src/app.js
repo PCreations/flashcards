@@ -44,24 +44,7 @@ const createApp = ({
     const { boxId } = req.query;
     try {
       const box = await boxStore.get(boxId);
-      res.json(
-        box.sessionDay === 1
-          ? box.partitions[0].map(flashcard => ({
-              flashcard,
-              fromPartition: 0
-            }))
-          : box.partitions[0]
-              .map(flashcard => ({
-                flashcard,
-                fromPartition: 0
-              }))
-              .concat(
-                box.partitions[1].map(flashcard => ({
-                  flashcard,
-                  fromPartition: 0
-                }))
-              )
-      );
+      res.json(box.sessionFlashcards);
     } catch (err) {
       err.message; //?
       res.status(500).json({ error: err.message });
