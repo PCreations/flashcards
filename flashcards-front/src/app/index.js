@@ -4,11 +4,11 @@ import { Box } from "../Box";
 import { Session } from "../session";
 
 export const App = () => {
-  const { isSessionScreen, sessionStarted } = useAppState();
+  const { isSessionScreen, sessionStarted, sessionEnded } = useAppState();
   return (
     <div>
       {isSessionScreen ? (
-        <Session />
+        <Session notifySessionEnded={sessionEnded} />
       ) : (
         <>
           <Box />

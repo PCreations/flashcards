@@ -4,14 +4,19 @@ import {
   sessionStateReducer,
   getCurrentQuestion,
   getCurrentAnswer,
+  getCurrentFlashcardId,
   areFlashcardsLoading,
   getFlashcardsRequestError,
   getScore,
   shouldShowAnswer,
+  isSessionOver,
   areFlashcardsLoaded,
   flashcardsRequestStarted,
   flashcardsRequestEnded,
-  showAnswerRequested
+  showAnswerRequested,
+  submitAnswerRequestStarted,
+  submitAnswerRequestEnded,
+  isSubmitAnswerRequestLoading
 } from "./session-state";
 
 const actionDispatcher = (dispatch, action) => (...args) =>
@@ -26,11 +31,14 @@ export const useSessionState = () => {
   return {
     currentQuestion: getCurrentQuestion(sessionState),
     currentAnswer: getCurrentAnswer(sessionState),
+    currentFlashcardId: getCurrentFlashcardId(sessionState),
     areFlashcardsLoading: areFlashcardsLoading(sessionState),
     areFlashcardsLoaded: areFlashcardsLoaded(sessionState),
     flashcardsRequestError: getFlashcardsRequestError(sessionState),
     shouldShowAnswer: shouldShowAnswer(sessionState),
+    isSessionOver: isSessionOver(sessionState),
     score: getScore(sessionState),
+    isSubmitAnswerRequestLoading: isSubmitAnswerRequestLoading(sessionState),
     flashcardsRequestStarted: useCallback(
       actionDispatcher(dispatch, flashcardsRequestStarted),
       []
@@ -38,6 +46,12 @@ export const useSessionState = () => {
     flashcardsRequestEnded: useCallback(
       actionDispatcher(dispatch, flashcardsRequestEnded),
       []
+    ),
+    submitAnswerRequestStarted: useCallback(
+      actionDispatcher(dispatch, submitAnswerRequestStarted)
+    ),
+    submitAnswerRequestEnded: useCallback(
+      actionDispatcher(dispatch, submitAnswerRequestEnded)
     ),
     showAnswerRequested: useCallback(
       actionDispatcher(dispatch, showAnswerRequested),

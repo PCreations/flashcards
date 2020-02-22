@@ -43,6 +43,8 @@ export const createRequestState = ({ requestName, defaultData = [] } = {}) => {
   const requestReducer = (requestState = defaultState, action) => {
     switch (requestState.status) {
       case IDLE_STATUS:
+      case SUCCESS_STATUS:
+      case FAIL_STATUS:
         return idleRequestReducer(requestState, action);
       case LOADING_STATUS:
         return loadingRequestReducer(requestState, action);

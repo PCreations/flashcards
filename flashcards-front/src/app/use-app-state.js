@@ -3,7 +3,8 @@ import {
   appStateReducer,
   defaultState,
   isSessionScreen,
-  sessionStarted
+  sessionStarted,
+  sessionEnded
 } from "./app-state";
 
 const actionDispatcher = (dispatch, action) => (...args) =>
@@ -14,6 +15,7 @@ export const useAppState = () => {
 
   return {
     isSessionScreen: isSessionScreen(appState),
-    sessionStarted: useCallback(actionDispatcher(dispatch, sessionStarted), [])
+    sessionStarted: useCallback(actionDispatcher(dispatch, sessionStarted), []),
+    sessionEnded: useCallback(actionDispatcher(dispatch, sessionEnded), [])
   };
 };

@@ -4,10 +4,32 @@ describe("session", () => {
       cy.server({
         delay: 100
       });
+
       cy.route(
         `${Cypress.env("API_ROOT_URL")}/session-flashcards?boxId=test`,
         flashcards
       ).as("sessionFlashcards");
+
+      cy.route(
+        `${Cypress.env(
+          "API_ROOT_URL"
+        )}/submit-answer?boxId=test&flashcardId=1&right=1`,
+        { score: 1 }
+      ).as("submitRightAnswerFlashcard1");
+
+      cy.route(
+        `${Cypress.env(
+          "API_ROOT_URL"
+        )}/submit-answer?boxId=test&flashcardId=2&right=1`,
+        { score: 2 }
+      ).as("submitRightAnswerFlashcard2");
+
+      cy.route(
+        `${Cypress.env(
+          "API_ROOT_URL"
+        )}/submit-answer?boxId=test&flashcardId=3&right=0`,
+        { score: 2 }
+      ).as("submitWrongAnswerFlashcard3");
 
       cy.visit("/");
 
@@ -27,6 +49,7 @@ describe("session", () => {
 
       // the user gave the right answer
       cy.findByText(/i was right/i).click();
+      cy.wait("@submitRightAnswerFlashcard1");
 
       // the score is now 1
       cy.findByText(/score: 1/i);
@@ -40,6 +63,7 @@ describe("session", () => {
 
       // the user gave the right answer
       cy.findByText(/i was right/i).click();
+      cy.wait("@submitRightAnswerFlashcard2");
 
       // the score is now 2
       cy.findByText(/score: 2/i);
@@ -49,16 +73,20 @@ describe("session", () => {
 
       // the user wants to see the answer
       cy.findByText(/show answer/i).click();
+
       cy.findByText(flashcards[2].flashcard.answer);
 
       // the user gave the wrong answer
       cy.findByText(/i was wrong/i).click();
+      cy.wait("@submitWrongAnswerFlashcard3");
 
       // the score is still 2 and the session is over
+      cy.findByText(/session over/i);
       cy.findByText(/score: 2/i);
       cy.findByText(/back to flashcard list/i).click();
 
-      // TODO: the first and the second flashcard has now moved to the second partition
+      // the user is back on the partitions list
+      cy.findAllByText(/partition/i);
     });
   });
 });
