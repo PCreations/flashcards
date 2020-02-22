@@ -40,6 +40,22 @@ const createApp = ({
     }
   });
 
+  app.get("/session-flashcards", async (req, res) => {
+    const { boxId } = req.query;
+    try {
+      const box = await boxStore.get(boxId);
+      res.json(
+        box.partitions[0].map(flashcard => ({
+          flashcard,
+          fromPartition: 0
+        }))
+      );
+    } catch (err) {
+      err.message; //?
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return app;
 };
 
