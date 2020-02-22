@@ -5,8 +5,9 @@ describe("box", () => {
     const box = createBox({ id: "testId" });
     expect(box.id).toBe("testId");
     expect(box.partitions).toEqual([[], [], [], [], []]);
+    expect(box.sessionDay).toBe(1);
   });
-  it("should create a box with given partitions", () => {
+  it("should create a box with given arguments", () => {
     const partitions = [
       [
         {
@@ -60,9 +61,10 @@ describe("box", () => {
         }
       ]
     ];
-    const box = createBox({ id: "testId", partitions });
+    const box = createBox({ id: "testId", partitions, sessionDay: 2 });
     expect(box.id).toBe("testId");
     expect(box.partitions).toEqual(partitions);
+    expect(box.sessionDay).toEqual(2);
   });
   it("should add a flashcard in last position of the first partition", () => {
     const [partition1, ...partitionsRest] = [

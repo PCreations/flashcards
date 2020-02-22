@@ -1,41 +1,64 @@
 const uuidv1 = require("uuid/v1");
 const { createBox } = require("../domain/box");
 
-const createPartitionsNotFoundError = boxId =>
-  new Error(`Can't find box ${boxId}`);
+const createBoxNotFoundError = boxId => new Error(`Can't find box ${boxId}`);
+
+const PARTITION_COLLECTION_NAME = "partition";
 
 const BoxStore = ({ firestore, uuid }) => ({
   async get(boxId) {
-    let doc;
+    let boxDocument;
     try {
-      doc = await firestore
+      boxDocument = await firestore
         .collection("boxes")
         .doc(boxId)
         .get();
     } catch (err) {
       throw new Error(`Error getting document : ${err.message}`);
     }
-    if (!doc.exists) {
-      throw createPartitionsNotFoundError(boxId);
+    if (!boxDocument.exists) {
+      throw createBoxNotFoundError(boxId);
     }
-    return createBox({
-      id: boxId,
-      partitions: Object.values(doc.data())
-    });
-  },
-  async save(box = createBox()) {
-    return firestore
-      .collection("boxes")
-      .doc(box.id)
-      .set(
-        box.partitions.reduce(
-          (partitionsMap, flashcards, index) => ({
-            ...partitionsMap,
-            [index + 1]: flashcards
-          }),
-          {}
+    try {
+      const partitions = await Promise.all(
+        [1, 2, 3, 4, 5].map(partitionNumber =>
+          firestore
+            .collection("boxes")
+            .doc(boxId)
+            .collection(`${PARTITION_COLLECTION_NAME}${partitionNumber}`)
+            .get()
+            .then(snapshot => {
+              const flashcards = [];
+              snapshot.forEach(doc => flashcards.push(doc.data()));
+              return flashcards;
+            })
         )
       );
+      return createBox({
+        id: boxId,
+        partitions,
+        sessionDay: boxDocument.data().sessionDay
+      });
+    } catch (err) {
+      err.stack; //?
+      throw new Error(err.message);
+    }
+  },
+  async save(box = createBox()) {
+    const batch = firestore.batch();
+    batch.set(firestore.collection("boxes").doc(box.id), {
+      sessionDay: box.sessionDay
+    });
+    box.partitions.forEach((partition, index) => {
+      const partitionRef = firestore
+        .collection("boxes")
+        .doc(box.id)
+        .collection(`${PARTITION_COLLECTION_NAME}${index + 1}`);
+      partition.forEach(({ id, question, answer }) => {
+        batch.set(partitionRef.doc(id), { id, question, answer });
+      });
+    });
+    return batch.commit();
   },
   getNextFlashcardId() {
     return uuid();
@@ -44,27 +67,56 @@ const BoxStore = ({ firestore, uuid }) => ({
 
 const create = ({ firestore }) => BoxStore({ firestore, uuid: uuidv1 });
 
-const createInMemory = ({ partitionsByBoxId, nextFlashcardId } = {}) =>
+const createInMemory = ({ box, nextFlashcardId } = {}) =>
   BoxStore({
-    firestore: createNullFirestore(partitionsByBoxId),
+    firestore: createNullFirestore(box),
     uuid: () => nextFlashcardId
   });
 
-const createNullFirestore = (partitionsByBoxId = {}) => {
-  const store = Object.keys(partitionsByBoxId).reduce(
-    (boxes, boxId) => ({
-      ...boxes,
-      [boxId]: partitionsByBoxId[boxId].reduce(
-        (partitions, flashcards, index) => ({
-          ...partitions,
-          [index + 1]: flashcards
-        }),
-        {}
-      )
-    }),
-    {}
-  );
+const createNullFirestore = box => {
+  const toFlashcardsMap = partition =>
+    partition.reduce(
+      (map, flashcard) => ({
+        ...map,
+        [flashcard.id]: flashcard
+      }),
+      {}
+    );
+  const store = {};
+  const saveBoxInStore = box => {
+    store[box.id] = {
+      partitions: {
+        partition1: toFlashcardsMap(box.partitions[0]),
+        partition2: toFlashcardsMap(box.partitions[1]),
+        partition3: toFlashcardsMap(box.partitions[2]),
+        partition4: toFlashcardsMap(box.partitions[3]),
+        partition5: toFlashcardsMap(box.partitions[4])
+      },
+      sessionDay: box.sessionDay
+    };
+  };
+
+  const ensureBoxInStore = boxId => {
+    if (!store[boxId]) {
+      saveBoxInStore(createBox({ id: boxId }));
+    }
+    return store[boxId];
+  };
+
+  if (box) saveBoxInStore(box);
+
   return {
+    batch() {
+      const documents = [];
+      return {
+        set(doc, setParams) {
+          documents.push([doc, setParams]);
+        },
+        commit() {
+          documents.forEach(([doc, setParams]) => doc.set(setParams));
+        }
+      };
+    },
     collection() {
       return {
         doc(boxId) {
@@ -73,12 +125,43 @@ const createNullFirestore = (partitionsByBoxId = {}) => {
               return {
                 exists: typeof store[boxId] !== "undefined",
                 data() {
-                  return store[boxId];
+                  return {
+                    sessionDay: store[boxId].sessionDay
+                  };
                 }
               };
             },
-            async set(partitions) {
-              store[boxId] = partitions;
+            set({ sessionDay }) {
+              ensureBoxInStore(boxId).sessionDay = sessionDay;
+            },
+            collection(partitionName) {
+              return {
+                doc() {
+                  return {
+                    set(flashcard) {
+                      ensureBoxInStore(boxId).partitions[partitionName][
+                        flashcard.id
+                      ] = flashcard;
+                    }
+                  };
+                },
+                async get() {
+                  const flashcards = Object.values(
+                    store[boxId].partitions[partitionName]
+                  );
+                  return {
+                    forEach(callback) {
+                      flashcards.forEach(flashcard =>
+                        callback({
+                          data() {
+                            return flashcard;
+                          }
+                        })
+                      );
+                    }
+                  };
+                }
+              };
             }
           };
         }

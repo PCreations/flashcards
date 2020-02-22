@@ -51,25 +51,25 @@ const partitionsData = [
     {
       id: "8",
       question: "What is the eighth planet of our solar system ?",
-      answer: "Neptune",
-      partition: 5
+      answer: "Neptune"
     }
   ]
 ];
 
-const setUpFirestoreData = async firestore =>
-  firestore
-    .collection("boxes")
-    .doc("testId")
-    .set(
-      partitionsData.reduce(
-        (partitionsMap, flashcards, index) => ({
-          ...partitionsMap,
-          [index + 1]: flashcards
-        }),
-        {}
-      )
-    );
+const setUpFirestoreData = async firestore => {
+  const batch = firestore.batch();
+  batch.set(firestore.collection("boxes").doc("testId"), { sessionDay: 1 });
+  partitionsData.forEach((partition, index) => {
+    const partitionRef = firestore
+      .collection("boxes")
+      .doc("testId")
+      .collection(`partition${index + 1}`);
+    partition.forEach(({ id, question, answer }) => {
+      batch.set(partitionRef.doc(id), { id, question, answer });
+    });
+  });
+  return batch.commit();
+};
 
 describe("BoxStore", () => {
   describe("firestore", () => {
@@ -90,6 +90,7 @@ describe("BoxStore", () => {
       expect(box.partitions).toEqual(partitionsData);
     });
     it("should throw an error if box can't be retrieved", async () => {
+      expect.assertions(1);
       const boxStore = BoxStore.create({
         firestore: firebaseApp.firestore()
       });
@@ -102,10 +103,11 @@ describe("BoxStore", () => {
         firestore: firebaseApp.firestore()
       });
       await boxStore.save(
-        createBox({ id: "testId2", partitions: partitionsData })
+        createBox({ id: "testId2", partitions: partitionsData, sessionDay: 2 })
       );
       const retrievedBox = await boxStore.get("testId2");
       expect(retrievedBox.partitions).toEqual(partitionsData);
+      expect(retrievedBox.sessionDay).toEqual(2);
     });
     it("should get the next flashcard id as a string", async () => {
       const boxStore = BoxStore.create({
@@ -122,9 +124,10 @@ describe("BoxStore", () => {
   describe("in memory", () => {
     it("should return the given partitions data", async () => {
       const boxStore = BoxStore.createInMemory({
-        partitionsByBoxId: {
-          testId: partitionsData
-        }
+        box: createBox({
+          id: "testId",
+          partitions: partitionsData
+        })
       });
       const box = await boxStore.get("testId");
       expect(box.partitions).toEqual(partitionsData);
@@ -136,10 +139,11 @@ describe("BoxStore", () => {
     it("should save partitions", async () => {
       const boxStore = BoxStore.createInMemory();
       await boxStore.save(
-        createBox({ id: "testId2", partitions: partitionsData })
+        createBox({ id: "testId2", partitions: partitionsData, sessionDay: 2 })
       );
       const box = await boxStore.get("testId2");
       expect(box.partitions).toEqual(partitionsData);
+      expect(box.sessionDay).toEqual(2);
     });
     it("should return the pre-defined next flashcard id", () => {
       const boxStore = BoxStore.createInMemory({ nextFlashcardId: "id42" });

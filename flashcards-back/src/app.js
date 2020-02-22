@@ -45,10 +45,22 @@ const createApp = ({
     try {
       const box = await boxStore.get(boxId);
       res.json(
-        box.partitions[0].map(flashcard => ({
-          flashcard,
-          fromPartition: 0
-        }))
+        box.sessionDay === 1
+          ? box.partitions[0].map(flashcard => ({
+              flashcard,
+              fromPartition: 0
+            }))
+          : box.partitions[0]
+              .map(flashcard => ({
+                flashcard,
+                fromPartition: 0
+              }))
+              .concat(
+                box.partitions[1].map(flashcard => ({
+                  flashcard,
+                  fromPartition: 0
+                }))
+              )
       );
     } catch (err) {
       err.message; //?
