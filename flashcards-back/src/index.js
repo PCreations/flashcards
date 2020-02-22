@@ -1,4 +1,5 @@
 const functions = require("firebase-functions");
+const firebase = require("@firebase/testing");
 const admin = require("firebase-admin");
 const cors = require("cors");
 const express = require("express");
@@ -29,9 +30,12 @@ const test = express();
 test.use(express.json());
 test.use(cors({ origin: true }));
 test.post("/__seedDb", async (req, res) => {
-  const { partitions } = req.body;
+  const { partitions, sessionDay } = req.body;
+  await firebase.clearFirestoreData({
+    projectId: "flashcards-7c174"
+  });
   try {
-    await boxStore.save({ id: "test", partitions });
+    await boxStore.save({ id: "test", partitions, sessionDay });
     const box = await boxStore.get("test");
     res.json(box.partitions);
   } catch (err) {
