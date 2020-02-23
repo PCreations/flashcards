@@ -46,8 +46,14 @@
     {
       "id": "8",
       "question": "What is the eighth planet of our solar system ?",
-      "answer": "Neptune",
-      "partition": 5
+      "answer": "Neptune"
+    }
+  ],
+  [
+    {
+      "id": "10",
+      "question": "What is the hottest planet of our solar system ?",
+      "answer": "Venus"
     }
   ]
 ]

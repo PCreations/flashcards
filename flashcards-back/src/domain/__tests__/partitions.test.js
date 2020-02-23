@@ -1,7 +1,7 @@
 const { createPartitions } = require("../partitions");
 
 describe("partitions", () => {
-  it("create immutable partitions from array", () => {
+  it("create immutable partitions from array and completes missing partition", () => {
     const partitionsData = [
       [
         {
@@ -20,37 +20,6 @@ describe("partitions", () => {
           id: "3",
           question: "What is the third planet of our solar system ?",
           answer: "Earth"
-        }
-      ],
-      [
-        {
-          id: "4",
-          question: "What is the fourth planet of our solar system ?",
-          answer: "Mars"
-        },
-        {
-          id: "5",
-          question: "What is the fith planet of our solar system ?",
-          answer: "Jupiter"
-        }
-      ],
-      [
-        {
-          id: "6",
-          question: "What is the sixth planet of our solar system ?",
-          answer: "Saturn"
-        }
-      ],
-      [
-        {
-          id: "7",
-          question: "What is the seventh planet of our solar system ?",
-          answer: "Uranus"
-        },
-        {
-          id: "8",
-          question: "What is the eighth planet of our solar system ?",
-          answer: "Neptune"
         }
       ]
     ];
@@ -73,48 +42,18 @@ describe("partitions", () => {
           question: "What is the third planet of our solar system ?",
           answer: "Earth"
         }
-      ],
-      [
-        {
-          id: "4",
-          question: "What is the fourth planet of our solar system ?",
-          answer: "Mars"
-        },
-        {
-          id: "5",
-          question: "What is the fith planet of our solar system ?",
-          answer: "Jupiter"
-        }
-      ],
-      [
-        {
-          id: "6",
-          question: "What is the sixth planet of our solar system ?",
-          answer: "Saturn"
-        }
-      ],
-      [
-        {
-          id: "7",
-          question: "What is the seventh planet of our solar system ?",
-          answer: "Uranus"
-        },
-        {
-          id: "8",
-          question: "What is the eighth planet of our solar system ?",
-          answer: "Neptune"
-        }
       ]
     ];
+    const expectedPartitionsData = partitionsDataCopy.concat([[], [], [], []]);
     const partitions = createPartitions(partitionsData);
     const partitionsArray = partitions.toArray();
-    expect(partitionsArray).toEqual(partitionsData);
+    expect(partitionsArray).toEqual(expectedPartitionsData);
     partitionsArray[1] = [1, 2, 3];
-    expect(partitions.toArray()).toEqual(partitionsData);
+    expect(partitions.toArray()).toEqual(expectedPartitionsData);
     partitionsData[1] = [4, 5, 6];
-    expect(partitions.toArray()).toEqual(partitionsDataCopy);
+    expect(partitions.toArray()).toEqual(expectedPartitionsData);
     partitionsData[1][0] = { foo: "bar" };
-    expect(partitions.toArray()).toEqual(partitionsDataCopy);
+    expect(partitions.toArray()).toEqual(expectedPartitionsData);
   });
   describe("add flashcard", () => {
     it("happy path", () => {
@@ -316,18 +255,18 @@ describe("partitions", () => {
           }
         });
       }).toThrowError(
-        "Partition should be comprised in between 0 and 4, received -1"
+        "Partition should be comprised in between 0 and 5, received -1"
       );
       expect(() => {
         partitions.addFlashcard({
-          partition: 5,
+          partition: 6,
           flashcard: {
             id: "9",
             question: "What is the second planet of our solar system ?"
           }
         });
       }).toThrowError(
-        "Partition should be comprised in between 0 and 4, received 5"
+        "Partition should be comprised in between 0 and 5, received 6"
       );
     });
   });
@@ -435,7 +374,8 @@ describe("partitions", () => {
             question: "What is the eighth planet of our solar system ?",
             answer: "Neptune"
           }
-        ]
+        ],
+        []
       ];
       const partitions = createPartitions(partitionsData);
       const newPartitions = partitions.moveFlashcard({
@@ -504,15 +444,15 @@ describe("partitions", () => {
           toPartitionIndex: -1
         })
       ).toThrowError(
-        "Partition should be comprised in between 0 and 4, received -1"
+        "Partition should be comprised in between 0 and 5, received -1"
       );
       expect(() =>
         partitions.moveFlashcard({
           id: "4",
-          toPartitionIndex: 5
+          toPartitionIndex: 6
         })
       ).toThrowError(
-        "Partition should be comprised in between 0 and 4, received 5"
+        "Partition should be comprised in between 0 and 5, received 6"
       );
     });
     it("should fail if the flashcard is not found", () => {
@@ -680,7 +620,8 @@ describe("partitions", () => {
           question: "What is the eighth planet of our solar system ?",
           answer: "Neptune"
         }
-      ]
+      ],
+      []
     ];
     const partitions = createPartitions(partitionsData);
     const newPartitions = partitions.moveFlashcardToItsNextPartition({

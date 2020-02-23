@@ -101,19 +101,35 @@ describe("BoxStore", () => {
       });
     });
     it("should save box", async () => {
+      const partitionsDataWithArchivedFlashcards = partitionsData.concat([
+        [
+          {
+            id: "9",
+            question:
+              "What was once considered the ninth planet of our solar system ?",
+            answer: "Pluto"
+          }
+        ]
+      ]); //?
       const boxStore = BoxStore.create({
         firestore: firebaseApp.firestore()
       });
       await boxStore.save(
         createBox({
           id: "testId",
-          partitions: partitionsData,
+          partitions: partitionsDataWithArchivedFlashcards,
           sessionDay: 2,
           sessionScore: 4
         })
       );
       const retrievedBox = await boxStore.get("testId");
       expect(retrievedBox.partitions).toEqual(partitionsData);
+      expect(retrievedBox.archivedFlashcards).toContainEqual({
+        id: "9",
+        question:
+          "What was once considered the ninth planet of our solar system ?",
+        answer: "Pluto"
+      });
       expect(retrievedBox.sessionDay).toEqual(2);
       expect(retrievedBox.sessionScore).toEqual(4);
     });

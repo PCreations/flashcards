@@ -7,15 +7,17 @@ describe("Adding a flashcard", () => {
 
       cy.findByText(/^add a flashcard$/i).click();
       cy.findByPlaceholderText(/question/).type(
-        "What is the hottest planet of our solar system ?"
+        "What planet was once considered the nith planet of our solar system ?"
       );
-      cy.findByPlaceholderText(/answer/).type("Venus");
+      cy.findByPlaceholderText(/answer/).type("Pluto");
       cy.findByText(/^add$/i).click();
 
       cy.findByText(/partition 1/i)
         .parent()
         .within(() => {
-          cy.findByText("What is the hottest planet of our solar system ?");
+          cy.findByText(
+            "What planet was once considered the nith planet of our solar system ?"
+          );
         });
     });
   });

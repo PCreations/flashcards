@@ -15,7 +15,11 @@ const createApp = ({
     const { boxId } = req.query;
     try {
       const box = await boxStore.get(boxId);
-      res.json(box.partitions);
+      box; //?
+      res.json({
+        partitions: box.partitions,
+        archivedFlashcards: box.archivedFlashcards
+      });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

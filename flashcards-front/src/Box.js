@@ -26,7 +26,8 @@ export const Box = () => {
     addFlashcardRequestEnded,
     isAddFlashcardRequestLoading,
     addFlashcardRequestError,
-    partitions
+    partitions,
+    archivedFlashcards
   } = useBoxState();
 
   useEffect(() => {
@@ -39,7 +40,9 @@ export const Box = () => {
           }
         })
         .then(res => res.data)
-        .then(partitions => fetchPartitionFinished({ partitions }))
+        .then(({ partitions, archivedFlashcards }) =>
+          fetchPartitionFinished({ partitions, archivedFlashcards })
+        )
         .catch(err => fetchPartitionFinished({ error: err.message }));
     }
   }, [
@@ -96,7 +99,11 @@ export const Box = () => {
   return (
     <div>
       {addFlashcardRequestError && <strong>{addFlashcardRequestError}</strong>}
-      <FlashcardList loading={arePartitionsLoading} partitions={partitions} />
+      <FlashcardList
+        loading={arePartitionsLoading}
+        partitions={partitions}
+        archivedFlashcards={archivedFlashcards}
+      />
       {isFormOpened ? (
         <AddFlashcardForm onSubmit={handleSubmit} />
       ) : (

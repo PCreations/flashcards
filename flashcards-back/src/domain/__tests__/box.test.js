@@ -5,6 +5,7 @@ describe("box", () => {
     const box = createBox({ id: "testId" });
     expect(box.id).toBe("testId");
     expect(box.partitions).toEqual([[], [], [], [], []]);
+    expect(box.archivedFlashcards).toEqual([]);
     expect(box.sessionDay).toBe(1);
     expect(box.sessionScore).toBe(0);
   });
@@ -539,6 +540,121 @@ describe("box", () => {
         isAnswerRight: true
       });
       expect(editedBox.partitions).toEqual(expectedPartitions);
+    });
+    it("should move the flashcard in the archived flashcards if flashcard was in partition 5 when submitting a right answer", () => {
+      const partitions = [
+        [
+          {
+            id: "1",
+            question: "What is the first planet of our solar system ?",
+            answer: "Mercury"
+          },
+          {
+            id: "2",
+            question: "What is the second planet of our solar system ?",
+            answer: "Venus"
+          }
+        ],
+        [
+          {
+            id: "3",
+            question: "What is the third planet of our solar system ?",
+            answer: "Earth"
+          }
+        ],
+        [
+          {
+            id: "4",
+            question: "What is the fourth planet of our solar system ?",
+            answer: "Mars"
+          },
+          {
+            id: "5",
+            question: "What is the fith planet of our solar system ?",
+            answer: "Jupiter"
+          }
+        ],
+        [
+          {
+            id: "6",
+            question: "What is the sixth planet of our solar system ?",
+            answer: "Saturn"
+          }
+        ],
+        [
+          {
+            id: "7",
+            question: "What is the seventh planet of our solar system ?",
+            answer: "Uranus"
+          },
+          {
+            id: "8",
+            question: "What is the eighth planet of our solar system ?",
+            answer: "Neptune"
+          }
+        ]
+      ];
+      const expectedPartitions = [
+        [
+          {
+            id: "1",
+            question: "What is the first planet of our solar system ?",
+            answer: "Mercury"
+          },
+          {
+            id: "2",
+            question: "What is the second planet of our solar system ?",
+            answer: "Venus"
+          }
+        ],
+        [
+          {
+            id: "3",
+            question: "What is the third planet of our solar system ?",
+            answer: "Earth"
+          }
+        ],
+        [
+          {
+            id: "4",
+            question: "What is the fourth planet of our solar system ?",
+            answer: "Mars"
+          },
+          {
+            id: "5",
+            question: "What is the fith planet of our solar system ?",
+            answer: "Jupiter"
+          }
+        ],
+        [
+          {
+            id: "6",
+            question: "What is the sixth planet of our solar system ?",
+            answer: "Saturn"
+          }
+        ],
+        [
+          {
+            id: "7",
+            question: "What is the seventh planet of our solar system ?",
+            answer: "Uranus"
+          }
+        ]
+      ];
+      const box = createBox({
+        id: "testId",
+        partitions
+      });
+      const editedBox = box.submitAnswer({
+        flashcardId: "8",
+        isAnswerRight: true
+      });
+      expect(editedBox.partitions).toEqual(expectedPartitions);
+      expect(editedBox.archivedFlashcards).toContainEqual({
+        id: "8",
+        question: "What is the eighth planet of our solar system ?",
+        answer: "Neptune"
+      });
     });
     it("should not increment the session score when submitting a wrong answer", () => {
       const partitions = [

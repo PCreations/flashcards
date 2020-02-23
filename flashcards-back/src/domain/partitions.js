@@ -1,17 +1,23 @@
 const { produce } = require("immer");
 
-const identity = value => value;
+const MAX_PARTITION_INDEX = 5;
 
 const validatePartitionIndex = index => {
-  if (index < 0 || index > 4) {
+  if (index < 0 || index > MAX_PARTITION_INDEX) {
     throw new Error(
-      `Partition should be comprised in between 0 and 4, received ${index}`
+      `Partition should be comprised in between 0 and ${MAX_PARTITION_INDEX}, received ${index}`
     );
   }
 };
 
-const createPartitions = (partitionsData = [[], [], [], [], []]) => {
-  const flattenedPartitions = partitionsData
+const createPartitions = (partitionsData = [[], [], [], [], [], []]) => {
+  const data = produce(partitionsData, draft => {
+    while (draft.length < MAX_PARTITION_INDEX + 1) {
+      draft.push([]);
+    }
+  });
+
+  const flattenedPartitions = data
     .map((partition, partitionIndex) =>
       partition.map(flashcard => ({
         flashcard,
@@ -34,7 +40,7 @@ const createPartitions = (partitionsData = [[], [], [], [], []]) => {
       if (getFlashcardByQuestion(flashcard.question)) {
         throw new Error("A flashcard with this question already exists");
       }
-      const newPartitionsData = produce(partitionsData, draft => {
+      const newPartitionsData = produce(data, draft => {
         draft[partition].push(flashcard);
       });
       return createPartitions(newPartitionsData);
@@ -46,7 +52,7 @@ const createPartitions = (partitionsData = [[], [], [], [], []]) => {
         throw new Error(`Flashcard with id ${id} was not found`);
       }
       const { fromPartition } = result;
-      const newPartitionsData = produce(partitionsData, draft => {
+      const newPartitionsData = produce(data, draft => {
         const flashcardIndex = draft[fromPartition].findIndex(
           ({ id: flashcardId }) => id === flashcardId
         );
@@ -58,10 +64,13 @@ const createPartitions = (partitionsData = [[], [], [], [], []]) => {
     },
     moveFlashcardToItsNextPartition({ id }) {
       const { fromPartition } = getFlashcardById(id);
-      return this.moveFlashcard({ id, toPartitionIndex: fromPartition + 1 });
+      return this.moveFlashcard({
+        id,
+        toPartitionIndex: fromPartition + 1
+      });
     },
     toArray() {
-      return produce(partitionsData, identity);
+      return data;
     }
   };
 };

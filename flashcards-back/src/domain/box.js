@@ -18,46 +18,49 @@ const getSessionFlashcardsFor = (sessionDay, partitions) =>
 
 const createBox = ({
   id,
-  partitions: partitionsData = [[], [], [], [], []],
+  partitions: partitionsData = [[], [], [], [], [], []],
   sessionDay = 1,
   sessionScore = 0
 } = {}) => {
-  const partitions = createPartitions(partitionsData);
+  const data = {
+    id,
+    partitions: createPartitions(partitionsData),
+    sessionDay,
+    sessionScore
+  };
+
   const sessionFlashcards = getSessionFlashcardsFor(
     sessionDay,
-    partitions.toArray()
+    data.partitions.toArray()
   );
 
   const submitRightAnswer = ({ flashcardId } = {}) =>
     createBox({
-      id,
-      partitions: partitions
+      ...data,
+      partitions: data.partitions
         .moveFlashcardToItsNextPartition({ id: flashcardId })
         .toArray(),
-      sessionDay,
-      sessionScore: sessionScore + 1
+      sessionScore: data.sessionScore + 1
     });
 
   const submitWrongAnswer = ({ flashcardId } = {}) =>
     createBox({
-      id,
-      partitions: partitions
+      ...data,
+      partitions: data.partitions
         .moveFlashcard({ id: flashcardId, toPartitionIndex: 0 })
-        .toArray(),
-      sessionDay,
-      sessionScore
+        .toArray()
     });
 
-  const box = {
-    id,
-    partitions: partitions.toArray(),
-    sessionDay,
-    sessionScore,
+  const partitionsAsArray = data.partitions.toArray();
+  return {
+    ...data,
+    partitions: partitionsAsArray.slice(0, 5),
+    archivedFlashcards: partitionsAsArray[partitionsAsArray.length - 1],
     sessionFlashcards,
     addFlashcard({ id: flashcardId, question, answer }) {
       return createBox({
-        id,
-        partitions: partitions
+        ...data,
+        partitions: data.partitions
           .addFlashcard({
             partition: 0,
             flashcard: {
@@ -85,7 +88,6 @@ const createBox = ({
       return box;
     }
   };
-  return box;
 };
 
 module.exports = {

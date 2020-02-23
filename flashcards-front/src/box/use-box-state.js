@@ -3,6 +3,7 @@ import {
   boxStateReducer,
   defaultState,
   getPartitions,
+  getArchivedFlashcards,
   getFetchPartitionsError,
   arePartitionsLoading,
   isAddFlashcardRequestLoading,
@@ -21,6 +22,7 @@ export const useBoxState = () => {
 
   return {
     partitions: getPartitions(state),
+    archivedFlashcards: getArchivedFlashcards(state),
     fetchPartitionsError: getFetchPartitionsError(state),
     arePartitionsLoading: arePartitionsLoading(state),
     isAddFlashcardRequestLoading: isAddFlashcardRequestLoading(state),

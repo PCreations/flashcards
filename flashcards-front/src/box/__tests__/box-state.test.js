@@ -1,6 +1,7 @@
 import {
   boxStateReducer,
   getPartitions,
+  getArchivedFlashcards,
   arePartitionsLoading,
   arePartitionsLoaded,
   getFetchPartitionsError,
@@ -61,16 +62,24 @@ const partitionsData = [
     {
       id: "8",
       question: "What is the eighth planet of our solar system ?",
-      answer: "Neptune",
-      partition: 5
+      answer: "Neptune"
     }
   ]
+];
+
+const archivedFlashcards = [
+  {
+    id: "9",
+    question: "What's the hottest planet in our solar sytem ?",
+    answer: "Venus"
+  }
 ];
 
 describe("box state", () => {
   test("the selectors should return the correct default state", () => {
     const state = boxStateReducer();
     expect(getPartitions(state)).toEqual([[], [], [], [], []]);
+    expect(getArchivedFlashcards(state)).toEqual([]);
     expect(arePartitionsLoading(state)).toBe(false);
     expect(arePartitionsLoaded(state)).toBe(false);
     expect(isAddFlashcardRequestLoading(state)).toBe(false);
@@ -89,11 +98,15 @@ describe("box state", () => {
             status: "loading"
           }
         },
-        fetchPartitionsFinished({ partitions: partitionsData })
+        fetchPartitionsFinished({
+          partitions: partitionsData,
+          archivedFlashcards
+        })
       );
       expect(arePartitionsLoading(state)).toBe(false);
       expect(arePartitionsLoaded(state)).toBe(true);
       expect(getPartitions(state)).toEqual(partitionsData);
+      expect(getArchivedFlashcards(state)).toEqual(archivedFlashcards);
     });
     test("fetchPartitionsFinished should set the loading state to false and the loaded state to true and set the error state to true if there is an error", () => {
       const state = boxStateReducer(
@@ -109,7 +122,7 @@ describe("box state", () => {
       expect(arePartitionsLoading(state)).toBe(false);
       expect(arePartitionsLoaded(state)).toBe(true);
       expect(getFetchPartitionsError(state)).toBe("error message");
-      expect(getPartitions(state)).toEqual(defaultState.box.data);
+      expect(getPartitions(state)).toEqual(defaultState.box.data.partitions);
     });
   });
   describe("addFlashcardRequest", () => {

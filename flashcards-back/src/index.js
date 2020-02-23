@@ -31,10 +31,14 @@ test.use(express.json());
 test.use(cors({ origin: true }));
 test.post("/__seedDb", async (req, res) => {
   const { partitions, sessionDay } = req.body;
+  console.log(partitions);
   try {
     await boxStore.save(createBox({ id: "test", partitions, sessionDay }));
     const box = await boxStore.get("test");
-    res.json(box.partitions);
+    res.json({
+      partitions: box.partitions,
+      archivedFlashcards: box.archivedFlashcards
+    });
   } catch (err) {
     res.status(500).json({ err: err.message });
   }

@@ -2,7 +2,10 @@ import { createRequestState } from "../request";
 
 const boxRequestState = createRequestState({
   requestName: "[box] - box request",
-  defaultData: [[], [], [], [], []]
+  defaultData: {
+    partitions: [[], [], [], [], []],
+    archivedFlashcards: []
+  }
 });
 
 const addFlashcardRequestState = createRequestState({
@@ -20,7 +23,10 @@ const boxReducer = (box, action) => {
   if (action.type === addFlashcardRequestState.REQUEST_ENDED && !action.error) {
     return {
       ...newState,
-      data: action.payload.data
+      data: {
+        ...newState.data,
+        partitions: action.payload.data
+      }
     };
   }
   return newState;
@@ -41,8 +47,15 @@ export const boxStateReducer = (state = defaultState, action) => {
 // actions creator
 export const fetchPartitionsStarted = boxRequestState.requestStarted;
 
-export const fetchPartitionsFinished = ({ partitions, error }) =>
-  boxRequestState.requestEnded({ data: partitions, error });
+export const fetchPartitionsFinished = ({
+  partitions,
+  archivedFlashcards,
+  error
+}) =>
+  boxRequestState.requestEnded({
+    data: { partitions, archivedFlashcards },
+    error
+  });
 
 export const addFlashcardRequestStarted =
   addFlashcardRequestState.requestStarted;
@@ -55,7 +68,11 @@ const createAddFlashcardRequestSelector = selector => state =>
   selector(state.addFlashcardRequest);
 
 // selectors
-export const getPartitions = createBoxSelector(boxRequestState.getData);
+export const getPartitions = state =>
+  createBoxSelector(boxRequestState.getData)(state).partitions;
+
+export const getArchivedFlashcards = state =>
+  createBoxSelector(boxRequestState.getData)(state).archivedFlashcards;
 
 export const getFetchPartitionsError = createBoxSelector(
   boxRequestState.getRequestError

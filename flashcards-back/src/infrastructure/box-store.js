@@ -6,7 +6,7 @@ const createBoxNotFoundError = boxId => new Error(`Can't find box ${boxId}`);
 const boxToFirestoreBoxData = box => ({
   sessionDay: box.sessionDay,
   sessionScore: box.sessionScore,
-  partitions: box.partitions.reduce(
+  partitions: box.partitions.concat([box.archivedFlashcards]).reduce(
     (partitionsMap, partition, index) => ({
       ...partitionsMap,
       [index]: partition

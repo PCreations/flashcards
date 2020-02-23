@@ -54,19 +54,29 @@ describe("application", () => {
           {
             id: "8",
             question: "What is the eighth planet of our solar system ?",
-            answer: "Neptune",
-            partition: 5
+            answer: "Neptune"
+          }
+        ],
+        [
+          {
+            id: "9",
+            question: "What is the hottest planet of our solar system ?",
+            answer: "Venus"
           }
         ]
       ];
+      const box = createBox({ id: 42, partitions: partitionsData });
       const app = createApp({
         boxStore: BoxStore.createInMemory({
-          box: createBox({ id: 42, partitions: partitionsData })
+          box
         })
       });
       const response = await request(app).get("/flashcards?boxId=42");
       expect(response.statusCode).toEqual(200);
-      expect(response.body).toEqual(partitionsData);
+      expect(response.body).toEqual({
+        partitions: partitionsData.slice(0, 5),
+        archivedFlashcards: partitionsData[5]
+      });
     });
     it("should return a 500 error if request fails", async () => {
       const app = createApp();
@@ -450,7 +460,9 @@ describe("application", () => {
       expect(response.body).toEqual({
         score: 1
       });
-      expect(flashcardsResponse.body).toEqual(expectedNewPartitionsData);
+      expect(flashcardsResponse.body.partitions).toEqual(
+        expectedNewPartitionsData
+      );
     });
     it("submitting a wrong answer should move the flashcard in the first partition and the score should be kept untouched", async () => {
       const partitionsData = [
@@ -574,7 +586,9 @@ describe("application", () => {
       expect(response.body).toEqual({
         score: 5
       });
-      expect(flashcardsResponse.body).toEqual(expectedNewPartitionsData);
+      expect(flashcardsResponse.body.partitions).toEqual(
+        expectedNewPartitionsData
+      );
     });
   });
 });

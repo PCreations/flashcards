@@ -4,13 +4,23 @@ describe("View the flashcard list", () => {
       cy.visit("/");
       cy.task("seedTestBox", { partitions: flashcardsByPartition });
       cy.wrap(flashcardsByPartition).each((flashcards, partitionIndex) => {
-        cy.findByText(new RegExp(`partition ${partitionIndex + 1}`, "i"))
-          .parent()
-          .within(() => {
-            cy.wrap(flashcards).each(({ question }) => {
-              cy.findByText(question);
+        if (partitionIndex === 5) {
+          cy.findByText(/archived flashcards/i)
+            .parent()
+            .within(() => {
+              cy.wrap(flashcards).each(({ question }) => {
+                cy.findByText(question);
+              });
             });
-          });
+        } else {
+          cy.findByText(new RegExp(`partition ${partitionIndex + 1}`, "i"))
+            .parent()
+            .within(() => {
+              cy.wrap(flashcards).each(({ question }) => {
+                cy.findByText(question);
+              });
+            });
+        }
       });
     });
   });
