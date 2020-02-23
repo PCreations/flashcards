@@ -1,5 +1,6 @@
 const express = require("express");
 const BoxStore = require("./infrastructure/box-store");
+const { createBox } = require("./domain/box");
 
 const createApp = ({
   boxStore = BoxStore.createInMemory(),
@@ -30,8 +31,13 @@ const createApp = ({
       boxId,
       flashcard: { question, answer }
     } = req.body;
+    let box;
     try {
-      const box = await boxStore.get(boxId);
+      box = await boxStore.get(boxId);
+    } catch (_) {
+      box = createBox({ id: boxId });
+    }
+    try {
       const editedBox = box.addFlashcard({
         id: boxStore.getNextFlashcardId(),
         question,

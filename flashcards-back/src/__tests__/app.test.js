@@ -86,7 +86,7 @@ describe("application", () => {
     });
   });
   describe("adding a flashcard", () => {
-    it("should add the flashcards in the last position of the first partition", async () => {
+    it("should add the flashcard in the last position of the first partition", async () => {
       const partitionsData = [
         [
           {
@@ -169,6 +169,41 @@ describe("application", () => {
       expect(response.statusCode).toEqual(200);
       expect(response.body).toEqual([expectedNewPartition1, ...partitionsRest]);
       expect(box.partitions[0]).toEqual(expectedNewPartition1);
+    });
+    it("should add the first flashcard of a box", async () => {
+      const boxStore = BoxStore.createInMemory({
+        nextFlashcardId: "9"
+      });
+      const app = createApp({
+        boxStore
+      });
+
+      const response = await request(app)
+        .post("/flashcards")
+        .send({
+          boxId: "testId",
+          flashcard: {
+            question:
+              "What was once considered the ninth planet of our solar system ?",
+            answer: "Pluto"
+          }
+        });
+      const expectedPartitions = [
+        [
+          {
+            id: "9",
+            question:
+              "What was once considered the ninth planet of our solar system ?",
+            answer: "Pluto"
+          }
+        ],
+        [],
+        [],
+        [],
+        []
+      ];
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toEqual(expectedPartitions);
     });
   });
   describe("session", () => {
