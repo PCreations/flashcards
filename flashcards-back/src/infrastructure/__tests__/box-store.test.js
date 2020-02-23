@@ -73,7 +73,7 @@ const setUpFirestoreData = firestore =>
     });
 
 describe("BoxStore", () => {
-  describe("firestore", () => {
+  describe("integration - firestore", () => {
     let firebaseApp, projectId;
     beforeAll(async () => {
       projectId = `${Math.floor(Math.random() * new Date())}`;
