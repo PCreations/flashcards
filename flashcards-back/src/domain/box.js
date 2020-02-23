@@ -17,13 +17,15 @@ const getSessionFlashcardsFor = (sessionDay, partitions) =>
 const createBox = ({
   id,
   partitions = [[], [], [], [], []],
-  sessionDay = 1
+  sessionDay = 1,
+  sessionScore = 0
 } = {}) => {
   const sessionFlashcards = getSessionFlashcardsFor(sessionDay, partitions);
   const box = {
     id,
     partitions,
     sessionDay,
+    sessionScore,
     sessionFlashcards,
     addFlashcard({ id: flashcardId, question, answer }) {
       const [partition1, ...partitionsRest] = partitions;
@@ -39,6 +41,14 @@ const createBox = ({
         ],
         sessionDay,
         sessionFlashcards
+      });
+    },
+    submitRightAnswer() {
+      return createBox({
+        id,
+        partitions,
+        sessionDay,
+        sessionScore: sessionScore + 1
       });
     }
   };

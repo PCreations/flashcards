@@ -5,6 +5,11 @@ const createBoxNotFoundError = boxId => new Error(`Can't find box ${boxId}`);
 
 const PARTITION_COLLECTION_NAME = "partition";
 
+const getBoxDocumentFields = box => ({
+  sessionDay: box.sessionDay,
+  sessionScore: box.sessionScore
+});
+
 const BoxStore = ({ firestore, uuid }) => ({
   async get(boxId) {
     let boxDocument;
@@ -37,7 +42,7 @@ const BoxStore = ({ firestore, uuid }) => ({
       return createBox({
         id: boxId,
         partitions,
-        sessionDay: boxDocument.data().sessionDay
+        ...getBoxDocumentFields(boxDocument.data())
       });
     } catch (err) {
       err.stack; //?
@@ -46,9 +51,10 @@ const BoxStore = ({ firestore, uuid }) => ({
   },
   async save(box = createBox()) {
     const batch = firestore.batch();
-    batch.set(firestore.collection("boxes").doc(box.id), {
-      sessionDay: box.sessionDay
-    });
+    batch.set(
+      firestore.collection("boxes").doc(box.id),
+      getBoxDocumentFields(box)
+    );
     box.partitions.forEach((partition, index) => {
       const partitionRef = firestore
         .collection("boxes")
@@ -92,7 +98,7 @@ const createNullFirestore = box => {
         partition4: toFlashcardsMap(box.partitions[3]),
         partition5: toFlashcardsMap(box.partitions[4])
       },
-      sessionDay: box.sessionDay
+      boxFields: getBoxDocumentFields(box)
     };
   };
 
@@ -125,14 +131,14 @@ const createNullFirestore = box => {
               return {
                 exists: typeof store[boxId] !== "undefined",
                 data() {
-                  return {
-                    sessionDay: store[boxId].sessionDay
-                  };
+                  return getBoxDocumentFields(store[boxId].boxFields);
                 }
               };
             },
-            set({ sessionDay }) {
-              ensureBoxInStore(boxId).sessionDay = sessionDay;
+            set(boxFields) {
+              ensureBoxInStore(boxId).boxFields = getBoxDocumentFields(
+                boxFields
+              );
             },
             collection(partitionName) {
               return {

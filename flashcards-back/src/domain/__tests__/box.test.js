@@ -1,11 +1,12 @@
 const { createBox } = require("../box");
 
 describe("box", () => {
-  it("should create a box with empty partitions by default", () => {
+  it("should create a box with empty values by default", () => {
     const box = createBox({ id: "testId" });
     expect(box.id).toBe("testId");
     expect(box.partitions).toEqual([[], [], [], [], []]);
     expect(box.sessionDay).toBe(1);
+    expect(box.sessionScore).toBe(0);
   });
   it("should create a box with given arguments", () => {
     const partitions = [
@@ -61,10 +62,16 @@ describe("box", () => {
         }
       ]
     ];
-    const box = createBox({ id: "testId", partitions, sessionDay: 2 });
+    const box = createBox({
+      id: "testId",
+      partitions,
+      sessionDay: 2,
+      sessionScore: 5
+    });
     expect(box.id).toBe("testId");
     expect(box.partitions).toEqual(partitions);
     expect(box.sessionDay).toEqual(2);
+    expect(box.sessionScore).toEqual(5);
   });
   it("should add a flashcard in last position of the first partition", () => {
     const [partition1, ...partitionsRest] = [
@@ -351,6 +358,17 @@ describe("box", () => {
       expect(
         createBox({ partitions, sessionDay: 25 }).sessionFlashcards
       ).toEqual(expect.arrayContaining(expectedSessionFlashcards));
+    });
+  });
+  describe("submitting score", () => {
+    it("should increment the session score when submitting a right answer", () => {
+      const box = createBox({
+        id: "testId",
+        sessionDay: 2,
+        sessionScore: 5
+      });
+      const editedBox = box.submitRightAnswer();
+      expect(editedBox.sessionScore).toEqual(6);
     });
   });
 });

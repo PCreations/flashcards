@@ -85,6 +85,21 @@ describe("session", () => {
 
       // the user is back on the partitions list
       cy.findAllByText(/partition/i);
+
+      // the third flashcard was not answered correctly and should be back in partition 1
+      cy.findByText(new RegExp(`partition 1`, "i"))
+        .parent()
+        .within(() => {
+          cy.findByText(flashcardsByPartition[1][0].question);
+        });
+
+      // the first and second flashcard was answered correctly and thus should now be in partition 2
+      cy.findByText(new RegExp(`partition 2`, "i"))
+        .parent()
+        .within(() => {
+          cy.findByText(flashcardsByPartition[0][0].question);
+          cy.findByText(flashcardsByPartition[0][1].question);
+        });
     });
   });
 });

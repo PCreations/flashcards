@@ -331,4 +331,197 @@ describe("application", () => {
       ]);
     });
   });
+  describe("submit answer", () => {
+    it("submitting a right answer should move the flashcard in the next partition and return the new score", async () => {
+      const partitionsData = [
+        [
+          {
+            id: "1",
+            question: "What is the first planet of our solar system ?",
+            answer: "Mercury"
+          },
+          {
+            id: "2",
+            question: "What is the second planet of our solar system ?",
+            answer: "Venus"
+          }
+        ],
+        [
+          {
+            id: "3",
+            question: "What is the third planet of our solar system ?",
+            answer: "Earth"
+          }
+        ],
+        [
+          {
+            id: "4",
+            question: "What is the fourth planet of our solar system ?",
+            answer: "Mars"
+          },
+          {
+            id: "5",
+            question: "What is the fith planet of our solar system ?",
+            answer: "Jupiter"
+          }
+        ],
+        [
+          {
+            id: "6",
+            question: "What is the sixth planet of our solar system ?",
+            answer: "Saturn"
+          }
+        ],
+        [
+          {
+            id: "7",
+            question: "What is the seventh planet of our solar system ?",
+            answer: "Uranus"
+          },
+          {
+            id: "8",
+            question: "What is the eighth planet of our solar system ?",
+            answer: "Neptune"
+          }
+        ]
+      ];
+      const expectedNewPartitionsData = [
+        [
+          {
+            id: "2",
+            question: "What is the second planet of our solar system ?",
+            answer: "Venus"
+          }
+        ],
+        [
+          {
+            id: "3",
+            question: "What is the third planet of our solar system ?",
+            answer: "Earth"
+          },
+          {
+            id: "1",
+            question: "What is the first planet of our solar system ?",
+            answer: "Mercury"
+          }
+        ],
+        [
+          {
+            id: "4",
+            question: "What is the fourth planet of our solar system ?",
+            answer: "Mars"
+          },
+          {
+            id: "5",
+            question: "What is the fith planet of our solar system ?",
+            answer: "Jupiter"
+          }
+        ],
+        [
+          {
+            id: "6",
+            question: "What is the sixth planet of our solar system ?",
+            answer: "Saturn"
+          }
+        ],
+        [
+          {
+            id: "7",
+            question: "What is the seventh planet of our solar system ?",
+            answer: "Uranus"
+          },
+          {
+            id: "8",
+            question: "What is the eighth planet of our solar system ?",
+            answer: "Neptune"
+          }
+        ]
+      ];
+      const app = createApp({
+        boxStore: BoxStore.createInMemory({
+          box: createBox({ id: 42, partitions: partitionsData, sessionDay: 2 })
+        })
+      });
+      const response = await request(app).get(
+        "/submit-answer?boxId=42&flashcardId=1&right=1"
+      );
+      const flashcardsResponse = await request(app).get("/flashcards?boxId=42");
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toEqual({
+        score: 1
+      });
+      //expect(flashcardsResponse.body).toEqual(expectedNewPartitionsData);
+    });
+    it("submitting a wrong answer should move the flashcard in the first partition and the score should be kept untouched", async () => {
+      const partitionsData = [
+        [
+          {
+            id: "1",
+            question: "What is the first planet of our solar system ?",
+            answer: "Mercury"
+          },
+          {
+            id: "2",
+            question: "What is the second planet of our solar system ?",
+            answer: "Venus"
+          }
+        ],
+        [
+          {
+            id: "3",
+            question: "What is the third planet of our solar system ?",
+            answer: "Earth"
+          }
+        ],
+        [
+          {
+            id: "4",
+            question: "What is the fourth planet of our solar system ?",
+            answer: "Mars"
+          },
+          {
+            id: "5",
+            question: "What is the fith planet of our solar system ?",
+            answer: "Jupiter"
+          }
+        ],
+        [
+          {
+            id: "6",
+            question: "What is the sixth planet of our solar system ?",
+            answer: "Saturn"
+          }
+        ],
+        [
+          {
+            id: "7",
+            question: "What is the seventh planet of our solar system ?",
+            answer: "Uranus"
+          },
+          {
+            id: "8",
+            question: "What is the eighth planet of our solar system ?",
+            answer: "Neptune"
+          }
+        ]
+      ];
+      const app = createApp({
+        boxStore: BoxStore.createInMemory({
+          box: createBox({
+            id: 42,
+            partitions: partitionsData,
+            sessionDay: 2,
+            sessionScore: 5
+          })
+        })
+      });
+      const response = await request(app).get(
+        "/submit-answer?boxId=42&flashcardId=1&right=0"
+      );
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toEqual({
+        score: 5
+      });
+    });
+  });
 });

@@ -51,6 +51,23 @@ const createApp = ({
     }
   });
 
+  app.get("/submit-answer", async (req, res) => {
+    const { boxId, flashcardId, right } = req.query;
+    try {
+      const box = await boxStore.get(boxId);
+      if (parseInt(right, 10) === 1) {
+        const editedBox = box.submitRightAnswer();
+        res.json({ score: editedBox.sessionScore });
+      } else {
+        res.json({ score: box.sessionScore });
+      }
+    } catch (err) {
+      err.message.res //?
+        .status(500)
+        .json({ error: err.message });
+    }
+  });
+
   return app;
 };
 
