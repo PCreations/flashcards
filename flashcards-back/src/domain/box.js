@@ -1,3 +1,5 @@
+const { createPartitions } = require("./partitions");
+
 const getSessionFlashcardsFor = (sessionDay, partitions) =>
   [1, 2, 3, 4, 5]
     .map(day =>
@@ -16,37 +18,44 @@ const getSessionFlashcardsFor = (sessionDay, partitions) =>
 
 const createBox = ({
   id,
-  partitions = [[], [], [], [], []],
+  partitions: partitionsData = [[], [], [], [], []],
   sessionDay = 1,
   sessionScore = 0
 } = {}) => {
-  const sessionFlashcards = getSessionFlashcardsFor(sessionDay, partitions);
+  const partitions = createPartitions(partitionsData);
+  const sessionFlashcards = getSessionFlashcardsFor(
+    sessionDay,
+    partitions.toArray()
+  );
   const box = {
     id,
-    partitions,
+    partitions: partitions.toArray(),
     sessionDay,
     sessionScore,
     sessionFlashcards,
     addFlashcard({ id: flashcardId, question, answer }) {
-      const [partition1, ...partitionsRest] = partitions;
       return createBox({
         id,
-        partitions: [
-          partition1.concat({
-            id: flashcardId,
-            question,
-            answer
-          }),
-          ...partitionsRest
-        ],
+        partitions: partitions
+          .addFlashcard({
+            partition: 0,
+            flashcard: {
+              id: flashcardId,
+              question,
+              answer
+            }
+          })
+          .toArray(),
         sessionDay,
         sessionFlashcards
       });
     },
-    submitRightAnswer() {
+    submitRightAnswer({ flashcardId } = {}) {
       return createBox({
         id,
-        partitions,
+        partitions: partitions
+          .moveFlashcardToItsNextPartition({ id: flashcardId })
+          .toArray(),
         sessionDay,
         sessionScore: sessionScore + 1
       });
