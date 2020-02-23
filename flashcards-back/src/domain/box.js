@@ -72,9 +72,17 @@ const createBox = ({
       });
     },
     submitAnswer({ flashcardId, isAnswerRight } = {}) {
-      return isAnswerRight
+      const box = isAnswerRight
         ? submitRightAnswer({ flashcardId })
         : submitWrongAnswer({ flashcardId });
+      if (box.sessionFlashcards.length === 0) {
+        return createBox({
+          ...box,
+          sessionDay: box.sessionDay + 1,
+          sessionScore: 0
+        });
+      }
+      return box;
     }
   };
   return box;

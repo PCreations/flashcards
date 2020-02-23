@@ -719,5 +719,65 @@ describe("box", () => {
       });
       expect(editedBox.partitions).toEqual(expectedPartitions);
     });
+    it("should increment the session day when the last flashcard answer has been submitted and reset the score", () => {
+      const partitions = [
+        [
+          {
+            id: "1",
+            question: "What is the first planet of our solar system ?",
+            answer: "Mercury"
+          }
+        ],
+        [
+          {
+            id: "3",
+            question: "What is the third planet of our solar system ?",
+            answer: "Earth"
+          }
+        ],
+        [
+          {
+            id: "4",
+            question: "What is the fourth planet of our solar system ?",
+            answer: "Mars"
+          },
+          {
+            id: "5",
+            question: "What is the fith planet of our solar system ?",
+            answer: "Jupiter"
+          }
+        ],
+        [
+          {
+            id: "6",
+            question: "What is the sixth planet of our solar system ?",
+            answer: "Saturn"
+          }
+        ],
+        [
+          {
+            id: "7",
+            question: "What is the seventh planet of our solar system ?",
+            answer: "Uranus"
+          },
+          {
+            id: "8",
+            question: "What is the eighth planet of our solar system ?",
+            answer: "Neptune"
+          }
+        ]
+      ];
+      const box = createBox({
+        id: "testId",
+        partitions,
+        sessionDay: 1 //only the flashcard in the first partition will be picked for the session
+      });
+      const editedBox = box.submitAnswer({
+        flashcardId: "1",
+        isAnswerRight: true
+      });
+      expect(editedBox.sessionDay).toEqual(2);
+      expect(editedBox.sessionScore).toEqual(0);
+    });
   });
 });
