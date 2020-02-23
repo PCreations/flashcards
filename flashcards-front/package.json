@@ -22,7 +22,7 @@
     "eject": "react-scripts eject",
     "cy:open": "env-path cypress open",
     "cy:run": "env-path cypress run --record",
-    "deploy": "env-path -p ./.env.prod yarn build && firebase deploy"
+    "deploy": "env-path -p ./.env.prod yarn test && env-path -p ./.env.prod yarn build && firebase deploy"
   },
   "eslintConfig": {
     "extends": "react-app"
