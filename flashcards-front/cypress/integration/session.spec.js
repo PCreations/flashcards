@@ -13,22 +13,19 @@ describe("session", () => {
       cy.route(
         `${Cypress.env(
           "API_ROOT_URL"
-        )}/submit-answer?boxId=test&flashcardId=1&right=1`,
-        { score: 1 }
+        )}/submit-answer?boxId=test&flashcardId=1&right=1`
       ).as("submitRightAnswerFlashcard1");
 
       cy.route(
         `${Cypress.env(
           "API_ROOT_URL"
-        )}/submit-answer?boxId=test&flashcardId=2&right=1`,
-        { score: 2 }
+        )}/submit-answer?boxId=test&flashcardId=2&right=1`
       ).as("submitRightAnswerFlashcard2");
 
       cy.route(
         `${Cypress.env(
           "API_ROOT_URL"
-        )}/submit-answer?boxId=test&flashcardId=3&right=0`,
-        { score: 2 }
+        )}/submit-answer?boxId=test&flashcardId=3&right=0`
       ).as("submitWrongAnswerFlashcard3");
 
       cy.visit("/");

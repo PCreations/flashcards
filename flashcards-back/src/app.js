@@ -55,12 +55,12 @@ const createApp = ({
     const { boxId, flashcardId, right } = req.query;
     try {
       const box = await boxStore.get(boxId);
-      if (parseInt(right, 10) === 1) {
-        const editedBox = box.submitRightAnswer();
-        res.json({ score: editedBox.sessionScore });
-      } else {
-        res.json({ score: box.sessionScore });
-      }
+      const editedBox = box.submitAnswer({
+        flashcardId,
+        isAnswerRight: parseInt(right, 10) === 1
+      });
+      await boxStore.save(editedBox);
+      res.json({ score: editedBox.sessionScore });
     } catch (err) {
       err.message.res //?
         .status(500)

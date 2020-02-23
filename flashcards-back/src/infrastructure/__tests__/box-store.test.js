@@ -56,23 +56,21 @@ const partitionsData = [
   ]
 ];
 
-const setUpFirestoreData = async firestore => {
-  const batch = firestore.batch();
-  batch.set(firestore.collection("boxes").doc("testId"), {
-    sessionDay: 1,
-    sessionScore: 5
-  });
-  partitionsData.forEach((partition, index) => {
-    const partitionRef = firestore
-      .collection("boxes")
-      .doc("testId")
-      .collection(`partition${index + 1}`);
-    partition.forEach(({ id, question, answer }) => {
-      batch.set(partitionRef.doc(id), { id, question, answer });
+const setUpFirestoreData = firestore =>
+  firestore
+    .collection("boxes")
+    .doc("testId")
+    .set({
+      sessionDay: 1,
+      sessionScore: 5,
+      partitions: partitionsData.reduce(
+        (partitionsMap, partition, index) => ({
+          ...partitionsMap,
+          [index]: partition
+        }),
+        {}
+      )
     });
-  });
-  return batch.commit();
-};
 
 describe("BoxStore", () => {
   describe("firestore", () => {
@@ -108,13 +106,13 @@ describe("BoxStore", () => {
       });
       await boxStore.save(
         createBox({
-          id: "testId2",
+          id: "testId",
           partitions: partitionsData,
           sessionDay: 2,
           sessionScore: 4
         })
       );
-      const retrievedBox = await boxStore.get("testId2");
+      const retrievedBox = await boxStore.get("testId");
       expect(retrievedBox.partitions).toEqual(partitionsData);
       expect(retrievedBox.sessionDay).toEqual(2);
       expect(retrievedBox.sessionScore).toEqual(4);

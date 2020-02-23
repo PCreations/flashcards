@@ -27,6 +27,27 @@ const createBox = ({
     sessionDay,
     partitions.toArray()
   );
+
+  const submitRightAnswer = ({ flashcardId } = {}) =>
+    createBox({
+      id,
+      partitions: partitions
+        .moveFlashcardToItsNextPartition({ id: flashcardId })
+        .toArray(),
+      sessionDay,
+      sessionScore: sessionScore + 1
+    });
+
+  const submitWrongAnswer = ({ flashcardId } = {}) =>
+    createBox({
+      id,
+      partitions: partitions
+        .moveFlashcard({ id: flashcardId, toPartitionIndex: 0 })
+        .toArray(),
+      sessionDay,
+      sessionScore
+    });
+
   const box = {
     id,
     partitions: partitions.toArray(),
@@ -50,15 +71,10 @@ const createBox = ({
         sessionFlashcards
       });
     },
-    submitRightAnswer({ flashcardId } = {}) {
-      return createBox({
-        id,
-        partitions: partitions
-          .moveFlashcardToItsNextPartition({ id: flashcardId })
-          .toArray(),
-        sessionDay,
-        sessionScore: sessionScore + 1
-      });
+    submitAnswer({ flashcardId, isAnswerRight } = {}) {
+      return isAnswerRight
+        ? submitRightAnswer({ flashcardId })
+        : submitWrongAnswer({ flashcardId });
     }
   };
   return box;

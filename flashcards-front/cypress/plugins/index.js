@@ -17,7 +17,15 @@ module.exports = (on, config) => {
           partitions,
           sessionDay
         })
-        .then(res => res.data);
+        .then(res => res.data)
+        .then(data => {
+          console.log("seed response", data);
+          return data;
+        })
+        .catch(err => {
+          console.log("seed err", err.message);
+          return err;
+        });
     }
   });
 
