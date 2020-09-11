@@ -46,7 +46,7 @@
     "eslint-plugin-cypress": "^2.8.1",
     "firebase-tools": "^7.12.1",
     "husky": "^4.2.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "react-test-renderer": "^16.12.0"
   }
 }
