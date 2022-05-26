@@ -6,7 +6,7 @@
     "deploy": "firebase deploy"
   },
   "dependencies": {
-    "convict": "^5.2.0",
+    "convict": "^6.2.3",
     "cors": "^2.8.5",
     "env-path": "^1.0.7",
     "express": "^4.17.1",
